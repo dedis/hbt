@@ -1,3 +1,5 @@
 <resources>
-  <string name="app_name">Hbt</string>
+  <string name="app_name">HBT</string>
+    <string name="tab_text_1">User ID</string>
+    <string name="tab_text_2">Wallet</string>
 </resources>
