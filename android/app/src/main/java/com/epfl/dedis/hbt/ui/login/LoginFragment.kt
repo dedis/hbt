@@ -17,6 +17,11 @@ import com.epfl.dedis.hbt.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment() {
 
+    companion object {
+        fun newInstance() = LoginFragment().apply {
+        }
+    }
+
     private lateinit var loginViewModel: LoginViewModel
     private var _binding: FragmentLoginBinding? = null
 
