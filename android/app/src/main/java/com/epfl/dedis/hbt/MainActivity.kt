@@ -6,7 +6,9 @@ import androidx.viewpager.widget.ViewPager
 import com.epfl.dedis.hbt.databinding.ActivityMainBinding
 import com.epfl.dedis.hbt.ui.main.SectionsPagerAdapter
 import com.google.android.material.tabs.TabLayout
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding

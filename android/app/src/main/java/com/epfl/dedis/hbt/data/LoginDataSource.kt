@@ -2,11 +2,14 @@ package com.epfl.dedis.hbt.data
 
 import com.epfl.dedis.hbt.data.model.LoggedInUser
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-class LoginDataSource {
+@Singleton
+class LoginDataSource @Inject constructor() {
 
     fun login(username: String, pincode: String): Result<LoggedInUser> {
         try {
