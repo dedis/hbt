@@ -34,7 +34,7 @@
     android:layout_marginEnd="24dp"
     android:autofillHints="@string/prompt_pin_code"
     android:hint="@string/prompt_pin_code"
-    android:imeActionLabel="@string/action_sign_in_short"
+    android:imeActionLabel="@string/action_sign_in"
     android:imeOptions="actionDone"
     android:inputType="number"
     android:minHeight="48dp"
@@ -56,23 +56,24 @@
     android:text="@string/action_sign_in"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.495"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/pincode"
-    app:layout_constraintVertical_bias="0.5" />
+    app:layout_constraintVertical_bias="0.617" />
 
-  <ProgressBar
-    android:id="@+id/loading"
+  <Button
+    android:id="@+id/register"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:layout_marginStart="32dp"
-    android:layout_marginTop="64dp"
-    android:layout_marginEnd="32dp"
-    android:layout_marginBottom="64dp"
-    android:visibility="gone"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="@+id/pincode"
-    app:layout_constraintStart_toStartOf="@+id/pincode"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.3" />
+    android:layout_gravity="start"
+    android:layout_marginStart="48dp"
+    android:layout_marginEnd="48dp"
+    android:layout_marginTop="16dp"
+    android:enabled="false"
+    android:text="@string/action_register"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.495"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/login" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

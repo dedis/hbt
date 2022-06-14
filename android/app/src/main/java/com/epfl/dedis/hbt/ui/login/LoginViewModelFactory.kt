@@ -3,7 +3,7 @@ package com.epfl.dedis.hbt.ui.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.epfl.dedis.hbt.data.LoginDataSource
-import com.epfl.dedis.hbt.data.LoginRepository
+import com.epfl.dedis.hbt.data.UserRepository
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.
@@ -15,7 +15,7 @@ class LoginViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel(
-                loginRepository = LoginRepository(
+                userRepository = UserRepository(
                     dataSource = LoginDataSource()
                 )
             ) as T

@@ -5,8 +5,8 @@
   <!-- Strings related to login -->
   <string name="prompt_user_name">User name</string>
   <string name="prompt_pin_code">PIN code</string>
-  <string name="action_sign_in">Sign in or register</string>
-  <string name="action_sign_in_short">Sign in</string>
+  <string name="action_sign_in">Sign in</string>
+  <string name="action_register">Register</string>
   <string name="welcome">"Welcome!"</string>
   <string name="invalid_username">Username cannot be empty</string>
   <string name="invalid_pin_code">PIN code must be between 4 and 9 digits</string>

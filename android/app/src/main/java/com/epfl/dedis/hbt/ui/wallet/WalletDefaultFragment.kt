@@ -23,9 +23,9 @@ class WalletDefaultFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_wallet_default, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(WalletDefaultViewModel::class.java)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[WalletDefaultViewModel::class.java]
         // TODO: Use the ViewModel
     }
 
