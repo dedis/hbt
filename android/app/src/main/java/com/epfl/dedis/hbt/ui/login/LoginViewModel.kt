@@ -21,7 +21,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
         if (result is Result.Success) {
             _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+                LoginResult(success = LoggedInUserView(displayName = result.data.name))
         } else {
             _loginResult.value = LoginResult(error = R.string.login_failed)
         }
@@ -44,6 +44,6 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     // A placeholder password validation check
     private fun isPincode(pincode: String): Boolean {
-        return pincode.length >= 4
+        return pincode.length in 4..9
     }
 }

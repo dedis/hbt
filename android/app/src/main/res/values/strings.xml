@@ -9,6 +9,6 @@
   <string name="action_sign_in_short">Sign in</string>
   <string name="welcome">"Welcome!"</string>
   <string name="invalid_username">Username cannot be empty</string>
-  <string name="invalid_pin_code">PIN code must be >=4 digits</string>
+  <string name="invalid_pin_code">PIN code must be between 4 and 9 digits</string>
   <string name="login_failed">"Login failed"</string>
 </resources>
