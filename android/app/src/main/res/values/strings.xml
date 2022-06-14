@@ -11,4 +11,7 @@
   <string name="invalid_username">Username cannot be empty</string>
   <string name="invalid_pin_code">PIN code must be between 4 and 9 digits</string>
   <string name="login_failed">"Login failed"</string>
+  <string name="textview">Scanning ID card</string>
+  <string name="role_beneficiary">Beneficiary</string>
+  <string name="role_merchant">Merchant</string>
 </resources>

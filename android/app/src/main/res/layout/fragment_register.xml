@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/container"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingHorizontal="@dimen/fragment_horizontal_margin"
+  android:paddingVertical="@dimen/fragment_vertical_margin"
+  tools:context=".ui.register.RegisterFragment">
+
+  <EditText
+    android:id="@+id/username"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="96dp"
+    android:layout_marginEnd="24dp"
+    android:autofillHints="@string/prompt_user_name"
+    android:hint="@string/prompt_user_name"
+    android:inputType="textPersonName"
+    android:minHeight="48dp"
+    android:selectAllOnFocus="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <EditText
+    android:id="@+id/pincode"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="24dp"
+    android:autofillHints="@string/prompt_pin_code"
+    android:hint="@string/prompt_pin_code"
+    android:imeActionLabel="@string/action_sign_in"
+    android:imeOptions="actionDone"
+    android:inputType="number"
+    android:minHeight="48dp"
+    android:selectAllOnFocus="true"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/username" />
+
+  <TextView
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:foregroundGravity="center"
+    android:gravity="center"
+    android:text="@string/textview"
+    android:textSize="24sp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
+  <RadioGroup
+    android:id="@+id/radioGroup"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/pincode">
+
+    <RadioButton
+      android:id="@+id/radioButtonBeneficiary"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="@string/role_beneficiary" />
+
+    <RadioButton
+      android:id="@+id/radioButtonMerchant"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/role_merchant" />
+  </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
