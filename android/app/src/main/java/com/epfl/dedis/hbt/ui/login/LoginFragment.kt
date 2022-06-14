@@ -45,7 +45,7 @@ class LoginFragment : Fragment() {
             .get(LoginViewModel::class.java)
 
         val usernameEditText = binding.username
-        val pincodeEditText = binding.pincode
+        val passwordEditText = binding.pincode
         val loginButton = binding.login
         val loadingProgressBar = binding.loading
 
@@ -59,7 +59,7 @@ class LoginFragment : Fragment() {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.pincodeError?.let {
-                    pincodeEditText.error = getString(it)
+                    passwordEditText.error = getString(it)
                 }
             })
 
@@ -87,17 +87,17 @@ class LoginFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 loginViewModel.loginDataChanged(
                     usernameEditText.text.toString(),
-                    pincodeEditText.text.toString()
+                    passwordEditText.text.toString()
                 )
             }
         }
         usernameEditText.addTextChangedListener(afterTextChangedListener)
-        pincodeEditText.addTextChangedListener(afterTextChangedListener)
-        pincodeEditText.setOnEditorActionListener { _, actionId, _ ->
+        passwordEditText.addTextChangedListener(afterTextChangedListener)
+        passwordEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 loginViewModel.login(
                     usernameEditText.text.toString(),
-                    pincodeEditText.text.toString()
+                    passwordEditText.text.toString()
                 )
             }
             false
@@ -107,7 +107,7 @@ class LoginFragment : Fragment() {
             loadingProgressBar.visibility = View.VISIBLE
             loginViewModel.login(
                 usernameEditText.text.toString(),
-                pincodeEditText.text.toString()
+                passwordEditText.text.toString()
             )
         }
     }

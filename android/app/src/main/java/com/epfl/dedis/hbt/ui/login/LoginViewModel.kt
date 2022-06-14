@@ -1,6 +1,5 @@
 package com.epfl.dedis.hbt.ui.login
 
-import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,9 +15,9 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
-    fun login(username: String, pincode: String) {
+    fun login(username: String, password: String) {
         // can be launched in a separate asynchronous job
-        val result = loginRepository.login(username, pincode)
+        val result = loginRepository.login(username, password)
 
         if (result is Result.Success) {
             _loginResult.value =
@@ -31,7 +30,7 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
     fun loginDataChanged(username: String, pincode: String) {
         if (!isUserNameValid(username)) {
             _loginForm.value = LoginFormState(usernameError = R.string.invalid_username)
-        } else if (!isPasswordValid(pincode)) {
+        } else if (!isPincode(pincode)) {
             _loginForm.value = LoginFormState(pincodeError = R.string.invalid_pin_code)
         } else {
             _loginForm.value = LoginFormState(isDataValid = true)
@@ -40,15 +39,11 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
 
     // A placeholder username validation check
     private fun isUserNameValid(username: String): Boolean {
-        return if (username.contains("@")) {
-            Patterns.EMAIL_ADDRESS.matcher(username).matches()
-        } else {
-            username.isNotBlank()
-        }
+        return username.isNotBlank()
     }
 
     // A placeholder password validation check
-    private fun isPasswordValid(password: String): Boolean {
-        return password.length > 5
+    private fun isPincode(pincode: String): Boolean {
+        return pincode.length >= 4
     }
 }

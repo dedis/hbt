@@ -22,16 +22,10 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
-        var fragment = when (position) {
-            0 -> {
-                LoginFragment.newInstance()
-            }
-            1 -> {
-                WalletDefaultFragment.newInstance()
-            }
-            else -> {
-                TODO("Tab number $position is not setup.")
-            }
+        val fragment = when (position) {
+            0 -> LoginFragment.newInstance()
+            1 -> WalletDefaultFragment.newInstance()
+            else -> TODO("Tab number $position is not setup.")
         }
         return fragment
     }
