@@ -45,7 +45,7 @@ class LoginFragment : Fragment() {
             .get(LoginViewModel::class.java)
 
         val usernameEditText = binding.username
-        val passwordEditText = binding.password
+        val pincodeEditText = binding.pincode
         val loginButton = binding.login
         val loadingProgressBar = binding.loading
 
@@ -58,8 +58,8 @@ class LoginFragment : Fragment() {
                 loginFormState.usernameError?.let {
                     usernameEditText.error = getString(it)
                 }
-                loginFormState.passwordError?.let {
-                    passwordEditText.error = getString(it)
+                loginFormState.pincodeError?.let {
+                    pincodeEditText.error = getString(it)
                 }
             })
 
@@ -87,17 +87,17 @@ class LoginFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 loginViewModel.loginDataChanged(
                     usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
+                    pincodeEditText.text.toString()
                 )
             }
         }
         usernameEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+        pincodeEditText.addTextChangedListener(afterTextChangedListener)
+        pincodeEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 loginViewModel.login(
                     usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
+                    pincodeEditText.text.toString()
                 )
             }
             false
@@ -107,7 +107,7 @@ class LoginFragment : Fragment() {
             loadingProgressBar.visibility = View.VISIBLE
             loginViewModel.login(
                 usernameEditText.text.toString(),
-                passwordEditText.text.toString()
+                pincodeEditText.text.toString()
             )
         }
     }

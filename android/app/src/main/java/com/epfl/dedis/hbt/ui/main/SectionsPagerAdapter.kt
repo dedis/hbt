@@ -9,8 +9,8 @@ import com.epfl.dedis.hbt.ui.login.LoginFragment
 import com.epfl.dedis.hbt.ui.wallet.WalletDefaultFragment
 
 private val TAB_TITLES = arrayOf(
-    R.string.tab_text_1,
-    R.string.tab_text_2
+    R.string.tab_user_name,
+    R.string.tab_wallet
 )
 
 /**
@@ -29,7 +29,9 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
             1 -> {
                 WalletDefaultFragment.newInstance()
             }
-            else -> throw Exception("Only 2 tabs supported for now !!!")
+            else -> {
+                TODO("Tab number $position is not setup.")
+            }
         }
         return fragment
     }

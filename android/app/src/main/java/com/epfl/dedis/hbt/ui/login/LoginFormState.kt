@@ -5,6 +5,6 @@ package com.epfl.dedis.hbt.ui.login
  */
 data class LoginFormState(
     val usernameError: Int? = null,
-    val passwordError: Int? = null,
+    val pincodeError: Int? = null,
     val isDataValid: Boolean = false
 )

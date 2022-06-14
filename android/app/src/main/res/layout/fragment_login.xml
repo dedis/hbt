@@ -7,8 +7,8 @@
   android:layout_height="match_parent"
   android:paddingLeft="@dimen/fragment_horizontal_margin"
   android:paddingTop="@dimen/fragment_vertical_margin"
-  android:paddingRight="@dimen/fragment_horizontal_margin"
-  android:paddingBottom="@dimen/fragment_vertical_margin"
+  android:paddingHorizontal="@dimen/fragment_horizontal_margin"
+  android:paddingVertical="@dimen/fragment_vertical_margin"
   tools:context=".ui.login.LoginFragment">
 
   <EditText
@@ -18,26 +18,26 @@
     android:layout_marginStart="24dp"
     android:layout_marginTop="96dp"
     android:layout_marginEnd="24dp"
-    android:autofillHints="@string/prompt_email"
-    android:hint="@string/prompt_email"
-    android:inputType="textEmailAddress"
+    android:autofillHints="@string/prompt_user_name"
+    android:hint="@string/prompt_user_name"
+    android:inputType="textPersonName"
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
   <EditText
-    android:id="@+id/password"
+    android:id="@+id/pincode"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
     android:layout_marginTop="8dp"
     android:layout_marginEnd="24dp"
-    android:autofillHints="@string/prompt_password"
-    android:hint="@string/prompt_password"
+    android:autofillHints="@string/prompt_pin_code"
+    android:hint="@string/prompt_pin_code"
     android:imeActionLabel="@string/action_sign_in_short"
     android:imeOptions="actionDone"
-    android:inputType="textPassword"
+    android:inputType="number"
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/password"
+    app:layout_constraintTop_toBottomOf="@+id/pincode"
     app:layout_constraintVertical_bias="0.2" />
 
   <ProgressBar
@@ -71,8 +71,8 @@
     android:layout_marginBottom="64dp"
     android:visibility="gone"
     app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="@+id/password"
-    app:layout_constraintStart_toStartOf="@+id/password"
+    app:layout_constraintEnd_toEndOf="@+id/pincode"
+    app:layout_constraintStart_toStartOf="@+id/pincode"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintVertical_bias="0.3" />
 </androidx.constraintlayout.widget.ConstraintLayout>
