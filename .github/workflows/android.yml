@@ -54,19 +54,19 @@ jobs:
         run: |
           # use grep to remove log spam due to jetifier transformation, c.f. https://stackoverflow.com/a/52353446
           # use set -o pipefail to keep error code from gradle, c.f. https://stackoverflow.com/a/37128767
-          ( set -o pipefail; ./gradlew testClasses --parallel --build-cache --info | grep -vE "^Transforming (.*) with (.*)Transform" )
+          ( set -o pipefail; ./gradlew assemble --parallel --build-cache --info | grep -vE "(^Transforming (.*) with (.*)Transform)|(^Caching disabled for (.*)Transform: (.*) because:)|(^  Caching not enabled.)|(^Skipping (.*)Transform: (.*) as it is up-to-date.)|(^Build cache key for (.*)Transform: (.*))" )
       - name: Run tests
         shell: bash
         run: |
           # use grep to remove log spam due to jetifier transformation, c.f. https://stackoverflow.com/a/52353446
           # use set -o pipefail to keep error code from gradle, c.f. https://stackoverflow.com/a/37128767
-          ( set -o pipefail; ./gradlew build --parallel --build-cache --info | grep -vE "^Transforming (.*) with (.*)Transform" )
+          ( set -o pipefail; ./gradlew build --parallel --build-cache --info | grep -vE "(^Transforming (.*) with (.*)Transform)|(^Caching disabled for (.*)Transform: (.*) because:)|(^  Caching not enabled.)|(^Skipping (.*)Transform: (.*) as it is up-to-date.)|(^Build cache key for (.*)Transform: (.*))" )
       # - name: Generate Coverage Report
         # shell: bash
         # run: |
           # # use grep to remove log spam due to jetifier transformation, c.f. https://stackoverflow.com/a/52353446
           # # use set -o pipefail to keep error code from gradle, c.f. https://stackoverflow.com/a/37128767
-          # ( set -o pipefail; ./gradlew jacocoTestReport --parallel --build-cache --info | grep -vE "^Transforming (.*) with (.*)Transform" )
+          # ( set -o pipefail; ./gradlew jacocoTestReport --parallel --build-cache --info | grep -vE "(^Transforming (.*) with (.*)Transform)|(^Caching disabled for (.*)Transform: (.*) because:)|(^  Caching not enabled.)|(^Skipping (.*)Transform: (.*) as it is up-to-date.)|(^Build cache key for (.*)Transform: (.*))" )
       - name: Cache SonarCloud packages
         uses: actions/cache@v2
         with:
@@ -80,4 +80,4 @@ jobs:
         # run: |
           # # use grep to remove log spam due to jetifier transformation, c.f. https://stackoverflow.com/a/52353446
           # # use set -o pipefail to keep error code from gradle, c.f. https://stackoverflow.com/a/37128767
-          # ( set -o pipefail; ./gradlew sonarqube --parallel --build-cache --info | grep -vE "^Transforming (.*) with (.*)Transform" )
+          # ( set -o pipefail; ./gradlew sonarqube --parallel --build-cache --info | grep -vE "(^Transforming (.*) with (.*)Transform)|(^Caching disabled for (.*)Transform: (.*) because:)|(^  Caching not enabled.)|(^Skipping (.*)Transform: (.*) as it is up-to-date.)|(^Build cache key for (.*)Transform: (.*))" )
