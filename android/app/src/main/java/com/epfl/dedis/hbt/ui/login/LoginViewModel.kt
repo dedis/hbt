@@ -4,13 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.LoginRepository
 import com.epfl.dedis.hbt.data.Result
+import com.epfl.dedis.hbt.data.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val loginRepository: LoginRepository) :
+class LoginViewModel @Inject constructor(private val userRepository: UserRepository) :
     ViewModel() {
 
     private val _loginForm = MutableLiveData<LoginFormState>()
@@ -19,13 +19,13 @@ class LoginViewModel @Inject constructor(private val loginRepository: LoginRepos
     private val _loginResult = MutableLiveData<LoginResult>()
     val loginResult: LiveData<LoginResult> = _loginResult
 
-    fun login(username: String, password: String) {
+    fun login(username: String, pincode: String) {
         // can be launched in a separate asynchronous job
-        val result = loginRepository.login(username, password)
+        val result = userRepository.login(username, pincode)
 
         if (result is Result.Success) {
             _loginResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.displayName))
+                LoginResult(success = LoggedInUserView(displayName = result.data.name))
         } else {
             _loginResult.value = LoginResult(error = R.string.login_failed)
         }
@@ -48,6 +48,6 @@ class LoginViewModel @Inject constructor(private val loginRepository: LoginRepos
 
     // A placeholder password validation check
     private fun isPincode(pincode: String): Boolean {
-        return pincode.length >= 4
+        return pincode.length in 4..9
     }
 }
