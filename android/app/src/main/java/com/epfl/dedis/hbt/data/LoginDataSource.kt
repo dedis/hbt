@@ -1,21 +1,29 @@
 package com.epfl.dedis.hbt.data
 
-import com.epfl.dedis.hbt.data.model.LoggedInUser
-import java.io.IOException
+import com.epfl.dedis.hbt.data.model.User
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
 class LoginDataSource {
 
-    fun login(username: String, pincode: String): Result<LoggedInUser> {
-        try {
-            // TODO: handle loggedInUser authentication
-            val fakeUser = LoggedInUser(java.util.UUID.randomUUID().toString(), "Jane Doe")
-            return Result.Success(fakeUser)
-        } catch (e: Throwable) {
-            return Result.Error(IOException("Error logging in", e))
-        }
+    private val users: MutableMap<String, User> = mutableMapOf()
+
+    private fun register(username: String, pincode: Int): Result<User> {
+        if (users.containsKey(username)) return Result.Error(Exception("Already registered"))
+
+        val user = User(username, pincode)
+        users[username] = user
+
+        return Result.Success(user)
+    }
+
+    fun login(username: String, pincode: Int): Result<User> {
+        val user = users[username]
+
+        // TODO return Result.Error(Exception("Not registered"))
+        return if (user == null) register(username, pincode)
+        else Result.Success(user)
     }
 
     fun logout() {
