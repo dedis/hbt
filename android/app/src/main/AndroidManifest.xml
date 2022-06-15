@@ -8,6 +8,7 @@
     android:name="android.hardware.nfc"
     android:required="true" />
   <application
+    android:name=".HBTApplication"
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
     android:fullBackupContent="@xml/backup_rules"
