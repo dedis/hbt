@@ -54,7 +54,10 @@ class LoginFragment : Fragment() {
                 if (loginFormState == null) {
                     return@Observer
                 }
-                loginButton.isEnabled = loginFormState.isDataValid
+                loginButton.isEnabled =
+                    loginFormState.isDataValid && loginFormState.isUserRegistered
+                registerButton.isEnabled = !loginFormState.isUserRegistered
+
                 loginFormState.usernameError?.let {
                     usernameEditText.error = getString(it)
                 }

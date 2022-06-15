@@ -32,13 +32,20 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
     }
 
     fun loginDataChanged(username: String, pincode: String) {
-        if (!isUserNameValid(username)) {
+        if (!isUserRegistered(username)) {
+            _loginForm.value = LoginFormState(isUserRegistered = false)
+        } else if (!isUserNameValid(username)) {
             _loginForm.value = LoginFormState(usernameError = R.string.invalid_username)
         } else if (!isPincode(pincode)) {
             _loginForm.value = LoginFormState(pincodeError = R.string.invalid_pin_code)
         } else {
             _loginForm.value = LoginFormState(isDataValid = true)
         }
+    }
+
+    // A placeholder username validation check
+    private fun isUserRegistered(username: String): Boolean {
+        return userRepository.isRegistered(username)
     }
 
     // A placeholder username validation check
