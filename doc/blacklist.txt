@@ -1,0 +1,65 @@
+@startuml
+
+participant ClientApp
+participant AdminApp
+
+participant RestAPI
+participant MPC
+
+participant FinancialCt
+participant IdentityCt
+
+
+== Send transaction ==
+
+ClientApp -> RestAPI ++ : sendTx(tx)
+RestAPI -> FinancialCt ++ : sendTx(tx)
+
+FinancialCt -> FinancialCt : check tx signature
+
+FinancialCt -> FinancialCt : check whether fromWallet's\nbalance is sufficient
+group fromWallet balance is not sufficient
+    FinancialCt ->> MPC ++ : blacklist(fromWalletSubID)
+    MPC -> MPC : find mainID and all other subIDs
+    MPC -> RestAPI ++ : blacklistID(list of subID)
+    RestAPI -> IdentityCt ++ : blacklistID(list of subID)
+    return
+    return
+    deactivate MPC
+end
+
+FinancialCt -> FinancialCt : check tx not yet seen
+
+FinancialCt -> FinancialCt : check whether toWallet is new
+group toWallet is new
+    FinancialCt ->> MPC ++ : checkIfBlacklisted(toWalletSubID)
+    MPC -> MPC : find mainID
+    group mainID is blacklisted
+        MPC -> RestAPI ++ : blacklistID(subID)
+        RestAPI -> IdentityCt ++ : blacklistID(subID)
+        return
+        return
+    end
+    deactivate MPC
+end
+
+FinancialCt -> IdentityCt ++ : isBlacklisted(fromWalletSubID)
+return result
+FinancialCt -> IdentityCt ++ : isBlacklisted(toWalletSubID)
+return result
+
+group fromWallet and toWallet are not blacklisted
+    FinancialCt -> FinancialCt : update fromWallet and toWallet balances
+end
+
+return
+return
+
+== Admin blacklists a user ==
+
+AdminApp -> RestAPI ++ : blacklistID(subID)
+RestAPI -> IdentityCt ++ : blacklistID(subID)
+return
+return
+
+@enduml

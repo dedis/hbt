@@ -1,0 +1,53 @@
+@startuml
+
+participant ClientApp
+participant AdminApp
+
+participant RestAPI
+participant MPC
+
+participant FinancialCt
+participant IdentityCt
+
+== New registration ==
+
+ClientApp -> RestAPI ++ : registerID(id)
+RestAPI -> IdentityCt ++ : registerID(id)
+IdentityCt ->> MPC ++ : registerID(id)
+MPC -> MPC: process registration
+IdentityCt --> RestAPI
+deactivate IdentityCt
+RestAPI --> ClientApp
+deactivate RestAPI
+deactivate MPC
+
+== Registration is not yet approved ==
+
+ClientApp -> RestAPI ++ : getStatus(id)
+RestAPI -> IdentityCt ++ : getStatus(id)
+return not approved
+return not approved
+
+== Admin approves registration ==
+
+AdminApp -> RestAPI ++ : getPendingIDs()
+RestAPI -> IdentityCt ++ : getPendingIDs()
+return pending IDs
+return pending IDs
+
+AdminApp -> RestAPI ++ : approveID(id)
+RestAPI -> IdentityCt ++: approveID(id)
+IdentityCt -> MPC ++: approveID(id)
+MPC -> MPC: process approval
+return sig
+return
+return
+
+== Registration is approved ==
+
+ClientApp -> RestAPI ++ : getStatus(id)
+RestAPI -> IdentityCt ++ : getStatus(id)
+return approved, sig
+return approved, sig
+
+@enduml
