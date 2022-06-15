@@ -20,7 +20,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-
     defaults:
       run:
         working-directory: ./android
@@ -73,7 +72,7 @@ jobs:
 
       - name: SonarCloud Analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ANDROID}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ANDROID}}
         run: |
           # To run the CI with debug informations, use --info
           ./gradlew sonarqube --parallel --build-cache
