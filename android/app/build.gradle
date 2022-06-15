@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.sonarqube'
+    id 'jacoco'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
 }
@@ -23,6 +25,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+
+        debug {
+            testCoverageEnabled true
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -41,8 +47,69 @@ android {
     }
 }
 
-dependencies {
+sonarqube {
+    properties {
+        property "sonar.projectKey", "hbt-android"
+        property "sonar.organization", "dedis"
+        property "sonar.host.url", "https://sonarcloud.io"
+        // Comma-separated paths to the various directories containing the *.xml JUnit report files. Each path may be absolute or relative to the project base directory.
+        property "sonar.junit.reportPaths", "${project.buildDir}/test-results/testDebugUnitTest/"
+        // Paths to xml files with Android Lint issues. If the main flavor is changed, this file will have to be changed too.
+        property "sonar.androidLint.reportPaths", "${project.buildDir}/reports/lint-results-debug.xml"
+        // Paths to JaCoCo XML coverage report files.
+        property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+    }
+}
 
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['check']) {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    def fileFilter = [
+        '**/R.class',
+        '**/R$*.class',
+        '**/BuildConfig.*',
+        '**/Manifest*.*',
+        '**/*Test*.*',
+        'androidx/**/*.*',
+        // Exclude Hilt generated classes
+        '*_*Factory.class',
+        '*_ComponentTreeDeps.class',
+        '*_Factory.class',
+        '*_GeneratedInjector.class',
+        '*_HiltComponents.class',
+        '*_HiltModules.class',
+        '*_HiltModules_BindsModule.class',
+        '*_HiltModules_KeyModule.class',
+        '*_MembersInjector.class',
+        '*_ProvideFactory.class',
+        '*_SingletonC.class',
+        '*_TestComponentDataSupplier.class',
+        'BR.class',
+        'BuildConfig.class',
+        'DataBinderMapperImpl.class',
+        'Hilt_*.class',
+        '_test_*.class'
+    ]
+    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def mainSrc = "$project.projectDir/src/main/java"
+
+    sourceDirectories.setFrom(files([mainSrc]))
+    classDirectories.setFrom(files([debugTree]))
+    executionData.setFrom(fileTree(dir: project.buildDir, includes: [
+        'outputs/unit_test_code_coverage/*/*.exec',
+        'outputs/code_coverage/*/connected/**/*.ec',
+    ]))
+}
+
+dependencies {
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
