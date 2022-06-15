@@ -52,18 +52,18 @@ jobs:
       - name: Build App
         shell: bash
         run: |
-          # to run the CI with debug informations, add --info
+          # To run the CI with debug informations, add --info
           ./gradlew assemble --parallel --build-cache
       - name: Run tests
         shell: bash
         run: |
-          # to run the CI with debug informations, add --info
+          # To run the CI with debug informations, add --info
           ./gradlew check --parallel --build-cache
-      # - name: Generate Coverage Report
-        # shell: bash
-        # run: |
-          # # to run the CI with debug informations, use --info
-          # ./gradlew jacocoTestReport --parallel --build-cache
+      - name: Generate Coverage Report
+        shell: bash
+        run: |
+          # To run the CI with debug informations, use --info
+          ./gradlew jacocoTestReport --parallel --build-cache
       - name: Cache SonarCloud packages
         uses: actions/cache@v2
         with:
@@ -73,7 +73,7 @@ jobs:
 
       - name: SonarCloud Analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_ANDROID}
         run: |
-          # to run the CI with debug informations, use --info
+          # To run the CI with debug informations, use --info
           ./gradlew sonarqube --parallel --build-cache
