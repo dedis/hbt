@@ -1,13 +1,16 @@
 package com.epfl.dedis.hbt.data
 
 import com.epfl.dedis.hbt.data.model.User
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
  */
 
-class UserRepository(val dataSource: LoginDataSource) {
+@Singleton
+class UserRepository @Inject constructor(private val dataSource: LoginDataSource) {
 
     // in-memory cache of the loggedInUser object
     var user: User? = null

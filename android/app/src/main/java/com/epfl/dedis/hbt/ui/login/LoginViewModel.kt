@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
 import com.epfl.dedis.hbt.data.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LoginViewModel(private val userRepository: UserRepository) : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(private val userRepository: UserRepository) :
+    ViewModel() {
 
     private val _loginForm = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginForm
