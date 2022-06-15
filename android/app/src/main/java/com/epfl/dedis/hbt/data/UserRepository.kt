@@ -26,13 +26,11 @@ class UserRepository @Inject constructor(private val dataSource: LoginDataSource
     }
 
     fun isRegistered(username: String): Boolean {
-        //TODO implement actual check whether user is registered
-        return false
+        return dataSource.isRegistered(username)
     }
 
     fun logout() {
         user = null
-        dataSource.logout()
     }
 
     fun login(username: String, pincode: String): Result<User> {
