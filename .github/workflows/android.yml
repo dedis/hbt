@@ -71,9 +71,9 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # - name: SonarCloud Analysis
-        # env:
-          # SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        # run: |
-          # # to run the CI with debug informations, use --info
-          # ./gradlew sonarqube --parallel --build-cache
+      - name: SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          # to run the CI with debug informations, use --info
+          ./gradlew sonarqube --parallel --build-cache
