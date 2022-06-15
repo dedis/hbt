@@ -5,39 +5,47 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import com.epfl.dedis.hbt.R
-<<<<<<< HEAD
-import dagger.hilt.android.AndroidEntryPoint
-=======
+import androidx.fragment.app.viewModels
+import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
 import com.epfl.dedis.hbt.utility.NfcReader
->>>>>>> origin/fragment_register
+import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
 
     companion object {
-        fun newInstance() = RegisterFragment()
+        private const val USERNAME = "USERNAME"
+        private const val PINCODE = "PINCODE"
+
+        fun newInstance(username: String?, pincode: String?) = RegisterFragment().apply {
+            val bundle = Bundle()
+            bundle.putString(USERNAME, username)
+            bundle.putString(PINCODE, pincode)
+            arguments = bundle
+        }
     }
 
-    private lateinit var viewModel: RegisterViewModel
+    private val viewModel: RegisterViewModel by viewModels()
     private var nfcReader: NfcReader? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        NfcReader(this.activity).also { nfcReader = it }
-        nfcReader?.start()
+    ): View {
+        nfcReader = NfcReader(this.activity).also {
+            it.start()
+        }
 
-        return inflater.inflate(R.layout.fragment_register, container, false)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[RegisterViewModel::class.java]
-
-        // TODO: Use the ViewModel
+        return FragmentRegisterBinding.inflate(inflater, container, false).apply {
+            // Set the username field to the value given as argument (if present)
+            arguments?.getString(USERNAME)?.let {
+                username.setText(it)
+            }
+            // Same for pincode
+            arguments?.getString(PINCODE)?.let {
+                pincode.setText(it)
+            }
+        }.root
     }
 
     override fun onDestroyView() {
