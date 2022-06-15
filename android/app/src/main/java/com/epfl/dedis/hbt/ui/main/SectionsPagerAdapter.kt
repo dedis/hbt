@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.ui.login.LoginFragment
 import com.epfl.dedis.hbt.ui.wallet.WalletDefaultFragment
+import com.epfl.dedis.hbt.R as HbtR
 
 private val TAB_TITLES = arrayOf(
-    R.string.tab_user_name,
-    R.string.tab_wallet
+    HbtR.string.tab_user_name,
+    HbtR.string.tab_wallet
 )
 
 /**
@@ -18,7 +18,7 @@ private val TAB_TITLES = arrayOf(
  * one of the sections/tabs/pages.
  */
 class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
-    FragmentPagerAdapter(fm) {
+    FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
