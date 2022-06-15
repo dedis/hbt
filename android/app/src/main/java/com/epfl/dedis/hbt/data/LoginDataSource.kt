@@ -1,11 +1,14 @@
 package com.epfl.dedis.hbt.data
 
 import com.epfl.dedis.hbt.data.model.User
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
-class LoginDataSource {
+@Singleton
+class LoginDataSource @Inject constructor() {
 
     private val users: MutableMap<String, User> = mutableMapOf()
 
