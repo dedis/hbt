@@ -13,6 +13,7 @@ import com.epfl.dedis.hbt.databinding.FragmentMainBinding
 import com.epfl.dedis.hbt.ui.login.LoginFragment
 import com.epfl.dedis.hbt.ui.wallet.WalletDefaultFragment
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 
 // Object argument to instantiate the Fragment
 private const val POSITION = "position"
@@ -28,6 +29,7 @@ private val TAB_TITLES = arrayOf(
  * Use the [MainFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class MainFragment : Fragment() {
 
     override fun onCreateView(
