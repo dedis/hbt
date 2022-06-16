@@ -65,6 +65,7 @@ class MainFragment : Fragment() {
     }
 
     companion object {
+
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.
@@ -73,10 +74,10 @@ class MainFragment : Fragment() {
          * @return A new instance of fragment MainFragment.
          */
         @JvmStatic
-        fun newInstance(position: Int?) =
+        fun newInstance(position: Int = 0) =
             MainFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(POSITION, position ?: 0)
+                    putInt(POSITION, position)
                 }
             }
     }

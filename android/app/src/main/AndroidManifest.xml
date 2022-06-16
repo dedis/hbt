@@ -15,6 +15,9 @@
     android:theme="@style/Theme.Hbt"
     tools:targetApi="31">
     <activity
+      android:name=".MainActivity2"
+      android:exported="false" />
+    <activity
       android:name=".ui.MainActivity"
       android:exported="true"
       android:theme="@style/Theme.Hbt.NoActionBar">
