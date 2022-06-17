@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           # To run the CI with debug informations, add --info
-          ./gradlew assemble --parallel --build-cache
+          ./gradlew assemble lint --parallel --build-cache
       - name: Run tests
         shell: bash
         run: |
