@@ -33,7 +33,7 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         nfcReader = NfcReader(this.activity).also {
-            it.start()
+            //TODO: it.start()
         }
 
         return FragmentRegisterBinding.inflate(inflater, container, false).apply {
@@ -49,7 +49,7 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        nfcReader?.stop()
+        //TODO: nfcReader?.stop()
         super.onDestroyView()
     }
 }

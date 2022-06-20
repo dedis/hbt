@@ -14,6 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.FragmentLoginBinding
+import com.epfl.dedis.hbt.ui.MainActivity
+import com.epfl.dedis.hbt.ui.register.RegisterFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -113,7 +115,13 @@ class LoginFragment : Fragment() {
         }
 
         registerButton.setOnClickListener {
-            TODO("Create a register fragment")
+            val rf = RegisterFragment.newInstance(
+                usernameEditText.text.toString(),
+                pincodeEditText.text.toString()
+            )
+            MainActivity.setCurrentFragment(
+                activity?.supportFragmentManager ?: parentFragmentManager, rf
+            )
         }
     }
 
