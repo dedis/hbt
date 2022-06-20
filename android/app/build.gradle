@@ -17,7 +17,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.epfl.dedis.hbt.test.HiltTestRunner"
     }
 
     buildTypes {
@@ -50,6 +50,46 @@ android {
             // Needed to have access to the R class in the unit tests (useful for Robolectric tests)
             includeAndroidResources = true
         }
+    }
+
+    sourceSets {
+        // The project has an unconventional setup to be able to share the test-utility code between the unit test and the android tests.
+        //
+        // For some reason, android gradle does not provide any easy way to setup shared sources.
+        // the current solution is to add everything in the debug build type. This means that the tests can only be run in the debug mode.
+        //
+        // To force the naming of the source folder to something more conventional, the test and
+        // androidTest source set were replaced by testDebug and androidTestDebug.
+        testDebug {
+            java.srcDirs = test.java.srcDirs
+            resources.srcDirs = test.resources.srcDirs
+        }
+
+        androidTestDebug {
+            java.srcDirs = androidTest.java.srcDirs
+            resources.srcDirs = androidTest.resources.srcDirs
+        }
+
+        // And the usual test and androidTest sources were removed
+        test {
+            java.srcDirs = []
+            resources.srcDirs = []
+        }
+
+        androidTest {
+            java.srcDirs = []
+            resources.srcDirs = []
+        }
+    }
+}
+
+// Disable every task related to release unit tests
+project.afterEvaluate {
+    tasks.findAll {
+        var task = it.name.toLowerCase()
+        return task.contains("release") && task.contains("unit")
+    }.forEach {
+        it.enabled = false
     }
 }
 
@@ -88,11 +128,16 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['check']) {
         '**/Manifest*.*',
         '**/*Test*.*',
         'androidx/**/*.*',
+        '**/databinding/*Binding.class',
         // Exclude Hilt generated classes
         '**/*Hilt*.*',
         'hilt_aggregated_deps/**',
-        '**/*_Factory.class',
-        '**/*_MembersInjector.class'
+        '**/*_Factory**',
+        '**/*_MembersInjector.class',
+        'dagger/**',
+        '*_ComponentTreeDeps.class',
+        // Exclude all the files of the test framework
+        'com/epfl/dedis/hbt/test/**'
     ]
     def debugTree = fileTree(dir: "$project.buildDir/intermediates/asm_instrumented_project_classes/debug", excludes: fileFilter)
     def mainSrc = "$project.projectDir/src/main/java"
@@ -114,13 +159,16 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation 'androidx.annotation:annotation:1.4.0'
     implementation 'androidx.fragment:fragment-ktx:1.4.1'
-    testImplementation 'junit:junit:4.13.2'
+
+    debugImplementation 'junit:junit:4.13.2'
+    debugImplementation 'androidx.test.ext:junit-ktx:1.1.3'
+    debugImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    debugImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+
     testImplementation 'org.robolectric:robolectric:4.8'
-    testImplementation 'androidx.test.ext:junit-ktx:1.1.3'
-    testImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     // Hilt libraries
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
-    testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 }
