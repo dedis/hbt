@@ -20,6 +20,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      OPENSSL_DIR: /opt/openssl
+
     defaults:
       run:
         working-directory: ./ledger
@@ -36,11 +39,18 @@ jobs:
         with:
           go-version: '>=1.18'
 
+      - uses: actions/cache@v3
+        id: cache-openssl
+        with:
+          path: ${{ env.OPENSSL_DIR }}
+          key: ${{ runner.os }}-openssl
+
+      # Inspired from https://github.com/sfackler/rust-openssl/blob/master/.github/workflows/ci.yml
       - name: Build OpenSSL
+        if: steps.cache-openssl.outputs.cache-hit != 'true'
         run: |
           url="https://openssl.org/source/openssl-3.0.3.tar.gz"
           OS_COMPILER=linux-x86_64
-          OPENSSL_DIR=/opt/openssl
 
           mkdir /tmp/build
           cd /tmp/build
@@ -49,6 +59,7 @@ jobs:
           make
           make install_sw
 
+      # Inspired from https://github.com/zeromq/libzmq/blob/master/.github/workflows/CI.yaml
       - name: Install ZMQ
         uses: myci-actions/add-deb-repo@10
         with:
