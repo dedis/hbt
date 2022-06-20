@@ -30,7 +30,7 @@ type batcher interface {
 }
 
 // newBatcher returns a new initialized batcher. url must be the REST endpoint,
-// and key must by the filepath to a private key that is allowed to send
+// and key must be the filepath to a private key that is allowed to send
 // batches.
 func newBatcher(url url.URL, keyfilePath string) (batcher, error) {
 	privateKey, err := loadKey(keyfilePath)
