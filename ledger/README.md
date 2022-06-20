@@ -1,3 +1,25 @@
+# Introduction
+
+This folder contains the Sawtooth transaction families. For more about
+transaction families, see the [Sawtooth
+documentation](https://sawtooth.hyperledger.org/docs/1.2/app_developers_guide/overview.html):
+
+> Sawtooth separates the application level from the core system level with
+> **transaction families**, which allows application developers to write in the
+> languages of their choice. Each application defines the custom transaction
+> families for its unique requirements.
+
+In short, transaction families are our custom smart contracts that will be
+deployed on the Sawtooth network.
+
+In a transaction family folder, you will find the following folders:
+
+- **cmd**: contains the CLIs to 1) register the transaction family, 2) send
+  transactions
+- **handler**: holds the smart contract's logic
+- **payload**: defines the contend of the transaction sent to the smart contract
+- **state**: defines the state of the smart contract
+
 ## Prerequisites
 
 1) Install **docker** and **docker-compose**:
