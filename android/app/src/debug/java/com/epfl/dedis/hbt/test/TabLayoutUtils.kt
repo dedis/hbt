@@ -1,4 +1,4 @@
-package com.epfl.dedis.hbt.testutils
+package com.epfl.dedis.hbt.test
 
 import android.view.View
 import androidx.test.espresso.matcher.BoundedMatcher
