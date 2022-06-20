@@ -36,6 +36,19 @@ jobs:
         with:
           go-version: '>=1.18'
 
+      - name: Build OpenSSL
+        run: |
+          url="https://openssl.org/source/openssl-3.0.3.tar.gz"
+          OS_COMPILER=linux-x86_64
+          OPENSSL_DIR=/opt/openssl
+
+          mkdir /tmp/build
+          cd /tmp/build
+          curl -L $url | tar --strip-components=1 -xzf -
+          ./Configure --prefix=$OPENSSL_DIR --libdir=lib $OS_COMPILER -fPIC -g $OS_FLAGS no-shared
+          make
+          make install_sw
+
       - name: Test all
         run: |
           go test -v -coverpkg=./... -coverprofile=coverage.out ./... -json > report.json
