@@ -53,8 +53,13 @@ android {
     }
 
     sourceSets {
-        // The release tests cannot compile as they need the debug-only activity EmptyActivity
-        // This configuration is only there to keep the usual test folder instead of a testDebug folder
+        // The project has an unconventional setup to be able to share the test-utility code between the unit test and the android tests.
+        //
+        // For some reason, android gradle does not provide any easy way to setup shared sources.
+        // the current solution is to add everything in the debug build type. This means that the tests can only be run in the debug mode.
+        //
+        // To force the naming of the source folder to something more conventional, the test and
+        // androidTest source set were replaced by testDebug and androidTestDebug.
         testDebug {
             java.srcDirs = test.java.srcDirs
             resources.srcDirs = test.resources.srcDirs
@@ -65,6 +70,7 @@ android {
             resources.srcDirs = androidTest.resources.srcDirs
         }
 
+        // And the usual test and androidTest sources were removed
         test {
             java.srcDirs = []
             resources.srcDirs = []
