@@ -39,7 +39,7 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
         } else if (!isPincodeValid(pincode)) {
             _registerForm.value = RegisterFormState(pincodeError = R.string.invalid_pin_code)
         } else if (!isPassportValid(passport)) {
-            _registerForm.value = RegisterFormState(pincodeError = R.string.invalid_pin_code)
+            _registerForm.value = RegisterFormState(passportError = R.string.invalid_passport)
         } else {
             _registerForm.value = RegisterFormState(isDataValid = true)
         }
@@ -57,6 +57,6 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
 
     // A placeholder PIN code validation check
     private fun isPassportValid(passport: String): Boolean {
-        return passport.length == 9
+        return passport.length >= 9
     }
 }

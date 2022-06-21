@@ -10,12 +10,12 @@
   tools:context=".ui.register.RegisterFragment">
 
   <EditText
-    android:id="@+id/username"
+    android:id="@+id/register_username"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="24dp"
     android:layout_marginEnd="24dp"
+    android:layout_marginTop="8dp"
     android:autofillHints="@string/prompt_user_name"
     android:hint="@string/prompt_user_name"
     android:inputType="textPersonName"
@@ -26,12 +26,12 @@
     app:layout_constraintTop_toTopOf="parent" />
 
   <EditText
-    android:id="@+id/pincode"
+    android:id="@+id/register_pincode"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="8dp"
     android:layout_marginEnd="24dp"
+    android:layout_marginTop="8dp"
     android:autofillHints="@string/prompt_pin_code"
     android:hint="@string/prompt_pin_code"
     android:imeActionLabel="@string/action_sign_in"
@@ -41,16 +41,16 @@
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/username" />
+    app:layout_constraintTop_toBottomOf="@+id/register_username" />
 
   <RadioGroup
     android:id="@+id/radioGroup"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="24dp"
+    android:layout_marginTop="8dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/pincode">
+    app:layout_constraintTop_toBottomOf="@+id/register_passport">
 
     <RadioButton
       android:id="@+id/radioButtonBeneficiary"
@@ -66,47 +66,32 @@
       android:text="@string/role_merchant" />
   </RadioGroup>
 
-  <TextView
-    android:id="@+id/textView"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="@string/textview"
-    android:textSize="24sp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/radioGroup"
-    app:layout_constraintVertical_bias="0.33" />
-
   <EditText
-    android:id="@+id/passport"
+    android:id="@+id/register_passport"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
     android:autofillHints="@string/hint_passport_number"
     android:hint="@string/hint_passport_number"
     android:importantForAutofill="auto"
-    android:inputType="number|textCapWords"
+    android:inputType="textCapWords"
     android:minHeight="48dp"
     android:textColorHint="#757575"
-    app:layout_constraintBottom_toTopOf="@+id/textView"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+    app:layout_constraintTop_toBottomOf="@+id/register_pincode" />
 
   <Button
-    android:id="@+id/register"
-    android:layout_width="wrap_content"
+    android:id="@+id/register_register"
+    android:layout_width="204dp"
     android:layout_height="wrap_content"
-    android:layout_gravity="start"
     android:layout_marginStart="48dp"
+    android:layout_marginTop="8dp"
     android:layout_marginEnd="48dp"
     android:enabled="false"
     android:text="@string/action_register"
-    android:visibility="gone"
-    app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/radioGroup"
-    app:layout_constraintVertical_bias="0.33" />
+    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

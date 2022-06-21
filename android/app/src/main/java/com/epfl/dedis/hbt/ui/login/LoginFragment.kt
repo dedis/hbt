@@ -44,12 +44,13 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val usernameEditText = binding.username
-        val pincodeEditText = binding.pincode
-        val loginButton = binding.login
-        val registerButton = binding.register
+        val usernameEditText = binding.loginUsername
+        val pincodeEditText = binding.loginPincode
+        val loginButton = binding.loginSignin
+        val registerButton = binding.loginRegister
 
-        loginViewModel.loginFormState.observe(viewLifecycleOwner,
+        loginViewModel.loginFormState.observe(
+            viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
