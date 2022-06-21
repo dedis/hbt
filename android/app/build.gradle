@@ -118,11 +118,16 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['check']) {
         '**/Manifest*.*',
         '**/*Test*.*',
         'androidx/**/*.*',
+        '**/databinding/*Binding.class',
         // Exclude Hilt generated classes
         '**/*Hilt*.*',
         'hilt_aggregated_deps/**',
-        '**/*_Factory.class',
-        '**/*_MembersInjector.class'
+        '**/*_Factory**',
+        '**/*_MembersInjector.class',
+        'dagger/**',
+        '*_ComponentTreeDeps.class',
+        // Exclude all the files of the test framework
+        'com/epfl/dedis/hbt/test/**'
     ]
     def debugTree = fileTree(dir: "$project.buildDir/intermediates/asm_instrumented_project_classes/debug", excludes: fileFilter)
     def mainSrc = "$project.projectDir/src/main/java"
