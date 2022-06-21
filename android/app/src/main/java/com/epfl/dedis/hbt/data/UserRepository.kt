@@ -33,6 +33,17 @@ class UserRepository @Inject constructor(private val dataSource: LoginDataSource
         user = null
     }
 
+    fun register(username: String, pincode: String, passport: String): Result<User> {
+        val pin = pincode.toIntOrNull() ?: return Result.Error(NumberFormatException())
+        val result = dataSource.register(username, pin, passport)
+
+        if (result is Result.Success) {
+            setLoggedInUser(result.data)
+        }
+
+        return result
+    }
+
     fun login(username: String, pincode: String): Result<User> {
         // handle login
         val pin = pincode.toIntOrNull() ?: return Result.Error(NumberFormatException())

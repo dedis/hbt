@@ -12,15 +12,14 @@ class LoginDataSource @Inject constructor() {
 
     private val users: MutableMap<String, User> = mutableMapOf()
 
-
     fun isRegistered(username: String): Boolean {
         return users.containsKey(username)
     }
 
-    private fun register(username: String, pincode: Int): Result<User> {
+    fun register(username: String, pincode: Int, passport: String): Result<User> {
         if (isRegistered(username)) return Result.Error(Exception("Already registered"))
 
-        val user = User(username, pincode)
+        val user = User(username, pincode, passport)
         users[username] = user
 
         return Result.Success(user)

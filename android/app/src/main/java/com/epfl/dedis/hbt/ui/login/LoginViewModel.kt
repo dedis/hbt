@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(private val userRepository: UserReposit
 
     // A placeholder username validation check
     private fun isUserNameValid(username: String): Boolean {
-        return username.isNotBlank()
+        return username.length >= 2
     }
 
     // A placeholder PIN code validation check

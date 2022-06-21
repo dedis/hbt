@@ -11,7 +11,10 @@
   <string name="invalid_username">Username cannot be empty</string>
   <string name="invalid_pin_code">PIN code must be between 4 and 9 digits</string>
   <string name="login_failed">"Login failed"</string>
-  <string name="textview">Scanning ID card</string>
+  <!-- Strings related to register -->
+  <string name="textview">Scanning passport</string>
   <string name="role_beneficiary">Beneficiary</string>
   <string name="role_merchant">Merchant</string>
+  <string name="pass_number">Passport Number</string>
+  <string name="hint_passport_number">10AB12345</string>
 </resources>

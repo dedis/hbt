@@ -78,6 +78,21 @@
     app:layout_constraintTop_toBottomOf="@+id/radioGroup"
     app:layout_constraintVertical_bias="0.33" />
 
+  <EditText
+    android:id="@+id/passport"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:autofillHints="@string/hint_passport_number"
+    android:hint="@string/hint_passport_number"
+    android:importantForAutofill="auto"
+    android:inputType="number|textCapWords"
+    android:minHeight="48dp"
+    android:textColorHint="#757575"
+    app:layout_constraintBottom_toTopOf="@+id/textView"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+
   <Button
     android:id="@+id/register"
     android:layout_width="wrap_content"
