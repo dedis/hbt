@@ -5,5 +5,6 @@ package com.epfl.dedis.hbt.data.model
  */
 data class User(
     val name: String,
-    val pincode: Int
+    val pincode: Int,
+    val passport: String
 )

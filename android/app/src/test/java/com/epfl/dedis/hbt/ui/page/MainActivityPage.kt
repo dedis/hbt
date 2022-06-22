@@ -2,12 +2,11 @@ package com.epfl.dedis.hbt.ui.page
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import com.epfl.dedis.hbt.R
 
 object MainActivityPage {
 
     const val loginScreenIndex = 0
 
-    fun tabLayout() = onView(withId(R.id.main_tab_layout))
+    fun tabLayout() = onView(withId(androidx.fragment.R.id.fragment_container_view_tag))
 
 }

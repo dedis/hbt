@@ -13,8 +13,7 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(private val dataSource: LoginDataSource) {
 
     // in-memory cache of the loggedInUser object
-    var user: User? = null
-        private set
+    private var user: User? = null
 
     val isLoggedIn: Boolean
         get() = user != null
@@ -25,9 +24,23 @@ class UserRepository @Inject constructor(private val dataSource: LoginDataSource
         user = null
     }
 
+    fun isRegistered(username: String): Boolean {
+        return dataSource.isRegistered(username)
+    }
+
     fun logout() {
         user = null
-        dataSource.logout()
+    }
+
+    fun register(username: String, pincode: String, passport: String): Result<User> {
+        val pin = pincode.toIntOrNull() ?: return Result.Error(NumberFormatException())
+        val result = dataSource.register(username, pin, passport)
+
+        if (result is Result.Success) {
+            setLoggedInUser(result.data)
+        }
+
+        return result
     }
 
     fun login(username: String, pincode: String): Result<User> {

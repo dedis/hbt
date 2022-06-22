@@ -1,14 +1,17 @@
 <resources>
   <string name="app_name">HBT</string>
-  <string name="tab_user_name">User ID</string>
-  <string name="tab_wallet">Wallet</string>
   <!-- Strings related to login -->
   <string name="prompt_user_name">User name</string>
   <string name="prompt_pin_code">PIN code</string>
   <string name="action_sign_in">Sign in</string>
   <string name="action_register">Register</string>
   <string name="welcome">"Welcome!"</string>
-  <string name="invalid_username">Username cannot be empty</string>
+  <string name="invalid_username">Username is too short</string>
   <string name="invalid_pin_code">PIN code must be between 4 and 9 digits</string>
   <string name="login_failed">"Login failed"</string>
+  <!-- Strings related to register -->
+  <string name="role_beneficiary">Beneficiary</string>
+  <string name="role_merchant">Merchant</string>
+  <string name="hint_passport_number">10AB12345</string>
+  <string name="invalid_passport">Passport ID too short</string>
 </resources>

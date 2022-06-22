@@ -7,15 +7,15 @@
   android:layout_height="match_parent"
   android:paddingHorizontal="@dimen/fragment_horizontal_margin"
   android:paddingVertical="@dimen/fragment_vertical_margin"
-  tools:context=".ui.login.LoginFragment">
+  tools:context=".ui.register.RegisterFragment">
 
   <EditText
-    android:id="@+id/loginUsername"
+    android:id="@+id/registerUsername"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="24dp"
     android:layout_marginEnd="24dp"
+    android:layout_marginTop="8dp"
     android:autofillHints="@string/prompt_user_name"
     android:hint="@string/prompt_user_name"
     android:inputType="textPersonName"
@@ -26,12 +26,12 @@
     app:layout_constraintTop_toTopOf="parent" />
 
   <EditText
-    android:id="@+id/loginPincode"
+    android:id="@+id/registerPincode"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="8dp"
     android:layout_marginEnd="24dp"
+    android:layout_marginTop="8dp"
     android:autofillHints="@string/prompt_pin_code"
     android:hint="@string/prompt_pin_code"
     android:imeActionLabel="@string/action_sign_in"
@@ -41,37 +41,58 @@
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/loginUsername" />
+    app:layout_constraintTop_toBottomOf="@+id/registerUsername" />
 
-  <Button
-    android:id="@+id/loginSignin"
+  <RadioGroup
+    android:id="@+id/radioGroup"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="start"
-    android:layout_marginStart="48dp"
-    android:layout_marginTop="16dp"
-    android:layout_marginEnd="48dp"
-    android:layout_marginBottom="64dp"
-    android:enabled="false"
-    android:text="@string/action_sign_in"
-    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_marginTop="8dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/loginPincode"
-    app:layout_constraintVertical_bias="0.33" />
+    app:layout_constraintTop_toBottomOf="@+id/registerPassport">
 
-  <Button
-    android:id="@+id/loginRegister"
+    <RadioButton
+      android:id="@+id/radioButtonBeneficiary"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:checked="true"
+      android:text="@string/role_beneficiary" />
+
+    <RadioButton
+      android:id="@+id/radioButtonMerchant"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/role_merchant" />
+  </RadioGroup>
+
+  <EditText
+    android:id="@+id/registerPassport"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="start"
+    android:layout_marginTop="8dp"
+    android:autofillHints="@string/hint_passport_number"
+    android:hint="@string/hint_passport_number"
+    android:importantForAutofill="auto"
+    android:inputType="textCapWords"
+    android:minHeight="48dp"
+    android:textColorHint="#757575"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/registerPincode" />
+
+  <Button
+    android:id="@+id/registerRegister"
+    android:layout_width="204dp"
+    android:layout_height="wrap_content"
     android:layout_marginStart="48dp"
+    android:layout_marginTop="8dp"
     android:layout_marginEnd="48dp"
-    android:layout_marginTop="16dp"
+    android:enabled="false"
+    android:visibility="gone"
     android:text="@string/action_register"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.495"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/loginSignin" />
+    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,6 +14,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.FragmentLoginBinding
+import com.epfl.dedis.hbt.ui.MainActivity
+import com.epfl.dedis.hbt.ui.register.RegisterFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,31 +37,33 @@ class LoginFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val usernameEditText = binding.username
-        val passwordEditText = binding.pincode
-        val loginButton = binding.login
-        val registerButton = binding.register
+        val usernameEditText = binding.loginUsername
+        val pincodeEditText = binding.loginPincode
+        val loginButton = binding.loginSignin
+        val registerButton = binding.loginRegister
 
-        loginViewModel.loginFormState.observe(viewLifecycleOwner,
+        loginViewModel.loginFormState.observe(
+            viewLifecycleOwner,
             Observer { loginFormState ->
                 if (loginFormState == null) {
                     return@Observer
                 }
-                loginButton.isEnabled = loginFormState.isDataValid
+
+                loginButton.isEnabled =
+                    loginFormState.isDataValid && loginFormState.isUserRegistered
+
                 loginFormState.usernameError?.let {
                     usernameEditText.error = getString(it)
                 }
                 loginFormState.pincodeError?.let {
-                    passwordEditText.error = getString(it)
+                    pincodeEditText.error = getString(it)
                 }
             })
 
@@ -70,6 +74,7 @@ class LoginFragment : Fragment() {
                     showLoginFailed(it)
                 }
                 loginResult.success?.let {
+                    // TODO: display Wallet tab and fragment
                     updateUiWithUser(it)
                 }
             })
@@ -86,17 +91,17 @@ class LoginFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 loginViewModel.loginDataChanged(
                     usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
+                    pincodeEditText.text.toString()
                 )
             }
         }
         usernameEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.setOnEditorActionListener { _, actionId, _ ->
+        pincodeEditText.addTextChangedListener(afterTextChangedListener)
+        pincodeEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 loginViewModel.login(
                     usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
+                    pincodeEditText.text.toString()
                 )
             }
             false
@@ -105,12 +110,16 @@ class LoginFragment : Fragment() {
         loginButton.setOnClickListener {
             loginViewModel.login(
                 usernameEditText.text.toString(),
-                passwordEditText.text.toString()
+                pincodeEditText.text.toString()
             )
         }
 
         registerButton.setOnClickListener {
-            TODO("Create a register fragment")
+            val rf = RegisterFragment.newInstance(
+                usernameEditText.text.toString(),
+                pincodeEditText.text.toString()
+            )
+            MainActivity.setCurrentFragment(parentFragmentManager, rf)
         }
     }
 
