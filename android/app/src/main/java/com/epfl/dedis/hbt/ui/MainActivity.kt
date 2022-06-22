@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.ActivityMainBinding
-import com.epfl.dedis.hbt.ui.main.MainFragment
+import com.epfl.dedis.hbt.ui.login.LoginFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Set default fragment (MainFragment)
-        setCurrentFragment(supportFragmentManager, MainFragment.newInstance(), false)
+        setCurrentFragment(supportFragmentManager, LoginFragment.newInstance(), false)
     }
 
     companion object {
