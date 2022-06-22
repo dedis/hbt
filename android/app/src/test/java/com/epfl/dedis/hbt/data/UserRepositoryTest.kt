@@ -15,7 +15,7 @@ class UserRepositoryTest {
 
     private val invalidPincode = "abcdef"
 
-    private fun mockDataSource(result: Result<User>): LoginDataSource =
+    private fun mockDataSource(result: Result<User>): UserDataSource =
         mock {
             on { login(any(), any()) } doReturn result
         }
