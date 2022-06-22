@@ -105,6 +105,8 @@ sonarqube {
         property "sonar.androidLint.reportPaths", "${project.buildDir}/reports/lint-results-debug.xml"
         // Paths to JaCoCo XML coverage report files.
         property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml"
+        // Exclude debug sources from the coverage
+        property "sonar.coverage.exclusions", "**/ch/epfl/dedis/hbt/test/**/*.*"
     }
 }
 
