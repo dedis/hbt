@@ -58,7 +58,6 @@ class LoginFragment : Fragment() {
 
                 loginButton.isEnabled =
                     loginFormState.isDataValid && loginFormState.isUserRegistered
-                registerButton.isEnabled = !loginFormState.isUserRegistered
 
                 loginFormState.usernameError?.let {
                     usernameEditText.error = getString(it)
@@ -120,9 +119,7 @@ class LoginFragment : Fragment() {
                 usernameEditText.text.toString(),
                 pincodeEditText.text.toString()
             )
-            MainActivity.setCurrentFragment(
-                activity?.supportFragmentManager ?: parentFragmentManager, rf
-            )
+            MainActivity.setCurrentFragment(parentFragmentManager, rf)
         }
     }
 
