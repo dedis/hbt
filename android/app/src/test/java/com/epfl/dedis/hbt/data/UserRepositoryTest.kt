@@ -11,6 +11,8 @@ class UserRepositoryTest {
 
     private val username = "Jon Smith"
     private val pincode = 12345
+    private val passport = "12jdjpdwa"
+
     private val invalidPincode = "abcdef"
 
     private fun mockDataSource(result: Result<User>): LoginDataSource =
@@ -20,7 +22,7 @@ class UserRepositoryTest {
 
     @Test
     fun loginCacheUser() {
-        val user = User(username, pincode)
+        val user = User(username, pincode, passport)
         val dataSource = mockDataSource(Result.Success(user))
         val repo = UserRepository(dataSource)
 
@@ -38,7 +40,7 @@ class UserRepositoryTest {
 
     @Test
     fun invalidPincodeFails() {
-        val user = User(username, pincode)
+        val user = User(username, pincode, passport)
         val dataSource = mockDataSource(Result.Success(user))
         val repo = UserRepository(dataSource)
 
@@ -49,7 +51,7 @@ class UserRepositoryTest {
 
     @Test
     fun logoutUserChangesState() {
-        val user = User(username, pincode)
+        val user = User(username, pincode, passport)
         val dataSource = mockDataSource(Result.Success(user))
         val repo = UserRepository(dataSource)
         repo.login(username, pincode.toString())
