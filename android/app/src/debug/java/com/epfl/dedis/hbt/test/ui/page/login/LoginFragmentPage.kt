@@ -7,9 +7,9 @@ import com.epfl.dedis.hbt.R
 
 object LoginFragmentPage {
 
-    fun usernameInput(): ViewInteraction = onView(withId(R.id.username))
+    fun usernameInput(): ViewInteraction = onView(withId(R.id.loginUsername))
 
-    fun pincodeInput(): ViewInteraction = onView(withId(R.id.pincode))
+    fun pincodeInput(): ViewInteraction = onView(withId(R.id.loginPincode))
 
-    fun loginButton(): ViewInteraction = onView(withId(R.id.login))
+    fun loginButton(): ViewInteraction = onView(withId(R.id.loginSignin))
 }
