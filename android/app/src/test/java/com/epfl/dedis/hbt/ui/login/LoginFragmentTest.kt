@@ -1,14 +1,18 @@
 package com.epfl.dedis.hbt.ui.login
 
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
 import com.epfl.dedis.hbt.data.UserRepository
 import com.epfl.dedis.hbt.data.model.User
+import com.epfl.dedis.hbt.test.ToastUtils
 import com.epfl.dedis.hbt.test.fragment.FragmentScenarioRule
+import com.epfl.dedis.hbt.test.typeNumbers
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.loginButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.pincodeInput
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.usernameInput
@@ -54,18 +58,29 @@ class LoginFragmentTest {
     }
 
     @Test
+    fun failedLoginShowsError() {
+        currentRepoResult = Result.Error(Exception())
+        usernameInput().perform(typeText(user.name))
+        pincodeInput().perform(typeNumbers(user.pincode.toString()))
+
+        loginButton().check(matches(isEnabled())).perform(click())
+
+        ToastUtils.assertToastIsDisplayedWithText(R.string.login_failed)
+    }
+
+    @Test
     fun invalidPincodeDisableLoginButton() {
         // Input a valid username
         usernameInput().perform(typeText(user.name))
         loginButton().check(matches(isNotEnabled()))
         // Input only 3 digits (4 necessary)
-        pincodeInput().perform(typeText("123"))
+        pincodeInput().perform(typeNumbers("123"))
         loginButton().check(matches(isNotEnabled()))
         // Input 3 more, the button should be valid
-        pincodeInput().perform(typeText("123"))
+        pincodeInput().perform(typeNumbers("123"))
         loginButton().check(matches(isEnabled()))
         // Input 4 more, total of 10 which is too much
-        pincodeInput().perform(typeText("1234"))
+        pincodeInput().perform(typeNumbers("1234"))
         loginButton().check(matches(isNotEnabled()))
     }
 }
