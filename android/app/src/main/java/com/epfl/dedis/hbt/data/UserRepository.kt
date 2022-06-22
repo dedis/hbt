@@ -13,8 +13,7 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(private val dataSource: LoginDataSource) {
 
     // in-memory cache of the loggedInUser object
-    var user: User? = null
-        private set
+    private var user: User? = null
 
     val isLoggedIn: Boolean
         get() = user != null

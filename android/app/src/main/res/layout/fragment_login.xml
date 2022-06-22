@@ -10,7 +10,7 @@
   tools:context=".ui.login.LoginFragment">
 
   <EditText
-    android:id="@+id/login_username"
+    android:id="@+id/loginUsername"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
@@ -26,7 +26,7 @@
     app:layout_constraintTop_toTopOf="parent" />
 
   <EditText
-    android:id="@+id/login_pincode"
+    android:id="@+id/loginPincode"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
@@ -41,10 +41,10 @@
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/login_username" />
+    app:layout_constraintTop_toBottomOf="@+id/loginUsername" />
 
   <Button
-    android:id="@+id/login_signin"
+    android:id="@+id/loginSignin"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="start"
@@ -57,11 +57,11 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/login_pincode"
+    app:layout_constraintTop_toBottomOf="@+id/loginPincode"
     app:layout_constraintVertical_bias="0.33" />
 
   <Button
-    android:id="@+id/login_register"
+    android:id="@+id/loginRegister"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="start"
@@ -73,6 +73,6 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintHorizontal_bias="0.495"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/login_signin" />
+    app:layout_constraintTop_toBottomOf="@+id/loginSignin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

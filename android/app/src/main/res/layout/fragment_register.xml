@@ -10,7 +10,7 @@
   tools:context=".ui.register.RegisterFragment">
 
   <EditText
-    android:id="@+id/register_username"
+    android:id="@+id/registerUsername"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
@@ -26,7 +26,7 @@
     app:layout_constraintTop_toTopOf="parent" />
 
   <EditText
-    android:id="@+id/register_pincode"
+    android:id="@+id/registerPincode"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
@@ -41,7 +41,7 @@
     android:selectAllOnFocus="true"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/register_username" />
+    app:layout_constraintTop_toBottomOf="@+id/registerUsername" />
 
   <RadioGroup
     android:id="@+id/radioGroup"
@@ -50,7 +50,7 @@
     android:layout_marginTop="8dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/register_passport">
+    app:layout_constraintTop_toBottomOf="@+id/registerPassport">
 
     <RadioButton
       android:id="@+id/radioButtonBeneficiary"
@@ -67,7 +67,7 @@
   </RadioGroup>
 
   <EditText
-    android:id="@+id/register_passport"
+    android:id="@+id/registerPassport"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
@@ -79,10 +79,10 @@
     android:textColorHint="#757575"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/register_pincode" />
+    app:layout_constraintTop_toBottomOf="@+id/registerPincode" />
 
   <Button
-    android:id="@+id/register_register"
+    android:id="@+id/registerRegister"
     android:layout_width="204dp"
     android:layout_height="wrap_content"
     android:layout_marginStart="48dp"

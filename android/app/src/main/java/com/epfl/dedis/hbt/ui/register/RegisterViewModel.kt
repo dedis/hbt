@@ -45,17 +45,17 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
         }
     }
 
-    // A placeholder username validation check
+    // Validate username
     private fun isUserNameValid(username: String): Boolean {
         return username.length >= 2
     }
 
-    // A placeholder PIN code validation check
+    // Validate pincode
     private fun isPincodeValid(pincode: String): Boolean {
         return pincode.length in 4..9
     }
 
-    // A placeholder PIN code validation check
+    // Validate passport number
     private fun isPassportValid(passport: String): Boolean {
         return passport.length >= 9
     }
