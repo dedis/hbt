@@ -4,7 +4,7 @@
   package="com.epfl.dedis.hbt">
 
   <application
-    android:allowBackup="false"
+    android:allowBackup="true"
     android:usesCleartextTraffic="false"
     android:icon="@mipmap/ic_launcher"
     tools:ignore="DataExtractionRules">
