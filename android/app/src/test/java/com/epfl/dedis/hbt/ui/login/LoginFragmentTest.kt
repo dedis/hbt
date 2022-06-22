@@ -48,12 +48,19 @@ class LoginFragmentTest {
     // Test data
     private val user = User("Jon Smith", 12345, "passport")
     private var currentRepoResult: Result<User> = Result.Success(user)
+    private var currentRepoRegistered = true
 
     // Called before the fragment in initialized
     // allowing us to setup the dependencies
     private fun setup() {
+        // Reset
+        currentRepoResult = Result.Success(user)
+        currentRepoRegistered = true
+        // Create mock
         userRepo = mock {
             on { login(any(), any()) } doAnswer { currentRepoResult }
+
+            on { isRegistered(any()) } doAnswer { currentRepoRegistered }
         }
     }
 
