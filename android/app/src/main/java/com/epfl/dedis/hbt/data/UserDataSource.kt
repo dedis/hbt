@@ -9,7 +9,7 @@ import javax.inject.Singleton
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
 @Singleton
-class LoginDataSource @Inject constructor() {
+class UserDataSource @Inject constructor() {
 
     private val users: MutableMap<String, User> = mutableMapOf()
 

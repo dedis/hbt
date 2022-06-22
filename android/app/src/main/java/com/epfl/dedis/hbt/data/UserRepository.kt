@@ -11,7 +11,7 @@ import javax.inject.Singleton
  */
 
 @Singleton
-class UserRepository @Inject constructor(private val dataSource: LoginDataSource) {
+class UserRepository @Inject constructor(private val dataSource: UserDataSource) {
 
     // in-memory cache of the loggedInUser object
     var user: User? = null
