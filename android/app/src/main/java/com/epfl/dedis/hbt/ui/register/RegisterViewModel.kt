@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result.Success
 import com.epfl.dedis.hbt.data.UserRepository
-import com.epfl.dedis.hbt.ui.login.LoggedInUserView
-import com.epfl.dedis.hbt.ui.login.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -18,18 +16,17 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
     private val _registerForm = MutableLiveData<RegisterFormState>()
     val registerFormState: LiveData<RegisterFormState> = _registerForm
 
-    private val _registerResult = MutableLiveData<LoginResult>()
-    val registerResult: LiveData<LoginResult> = _registerResult
+    private val _registerResult = MutableLiveData<RegisterResult>()
+    val registerResult: LiveData<RegisterResult> = _registerResult
 
     fun register(username: String, pincode: String, passport: String) {
         // can be launched in a separate asynchronous job
         val result = userRepository.register(username, pincode, passport)
 
         if (result is Success) {
-            _registerResult.value =
-                LoginResult(success = LoggedInUserView(displayName = result.data.name))
+            _registerResult.value = RegisterResult(error = null)
         } else {
-            _registerResult.value = LoginResult(error = R.string.login_failed)
+            _registerResult.value = RegisterResult(error = R.string.login_failed)
         }
     }
 

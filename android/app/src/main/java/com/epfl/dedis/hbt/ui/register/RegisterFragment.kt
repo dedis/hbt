@@ -101,12 +101,10 @@ class RegisterFragment : Fragment() {
         registerViewModel.registerResult.observe(viewLifecycleOwner,
             Observer { registerResult ->
                 registerResult ?: return@Observer
-                registerResult.error?.let {
-                    showRegisterFailed(it)
-                }
-                registerResult.success?.let {
-                    showRegisterSuccess()
-                    // TODO: display Wallet tab and fragment
+                if (registerResult.error != null)
+                    onRegisterFailed(registerResult.error)
+                else {
+                    onRegisterSuccess()
                 }
             })
 
@@ -132,31 +130,30 @@ class RegisterFragment : Fragment() {
         passportEditText.addTextChangedListener(afterTextChangedListener)
 
         registerButton.setOnClickListener {
-
             registerViewModel.register(
                 usernameEditText.text.toString(),
                 pincodeEditText.text.toString(),
                 passportEditText.text.toString()
             )
-            //TODO: switch back to login fragment or forward to wallet fragment
-/*
-            val fragment = WalletFragment.newInstance(
-                usernameEditText.text.toString()
-            )
-
-            MainActivity.setCurrentFragment(activity?.supportFragmentManager ?: parentFragmentManager, fragment )
-*/
         }
     }
 
-    private fun showRegisterSuccess() {
-        val appContext = context?.applicationContext ?: return
-        Toast.makeText(appContext, "Registered !", Toast.LENGTH_LONG).show()
-    }
-
-    private fun showRegisterFailed(@StringRes errorString: Int) {
+    private fun onRegisterFailed(@StringRes errorString: Int) {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
+    }
+
+    private fun onRegisterSuccess() {
+        val appContext = context?.applicationContext ?: return
+        Toast.makeText(appContext, "Registered !", Toast.LENGTH_LONG).show()
+
+        //TODO: move forward to wallet fragment
+/*
+        val fragment = WalletDefaultFragment.newInstance(
+            usernameEditText.text.toString()
+        )
+        MainActivity.setCurrentFragment(parentFragmentManager, fragment )
+ */
     }
 
     override fun onDestroyView() {
