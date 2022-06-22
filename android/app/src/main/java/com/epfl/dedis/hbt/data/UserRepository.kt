@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.data
 
+import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.data.model.User
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,9 +34,9 @@ class UserRepository @Inject constructor(private val dataSource: LoginDataSource
         user = null
     }
 
-    fun register(username: String, pincode: String, passport: String): Result<User> {
+    fun register(username: String, pincode: String, passport: String, role: Role): Result<User> {
         val pin = pincode.toIntOrNull() ?: return Result.Error(NumberFormatException())
-        val result = dataSource.register(username, pin, passport)
+        val result = dataSource.register(username, pin, passport, role)
 
         if (result is Result.Success) {
             setLoggedInUser(result.data)

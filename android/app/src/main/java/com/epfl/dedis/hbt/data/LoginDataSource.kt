@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.data
 
+import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.data.model.User
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -16,10 +17,10 @@ class LoginDataSource @Inject constructor() {
         return users.containsKey(username)
     }
 
-    fun register(username: String, pincode: Int, passport: String): Result<User> {
+    fun register(username: String, pincode: Int, passport: String, role: Role): Result<User> {
         if (isRegistered(username)) return Result.Error(Exception("Already registered"))
 
-        val user = User(username, pincode, passport)
+        val user = User(username, pincode, passport, role)
         users[username] = user
 
         return Result.Success(user)

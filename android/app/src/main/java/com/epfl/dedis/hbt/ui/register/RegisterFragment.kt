@@ -12,6 +12,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
 import com.epfl.dedis.hbt.utility.NfcReader
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,6 +76,7 @@ class RegisterFragment : Fragment() {
         val pincodeEditText = binding.registerPincode
         val passportEditText = binding.registerPassport
         val registerButton = binding.registerRegister
+        val roleButton = binding.radioGroup
 
         registerViewModel.registerFormState.observe(
             viewLifecycleOwner,
@@ -130,10 +133,17 @@ class RegisterFragment : Fragment() {
         passportEditText.addTextChangedListener(afterTextChangedListener)
 
         registerButton.setOnClickListener {
+            val role = when (roleButton.checkedRadioButtonId) {
+                R.id.radioButtonBeneficiary -> Role.BENEFICIARY
+                R.id.radioButtonMerchant -> Role.MERCHANT
+                else -> throw Error("Unhandled role type")
+            }
+
             registerViewModel.register(
                 usernameEditText.text.toString(),
                 pincodeEditText.text.toString(),
-                passportEditText.text.toString()
+                passportEditText.text.toString(),
+                role
             )
         }
     }
