@@ -46,7 +46,7 @@ class LoginFragmentTest {
     val fragmentRule = FragmentScenarioRule.launch(LoginFragment::class.java)
 
     // Test data
-    private val user = User("Jon Smith", 12345)
+    private val user = User("Jon Smith", 12345, "passport")
     private var currentRepoResult: Result<User> = Result.Success(user)
 
     // Called before the fragment in initialized
