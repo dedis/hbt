@@ -5,27 +5,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
+import dagger.hilt.android.AndroidEntryPoint
 
-class WalletDefaultFragment : Fragment() {
+@AndroidEntryPoint
+class WalletFragment : Fragment() {
 
     companion object {
-        fun newInstance() = WalletDefaultFragment()
+        private const val USERNAME = "USERNAME"
+
+        fun newInstance(username: String?) = WalletFragment().apply {
+            val bundle = Bundle()
+            bundle.putString(USERNAME, username)
+            arguments = bundle
+        }
     }
 
-    private lateinit var viewModel: WalletDefaultViewModel
+    private val walletViewModel: WalletViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_wallet_default, container, false)
+        return inflater.inflate(R.layout.fragment_wallet, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this)[WalletDefaultViewModel::class.java]
         // TODO: Use the ViewModel
     }
 

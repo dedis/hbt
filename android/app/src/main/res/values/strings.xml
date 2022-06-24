@@ -14,4 +14,10 @@
   <string name="role_merchant">Merchant</string>
   <string name="hint_passport_number">10AB12345</string>
   <string name="invalid_passport">Passport ID too short</string>
+  <string name="walletUsername">username</string>
+  <string name="defaultWalletBalance">0 HBT</string>
+  <string name="wallet_button_receive_text"><![CDATA[> Receive]]></string>
+  <string name="wallet_button_send_text"><![CDATA[Send >]]></string>
+  <string name="wallet_button_ok_text">OK</string>
+  <string name="qr_code_place_holder">QR code place holder</string>
 </resources>

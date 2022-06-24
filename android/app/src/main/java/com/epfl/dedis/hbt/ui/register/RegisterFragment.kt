@@ -15,6 +15,8 @@ import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
+import com.epfl.dedis.hbt.ui.MainActivity
+import com.epfl.dedis.hbt.ui.wallet.WalletFragment
 import com.epfl.dedis.hbt.utility.NfcReader
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -107,7 +109,7 @@ class RegisterFragment : Fragment() {
                 if (registerResult.error != null)
                     onRegisterFailed(registerResult.error)
                 else {
-                    onRegisterSuccess()
+                    onRegisterSuccess(usernameEditText.text.toString())
                 }
             })
 
@@ -153,17 +155,9 @@ class RegisterFragment : Fragment() {
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
-    private fun onRegisterSuccess() {
-        val appContext = context?.applicationContext ?: return
-        Toast.makeText(appContext, "Registered !", Toast.LENGTH_LONG).show()
-
-        //TODO: move forward to wallet fragment
-/*
-        val fragment = WalletDefaultFragment.newInstance(
-            usernameEditText.text.toString()
-        )
-        MainActivity.setCurrentFragment(parentFragmentManager, fragment )
- */
+    private fun onRegisterSuccess(userName: String) {
+        val fragment = WalletFragment.newInstance(userName)
+        MainActivity.setCurrentFragment(parentFragmentManager, fragment)
     }
 
     override fun onDestroyView() {
