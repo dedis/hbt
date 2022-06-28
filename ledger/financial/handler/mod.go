@@ -1,14 +1,18 @@
 package handler
 
 import (
+	"crypto/sha512"
 	"fmt"
 	"ledger/financial/payload"
 	"ledger/financial/serde"
 	"ledger/financial/state"
+	"strconv"
 
 	"github.com/hyperledger/sawtooth-sdk-go/logging"
 	"github.com/hyperledger/sawtooth-sdk-go/processor"
 	"github.com/hyperledger/sawtooth-sdk-go/protobuf/processor_pb2"
+	"go.dedis.ch/kyber/v3/sign/schnorr"
+	"go.dedis.ch/kyber/v3/suites"
 )
 
 // defines the transaction family constants
@@ -16,6 +20,8 @@ const (
 	FamilyName    = "hbt_financial"
 	FamilyVersion = "1.0"
 )
+
+var suite = suites.MustFind("ed25519")
 
 var logger *logging.Logger = logging.Get()
 
@@ -65,34 +71,80 @@ func (f *FinancialHandler) Apply(request *processor_pb2.TpProcessRequest,
 		return fmt.Errorf("failed to get payload: %v", err)
 	}
 
-	logger.Debugf("trading tx %v: action: %s, walletID: %s", request.Signature,
-		payload.Action, payload.WalletID)
+	logger.Debugf("trading tx %v: action: %s", request.Signature, payload.Action)
 
-	stateHandler := state.NewHandler(context, f.serde)
+	stateHandler, err := state.NewHandler(context, f.serde)
+	if err != nil {
+		return fmt.Errorf("faield to create state handler: %v", err)
+	}
 
 	switch payload.Action {
 	case "create":
-		err := stateHandler.CreateWallet(payload.WalletID)
+		createPayload := payload.CreatePayload
+
+		err := stateHandler.CreateWallet(createPayload.WalletID)
 		if err != nil {
 			return &processor.InvalidTransactionError{
 				Msg: fmt.Sprintf("failed to create wallet: %v", err),
 			}
 		}
 
-		logger.Infof("wallet with id %q created", payload.WalletID)
-	case "get":
-		wallet, err := stateHandler.GetWallet(payload.WalletID)
+		logger.Infof("wallet with id %q created", createPayload.WalletID)
+	case "transfer":
+		err := f.transfer(stateHandler, payload.TransferPayload)
 		if err != nil {
 			return &processor.InvalidTransactionError{
-				Msg: fmt.Sprintf("failed to get wallet: %v", err),
+				Msg: fmt.Sprintf("failed to call transfer: %v", err),
 			}
 		}
-
-		logger.Infof("wallet [%s] balance=%d", payload.WalletID, wallet.GetBalance())
 	default:
 		return &processor.InvalidTransactionError{
 			Msg: fmt.Sprintf("invalid action: %q", payload.Action),
 		}
+	}
+
+	return nil
+}
+
+func (f *FinancialHandler) transfer(state state.Handler,
+	payload payload.TransferPayload) error {
+
+	fromWallet, err := state.GetWallet(payload.FromWallet)
+	if err != nil {
+		return fmt.Errorf("failed to get 'from' wallet %q: %v", payload.FromWallet, err)
+	}
+
+	fromKey, err := payload.FromWallet.ToPoint()
+	if err != nil {
+		return fmt.Errorf("failed to key fromKey: %v", err)
+	}
+
+	hash := sha512.New()
+	hash.Write([]byte(strconv.Itoa(int(payload.Amount))))
+	hash.Write([]byte(payload.ToWallet))
+	hash.Write([]byte(payload.ToWallet))
+
+	err = schnorr.Verify(suite, fromKey, hash.Sum(nil), []byte(payload.Signature))
+	if err != nil {
+		return fmt.Errorf("signature verification failed: %v", err)
+	}
+
+	if fromWallet.GetBalance() < payload.Amount {
+		return fmt.Errorf("insufficient funds: %d < %d", fromWallet.GetBalance(),
+			payload.Amount)
+	}
+
+	toWallet, err := state.GetWallet(payload.ToWallet)
+	if err != nil {
+		return fmt.Errorf("failed to get 'from' wallet %q: %v", payload.ToWallet, err)
+	}
+
+	fromWallet.Balance -= payload.Amount
+	toWallet.Balance += payload.Amount
+
+	err = state.StoreState()
+	if err != nil {
+		return fmt.Errorf("failed to store state: %v", err)
 	}
 
 	return nil

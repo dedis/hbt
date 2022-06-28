@@ -3,12 +3,27 @@ package payload
 import (
 	"encoding/json"
 	"fmt"
+	"ledger/financial/state"
 )
 
 // FinancialPayload represents the payload sent in a financial transaction
 type FinancialPayload struct {
-	Action   string
-	WalletID string
+	Action          string
+	CreatePayload   CreatePayload
+	TransferPayload TransferPayload
+}
+
+// CreatePayload defines the sub-payload "create"
+type CreatePayload struct {
+	WalletID state.WalletID
+}
+
+// TransferPayload defines the sub-payload "transfer"
+type TransferPayload struct {
+	FromWallet state.WalletID
+	ToWallet   state.WalletID
+	Amount     uint64
+	Signature  string // hex encoded signature
 }
 
 // FromBytes unmarshals the buffer into a payload
