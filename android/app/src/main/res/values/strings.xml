@@ -20,4 +20,7 @@
   <string name="wallet_button_send_text"><![CDATA[Send >]]></string>
   <string name="wallet_button_ok_text">OK</string>
   <string name="qr_code_place_holder">QR code place holder</string>
+  <string name="wallet_send_failed">Failed to send tokens !</string>
+  <string name="wallet_receive_failed">Failed to receive tokens !</string>
+  <string name="transfer_amount">Amount to transfer</string>
 </resources>

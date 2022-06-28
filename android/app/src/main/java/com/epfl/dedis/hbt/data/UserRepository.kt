@@ -2,6 +2,7 @@ package com.epfl.dedis.hbt.data
 
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.data.model.User
+import com.epfl.dedis.hbt.data.model.Wallet
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,16 +15,19 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(private val dataSource: UserDataSource) {
 
     // in-memory cache of the loggedInUser object
-    var user: User? = null
+    var loggedInUser: User? = null
+        private set
+
+    var wallet: Wallet? = null
         private set
 
     val isLoggedIn: Boolean
-        get() = user != null
+        get() = loggedInUser != null
 
     init {
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
-        user = null
+        loggedInUser = null
     }
 
     fun isRegistered(username: String): Boolean {
@@ -31,7 +35,7 @@ class UserRepository @Inject constructor(private val dataSource: UserDataSource)
     }
 
     fun logout() {
-        user = null
+        loggedInUser = null
     }
 
     fun register(username: String, pincode: String, passport: String, role: Role): Result<User> {
@@ -58,8 +62,13 @@ class UserRepository @Inject constructor(private val dataSource: UserDataSource)
     }
 
     private fun setLoggedInUser(loggedInUser: User) {
-        this.user = loggedInUser
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
+        this.loggedInUser = loggedInUser
+
+        val result = dataSource.getWallet(loggedInUser)
+        if (result is Result.Success) {
+            this.wallet = result.data
+        }
     }
 }

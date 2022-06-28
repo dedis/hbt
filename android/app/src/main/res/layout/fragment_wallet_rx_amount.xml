@@ -7,14 +7,32 @@
   android:layout_height="match_parent"
   android:paddingHorizontal="@dimen/fragment_horizontal_margin"
   android:paddingVertical="@dimen/fragment_vertical_margin"
-  tools:context=".ui.wallet.ScanFragment">
+  tools:context=".ui.wallet.RxAmountFragment">
+
+  <TextView
+    android:id="@+id/walletRxAmount"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:gravity="center"
+    android:hint="@string/transfer_amount"
+    android:minWidth="128dp"
+    android:minHeight="48dp"
+    android:selectAllOnFocus="true"
+    android:textAlignment="center"
+    android:textColorHint="#78909C"
+    android:textStyle="bold"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletBalance"
+    tools:ignore="LabelFor" />
 
   <TextView
     android:id="@+id/walletName"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginTop="12dp"
     android:layout_marginEnd="24dp"
     android:fontFamily="serif"
     android:minHeight="24dp"
@@ -32,7 +50,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginTop="12dp"
     android:layout_marginEnd="24dp"
     android:minHeight="24dp"
     android:selectAllOnFocus="true"
@@ -49,7 +67,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="8dp"
+    android:layout_marginTop="12dp"
     android:layout_marginEnd="24dp"
     android:minHeight="24dp"
     android:selectAllOnFocus="true"
@@ -66,19 +84,9 @@
     android:layout_width="120dp"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
-    android:layout_marginStart="24dp"
     android:text="@string/wallet_button_receive_text"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/walletBalance" />
-
-  <Button
-    android:id="@+id/walletButtonSend"
-    android:layout_width="120dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    android:layout_marginEnd="24dp"
-    android:text="@string/wallet_button_send_text"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/walletBalance" />
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletRxAmount" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -109,7 +109,7 @@ class RegisterFragment : Fragment() {
                 if (registerResult.error != null)
                     onRegisterFailed(registerResult.error)
                 else {
-                    onRegisterSuccess(usernameEditText.text.toString())
+                    onRegisterSuccess()
                 }
             })
 
@@ -155,9 +155,8 @@ class RegisterFragment : Fragment() {
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }
 
-    private fun onRegisterSuccess(userName: String) {
-        val fragment = WalletFragment.newInstance(userName)
-        MainActivity.setCurrentFragment(parentFragmentManager, fragment)
+    private fun onRegisterSuccess() {
+        MainActivity.setCurrentFragment(parentFragmentManager, WalletFragment())
     }
 
     override fun onDestroyView() {

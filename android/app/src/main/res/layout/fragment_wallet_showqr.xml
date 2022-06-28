@@ -7,7 +7,7 @@
   android:layout_height="match_parent"
   android:paddingHorizontal="@dimen/fragment_horizontal_margin"
   android:paddingVertical="@dimen/fragment_vertical_margin"
-  tools:context=".ui.wallet.ScanFragment">
+  tools:context=".ui.wallet.ShowQrFragment">
 
   <TextView
     android:id="@+id/walletName"
@@ -62,23 +62,23 @@
     app:layout_constraintTop_toBottomOf="@+id/walletRole" />
 
   <Button
-    android:id="@+id/walletButtonReceive"
-    android:layout_width="120dp"
+    android:id="@+id/walletButtonOk"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    android:layout_marginStart="24dp"
-    android:text="@string/wallet_button_receive_text"
+    android:layout_marginTop="8dp"
+    android:text="@string/wallet_button_ok_text"
+    app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/walletBalance" />
 
-  <Button
-    android:id="@+id/walletButtonSend"
-    android:layout_width="120dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    android:layout_marginEnd="24dp"
-    android:text="@string/wallet_button_send_text"
+  <ImageView
+    android:id="@+id/imageView"
+    android:layout_width="300dp"
+    android:layout_height="300dp"
+    android:contentDescription="@string/qr_code_place_holder"
+    android:src="@android:drawable/progress_indeterminate_horizontal"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/walletBalance" />
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletButtonOk" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
