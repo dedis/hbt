@@ -1,0 +1,41 @@
+@startuml
+
+title HBT Component diagram
+
+ 
+node "Ledger" {
+    [Validator] as val
+    [Financial tx processor] as financial
+    [Identity tx processor] as identity
+    [Rest API] as rest
+    interface TCP as ival
+    interface HTTP as irest
+}
+
+val -left- ival
+financial -up-( ival
+identity -down-(ival
+rest -right( ival
+rest -left- irest
+
+[SMC]
+interface HTTP as ismc
+SMC -up- ismc
+SMC -right( irest
+
+[MPC]
+interface HTTP as impc
+MPC -up- impc
+MPC -up-( irest
+
+[Client gate] as gate
+interface HTTP as igate
+gate -right- igate
+gate -right-( irest
+gate --( impc
+gate --( ismc
+
+[Client App] as capp
+capp -left-( igate
+
+@enduml
