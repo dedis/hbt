@@ -121,7 +121,7 @@ func (f *FinancialHandler) transfer(state state.Handler,
 
 	hash := sha512.New()
 	hash.Write([]byte(strconv.Itoa(int(payload.Amount))))
-	hash.Write([]byte(payload.ToWallet))
+	hash.Write([]byte(payload.FromWallet))
 	hash.Write([]byte(payload.ToWallet))
 
 	err = schnorr.Verify(suite, fromKey, hash.Sum(nil), []byte(payload.Signature))
