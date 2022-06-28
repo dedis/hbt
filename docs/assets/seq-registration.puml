@@ -1,0 +1,63 @@
+@startuml
+
+participant ClientApp
+participant AdminApp
+
+participant "Client gate" as gate
+participant MPC
+
+participant FinancialCt
+participant IdentityCt
+
+== New registration ==
+
+ClientApp -> gate ++ : registerID(id)
+gate -> IdentityCt ++ : registerID(id)
+IdentityCt --> gate : TxID
+deactivate IdentityCt
+gate -> MPC : registerID(txID)
+MPC -> IdentityCt : get(txID)
+IdentityCt --> MPC : id
+
+MPC -> MPC: process registration
+MPC --> gate: ok
+gate --> ClientApp : ok
+deactivate gate
+deactivate MPC
+
+== Registration is not yet approved ==
+
+ClientApp -> gate ++ : getStatus(id)
+gate -> IdentityCt ++ : getStatus(id)
+return not approved
+return not approved
+
+== Admin approves registration ==
+
+AdminApp -> gate ++ : getPendingIDs()
+gate -> IdentityCt ++ : getPendingIDs()
+return pending IDs
+return pending IDs
+
+AdminApp -> gate ++ : approveID(id)
+gate -> IdentityCt ++: approveID(id)
+IdentityCt --> gate : TxID
+deactivate IdentityCt
+
+gate -> MPC: approve(txID)
+MPC -> IdentityCt : get(txID)
+IdentityCt --> MPC : id
+
+MPC -> MPC: process approval
+MPC --> gate : something ? 
+gate -> IdentityCt : something ?
+deactivate gate
+
+== Registration is approved ==
+
+ClientApp -> gate ++ : getStatus(id)
+gate -> IdentityCt ++ : getStatus(id)
+return approved, sig
+return approved, sig
+
+@enduml
