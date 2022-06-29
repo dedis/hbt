@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"ledger/financial/payload"
+	"ledger/financial/state"
 
 	flag "github.com/jessevdk/go-flags"
 )
@@ -36,11 +37,12 @@ func (a *cmdAdd) register(command *flag.Command) error {
 
 // Execute implements flag.Commander
 func (a cmdAdd) Execute(args []string) error {
-	fmt.Println("hi", args)
 
 	payload := payload.FinancialPayload{
-		Action:   "create",
-		WalletID: a.ID,
+		Action: "create",
+		CreatePayload: payload.CreatePayload{
+			WalletID: state.WalletID(a.ID),
+		},
 	}
 
 	res, err := a.batcher.sendTransaction(payload)
