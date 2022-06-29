@@ -1,0 +1,78 @@
+@startuml
+
+participant ClientApp
+participant AdminApp
+
+participant "Client gate" as gate
+participant MPC
+
+participant FinancialCt
+participant IdentityCt
+
+
+== Transfer between two wallets ==
+
+ClientApp -> gate : sendTx(tx)
+activate gate
+
+gate -> FinancialCt : check whether toWallet is new
+FinancialCt --> gate : yes/no
+
+group toWallet is new
+    gate ->> MPC : checkIfBlacklisted(toWalletSubID)
+    activate MPC
+    MPC -> MPC : find mainID
+    MPC -> IdentityCt ++ : isBlacklisted?(mainID)
+    return yes/no
+    MPC --> gate : yes/no
+    deactivate MPC
+    group mainID is blacklisted
+        gate -> IdentityCt ++ : blacklistID(subID)
+        return ok
+        gate --> ClientApp : error/abort
+    end
+end
+
+gate -> FinancialCt : sendTx(tx)
+activate FinancialCt
+
+FinancialCt -> FinancialCt : check tx not yet seen
+FinancialCt -> FinancialCt : check tx signature
+
+FinancialCt -> FinancialCt : check whether fromWallet's\nbalance is sufficient
+group fromWallet balance is not sufficient
+    FinancialCt -> FinancialCt : add wallet to blacklist
+    FinancialCt --> gate : txID
+    gate -> FinancialCt : isBlacklisted?(txID)
+    FinancialCt --> gate : yes
+    gate -> MPC : blacklist(fromWalletSubID)
+    MPC -> MPC : find mainID and all other subIDs
+    MPC --> gate : list of subID
+    gate -> IdentityCt : blacklistID(list of subID)
+    gate --> ClientApp : error/abort
+end
+
+FinancialCt -> IdentityCt : isBlacklisted(fromWalletSubID)
+IdentityCt --> FinancialCt : yes/no
+FinancialCt -> IdentityCt : isBlacklisted(toWalletSubID)
+IdentityCt --> FinancialCt : yes/no
+
+group fromWallet and toWallet are not blacklisted
+    FinancialCt -> FinancialCt : update fromWallet and toWallet balances
+end
+
+FinancialCt --> gate : txID
+deactivate FinancialCt
+gate --> ClientApp : ok
+deactivate gate
+
+== Admin blacklists a user ==
+
+AdminApp -> gate : blacklistID(subID)
+activate gate
+gate -> IdentityCt ++ : blacklistID(subID)
+return ok
+gate --> AdminApp : ok
+deactivate gate
+
+@enduml
