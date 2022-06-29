@@ -9,6 +9,18 @@ const (
 	WalletPending
 )
 
+// Wallet represents a main or sub-wallet
+type Wallet struct {
+	ID      WalletID
+	Balance uint64
+	State   walletState
+}
+
+// GetBalance returns the wallet's balance
+func (w Wallet) GetBalance() uint64 {
+	return w.Balance
+}
+
 // Wallets represents a list of wallets. A map would be more efficient but
 // unfortunately not deterministic.
 type Wallets []Wallet
@@ -49,16 +61,4 @@ func (ws *Wallets) Del(id WalletID) bool {
 	}
 
 	return false
-}
-
-// Wallet represents a main or sub-wallet
-type Wallet struct {
-	ID      WalletID
-	Balance uint64
-	State   walletState
-}
-
-// GetBalance returns the wallet's balance
-func (w Wallet) GetBalance() uint64 {
-	return w.Balance
 }

@@ -71,7 +71,7 @@ func (f *FinancialHandler) Apply(request *processor_pb2.TpProcessRequest,
 		return fmt.Errorf("failed to get payload: %v", err)
 	}
 
-	logger.Debugf("trading tx %v: action: %s", request.Signature, payload.Action)
+	logger.Debugf("financial tx %v: action: %s", request.Signature, payload.Action)
 
 	stateHandler, err := state.NewHandler(context, f.serde)
 	if err != nil {

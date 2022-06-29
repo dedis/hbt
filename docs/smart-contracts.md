@@ -14,6 +14,19 @@ The financial smart contract holds a list of wallets, which are represented as
 type `WalletID`. A `WalletID` is a hex-encoded public key, which is a point on
 the ED25519 elliptic curve.
 
+### Operation: Create
+
+The create operation creates a new wallet, with an initial balance of 0. The
+payload of this operation is the following:
+
+```go
+type CreatePayload struct {
+	WalletID state.WalletID
+}
+```
+
+No verification is performed.
+
 ### Operation: Transfer
 
 The transfer operation transfers tokens between one wallet to another. The
