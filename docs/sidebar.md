@@ -1,0 +1,6 @@
+- **General purpose**
+- [Introduction](introduction.md)
+- **Architecture**
+- [architecture](architecture.md)
+- **Ledger**
+- [Smart contracts](smart-contracts.md)
