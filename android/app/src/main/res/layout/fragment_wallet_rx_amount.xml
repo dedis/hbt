@@ -9,19 +9,21 @@
   android:paddingVertical="@dimen/fragment_vertical_margin"
   tools:context=".ui.wallet.RxAmountFragment">
 
-  <TextView
+  <EditText
     android:id="@+id/walletRxAmount"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="12dp"
     android:gravity="center"
     android:hint="@string/transfer_amount"
+    android:autofillHints="0"
     android:minWidth="128dp"
     android:minHeight="48dp"
     android:selectAllOnFocus="true"
     android:textAlignment="center"
     android:textColorHint="#78909C"
     android:textStyle="bold"
+    android:inputType="numberDecimal"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/walletBalance"

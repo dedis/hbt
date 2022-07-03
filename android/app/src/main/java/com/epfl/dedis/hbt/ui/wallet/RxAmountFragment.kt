@@ -7,14 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.epfl.dedis.hbt.databinding.FragmentWalletBinding
+import com.epfl.dedis.hbt.data.model.Role
+import com.epfl.dedis.hbt.databinding.FragmentWalletRxAmountBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ScanFragment : Fragment() {
+class RxAmountFragment : Fragment() {
 
     private val walletViewModel: WalletViewModel by viewModels()
-    private var _binding: FragmentWalletBinding? = null
+    private var _binding: FragmentWalletRxAmountBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -24,13 +25,23 @@ class ScanFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentWalletBinding.inflate(inflater, container, false)
+        _binding = FragmentWalletRxAmountBinding.inflate(inflater, container, false).apply {
+            walletName.text = walletViewModel.user?.name.toString()
+            when (walletViewModel.user?.role) {
+                Role.BENEFICIARY -> walletRole.text = "Beneficiary"
+                Role.MERCHANT -> walletRole.text = "Merchant"
+                else -> walletRole.text = "Beneficiary"
+            }
+            walletBalance.text = walletViewModel.wallet?.balance.toString() + " HBT"
+        }
 
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val receiveButton = binding.walletButtonReceive
+        val amount = binding.walletRxAmount
 
         walletViewModel.walletFormState.observe(
             viewLifecycleOwner,
@@ -46,8 +57,12 @@ class ScanFragment : Fragment() {
                 if (walletResult.error != null) {
 //                    onRegisterFailed(walletResult.error)
                 } else {
-//                  onRegisterSuccess(usernameEditText.text.toString())
+                    //                  onRegisterSuccess(usernameEditText.text.toString())
                 }
             })
+
+        receiveButton.setOnClickListener {
+            walletViewModel.receive(amount.text.toString().toFloat())
+        }
     }
 }

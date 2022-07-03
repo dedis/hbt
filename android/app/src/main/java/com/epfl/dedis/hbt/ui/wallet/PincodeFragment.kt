@@ -7,21 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletPincodeBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class PincodeFragment : Fragment() {
-
-    companion object {
-        private const val USERNAME = "USERNAME"
-
-        fun newInstance(username: String?) = ScanFragment().apply {
-            val bundle = Bundle()
-            bundle.putString(USERNAME, username)
-            arguments = bundle
-        }
-    }
 
     private val walletViewModel: WalletViewModel by viewModels()
     private var _binding: FragmentWalletPincodeBinding? = null
@@ -35,11 +26,13 @@ class PincodeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWalletPincodeBinding.inflate(inflater, container, false).apply {
-            // Set the username field to the value given as argument (if present)
-            arguments?.getString(USERNAME)?.let {
-                walletName.text = it
-                walletBalance.text = "0 HBT"
+            walletName.text = walletViewModel.user?.name.toString()
+            when (walletViewModel.user?.role) {
+                Role.BENEFICIARY -> walletRole.text = "Beneficiary"
+                Role.MERCHANT -> walletRole.text = "Merchant"
+                else -> walletRole.text = "Beneficiary"
             }
+            walletBalance.text = walletViewModel.wallet?.balance.toString() + " HBT"
         }
 
         return binding.root

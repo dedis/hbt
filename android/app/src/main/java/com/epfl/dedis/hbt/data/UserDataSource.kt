@@ -15,6 +15,9 @@ class UserDataSource @Inject constructor() {
     private val users: MutableMap<String, User> = mutableMapOf()
     private val wallets: MutableMap<User, Wallet> = mutableMapOf()
 
+    // TODO: add a datastore for persistence,
+    //  as described in https://developer.android.com/topic/libraries/architecture/datastore
+
     fun isRegistered(username: String): Boolean {
         return users.containsKey(username)
     }
