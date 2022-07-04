@@ -23,4 +23,6 @@
   <string name="wallet_send_failed">Failed to send tokens !</string>
   <string name="wallet_receive_failed">Failed to receive tokens !</string>
   <string name="transfer_amount">Amount to transfer</string>
+    <string name="validation_string">OK</string>
+  <string name="hbt_currency">\" HBT\"</string>
 </resources>

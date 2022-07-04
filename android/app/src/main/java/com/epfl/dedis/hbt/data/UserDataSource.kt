@@ -30,8 +30,7 @@ class UserDataSource @Inject constructor() {
         users[username] = user
 
         //create wallet
-        val wallet = Wallet()
-        wallets[user] = wallet
+        wallets[user] = Wallet.newInstance()
 
         return Result.Success(user)
     }
