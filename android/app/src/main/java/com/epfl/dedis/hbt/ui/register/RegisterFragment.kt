@@ -62,8 +62,6 @@ class RegisterFragment : Fragment() {
             arguments?.getString(PASSPORT)?.let {
                 registerPassport.setText(it)
             }
-
-
         }
 
         nfcReader = NfcReader(requireActivity()).also {
