@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/container"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingHorizontal="@dimen/fragment_horizontal_margin"
+  android:paddingVertical="@dimen/fragment_vertical_margin"
+  tools:context=".ui.wallet.ScanFragment">
+
+  <TextView
+    android:id="@+id/walletName"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="24dp"
+    android:fontFamily="serif"
+    android:minHeight="24dp"
+    android:selectAllOnFocus="true"
+    android:text="@string/walletUsername"
+    android:textAlignment="center"
+    android:textSize="24sp"
+    android:textStyle="bold"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+    android:id="@+id/walletRole"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="24dp"
+    android:minHeight="24dp"
+    android:selectAllOnFocus="true"
+    android:text="@string/role_beneficiary"
+    android:textAlignment="center"
+    android:textColor="#DD2C00"
+    android:textStyle="italic"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletName" />
+
+  <TextView
+    android:id="@+id/walletBalance"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="24dp"
+    android:minHeight="24dp"
+    android:selectAllOnFocus="true"
+    android:text="@string/defaultWalletBalance"
+    android:textAlignment="center"
+    android:textAllCaps="true"
+    android:textStyle="bold"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletRole" />
+
+  <TextView
+    android:id="@+id/walletAmount"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="24dp"
+    android:layout_marginTop="24dp"
+    android:layout_marginEnd="24dp"
+    android:autofillHints="123.45"
+    android:gravity="center"
+    android:hint="@string/transfer_amount"
+    android:minWidth="128dp"
+    android:minHeight="48dp"
+    android:selectAllOnFocus="true"
+    android:textAlignment="center"
+    android:textAllCaps="true"
+    android:textColorHint="#78909C"
+    android:textStyle="bold"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletBalance"
+    tools:ignore="LabelFor" />
+
+  <ImageView
+    android:id="@+id/imageView"
+    android:layout_width="300dp"
+    android:layout_height="300dp"
+    android:layout_marginTop="24dp"
+    android:src="@android:drawable/progress_indeterminate_horizontal"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/walletAmount"
+    android:contentDescription="@string/qr_code_place_holder" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

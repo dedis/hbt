@@ -32,15 +32,32 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
     }
 
     fun registerDataChanged(username: String, pincode: String, passport: String) {
+        var isValid = true
+        var userName: Int? = null
+        var pinError: Int? = null
+        var passError: Int? = null
+
         if (!isUserNameValid(username)) {
-            _registerForm.value = RegisterFormState(usernameError = R.string.invalid_username)
-        } else if (!isPincodeValid(pincode)) {
-            _registerForm.value = RegisterFormState(pincodeError = R.string.invalid_pin_code)
-        } else if (!isPassportValid(passport)) {
-            _registerForm.value = RegisterFormState(passportError = R.string.invalid_passport)
-        } else {
-            _registerForm.value = RegisterFormState(isDataValid = true)
+            isValid = false
+            userName = R.string.invalid_username
         }
+
+        if (!isPincodeValid(pincode)) {
+            isValid = false
+            pinError = R.string.invalid_pin_code
+        }
+
+        if (!isPassportValid(passport)) {
+            isValid = false
+            passError = R.string.invalid_passport
+        }
+
+        _registerForm.value = RegisterFormState(
+            usernameError = userName,
+            pincodeError = pinError,
+            passportError = passError,
+            isDataValid = isValid
+        )
     }
 
     // Validate username

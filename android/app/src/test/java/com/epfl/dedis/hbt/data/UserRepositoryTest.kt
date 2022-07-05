@@ -26,13 +26,13 @@ class UserRepositoryTest {
         val dataSource = mockDataSource(Result.Success(user))
         val repo = UserRepository(dataSource)
 
-        assertThat(repo.user, nullValue())
+        assertThat(repo.loggedInUser, nullValue())
         assertThat(repo.isLoggedIn, eq(false))
 
         val result = repo.login(username, pincode.toString())
 
         assertThat(result, eq(Result.Success(user)))
-        assertThat(repo.user, eq(user))
+        assertThat(repo.loggedInUser, eq(user))
         assertThat(repo.isLoggedIn, eq(true))
 
         verify(dataSource, times(1)).login(username, pincode)
@@ -56,7 +56,7 @@ class UserRepositoryTest {
         val repo = UserRepository(dataSource)
         repo.login(username, pincode.toString())
         repo.logout()
-        assertThat(repo.user, nullValue())
+        assertThat(repo.loggedInUser, nullValue())
         assertThat(repo.isLoggedIn, eq(false))
         verify(dataSource, times(1)).login(username, pincode)
     }
@@ -69,7 +69,7 @@ class UserRepositoryTest {
         val result = repo.login(username, pincode.toString())
 
         assertThat("The login result is not an error", result is Result.Error)
-        assertThat(repo.user, nullValue())
+        assertThat(repo.loggedInUser, nullValue())
         assertThat(repo.isLoggedIn, eq(false))
         verify(dataSource, times(1)).login(username, pincode)
     }
