@@ -28,8 +28,8 @@ class Wallet {
     fun receive(sourcePk: String, amount: Float): Boolean {
         if (amount <= 0F) return false
 
-        val transaction = this.pk?.let { Transaction(sourcePk, it, amount) }
-        if (transaction != null) transactions.add(transaction) else return false
+        if (this.pk != null) transactions.add(Transaction(sourcePk, this.pk, amount)) 
+        else return false
 
         balance += amount
 
