@@ -62,6 +62,8 @@ class RegisterFragment : Fragment() {
             arguments?.getString(PASSPORT)?.let {
                 registerPassport.setText(it)
             }
+
+
         }
 
         nfcReader = NfcReader(requireActivity()).also {
@@ -148,6 +150,13 @@ class RegisterFragment : Fragment() {
                 role
             )
         }
+
+        // Set the default result with the current texts
+        registerViewModel.registerDataChanged(
+            usernameEditText.text.toString(),
+            pincodeEditText.text.toString(),
+            passportEditText.text.toString()
+        )
     }
 
     private fun onRegisterFailed(@StringRes errorString: Int) {
