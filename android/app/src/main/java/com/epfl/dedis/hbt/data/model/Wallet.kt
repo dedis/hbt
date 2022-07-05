@@ -17,8 +17,8 @@ class Wallet {
 
         if (amount < balance) return false
 
-        val transaction = this.pk?.let { Transaction(it, destinationPk, amount) }
-        if (transaction != null) transactions.add(transaction) else return false
+        if (this.pk != null) transactions.add(Transaction(this.pk, destinationPk, amount)) 
+        else return false
 
         balance -= amount
 
