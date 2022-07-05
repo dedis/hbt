@@ -35,7 +35,7 @@ class ScanFragment : Fragment() {
                 else -> walletRole.text = getString(R.string.role_beneficiary)
             }
             walletBalance.text =
-                walletViewModel.wallet?.balance.toString() + getString(R.string.hbt_currency)
+                getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
         }
 
         return binding.root
