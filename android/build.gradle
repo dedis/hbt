@@ -3,7 +3,7 @@ buildscript {
     ext {
         // Write shared dependency versions here, they will be available in the whole project
         hilt_version = '2.42'
-        lifecycle_version = '2.4.1'
+        lifecycle_version = '2.5.0'
     }
 
     dependencies {

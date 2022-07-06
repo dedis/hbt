@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletRxAmountBinding
+import com.epfl.dedis.hbt.ui.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,26 +42,9 @@ class RxAmountFragment : Fragment() {
         val receiveButton = binding.walletButtonReceive
         val amount = binding.walletRxAmount
 
-        walletViewModel.walletFormState.observe(
-            viewLifecycleOwner,
-            Observer { walletFormState ->
-                if (walletFormState == null) {
-                    return@Observer
-                }
-            })
-
-        walletViewModel.walletResult.observe(viewLifecycleOwner,
-            Observer { walletResult ->
-                walletResult ?: return@Observer
-                if (walletResult.error != null) {
-//                    onRegisterFailed(walletResult.error)
-                } else {
-                    //                  onRegisterSuccess(usernameEditText.text.toString())
-                }
-            })
-
         receiveButton.setOnClickListener {
-            walletViewModel.receive(amount.text.toString().toFloat())
+            val sf = ShowQrFragment.newInstance(amount.text.toString().toFloat())
+            MainActivity.setCurrentFragment(parentFragmentManager, sf)
         }
     }
 }
