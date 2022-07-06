@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletShowqrBinding
+import com.epfl.dedis.hbt.ui.MainActivity
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,6 +69,8 @@ class ShowQrFragment : Fragment() {
 
         okButton.setOnClickListener {
             walletViewModel.receive(transferAmount)
+            //TODO: move on to ScanFragment instead
+            MainActivity.setCurrentFragment(parentFragmentManager, WalletFragment())
         }
     }
 
