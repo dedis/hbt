@@ -3,7 +3,7 @@ buildscript {
     ext {
         // Write shared dependency versions here, they will be available in the whole project
         hilt_version = '2.42'
-        lifecycle_version = '2.5.0'
+        lifecycle_version = '2.5.1'
     }
 
     dependencies {
@@ -13,8 +13,8 @@ buildscript {
 }
 
 plugins {
-    id 'com.android.application' version '7.2.1' apply false
-    id 'com.android.library' version '7.2.1' apply false
+    id 'com.android.application' version '7.3.0' apply false
+    id 'com.android.library' version '7.3.0' apply false
     id 'org.jetbrains.kotlin.android' version '1.7.0' apply false
 }
 
