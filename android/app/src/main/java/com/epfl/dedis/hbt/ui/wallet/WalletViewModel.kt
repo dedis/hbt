@@ -38,4 +38,8 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
             _walletResult.value = WalletResult(error = R.string.wallet_receive_failed)
         }
     }
+
+    fun logout() {
+        userRepository.logout()
+    }
 }
