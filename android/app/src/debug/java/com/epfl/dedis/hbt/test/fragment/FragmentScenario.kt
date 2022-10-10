@@ -11,6 +11,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ActivityScenario.ActivityAction
 import androidx.test.core.app.ApplicationProvider
+import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.ui.MainActivity
 import java.util.*
 import java.util.function.Consumer
 import java.util.function.Supplier
@@ -122,10 +124,10 @@ class FragmentScenario<A : AppCompatActivity, F : Fragment> private constructor(
         fun <F : Fragment> launch(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle? = Bundle.EMPTY
-        ): FragmentScenario<EmptyHiltActivity, F> {
+        ): FragmentScenario<MainActivity, F> {
             return launchIn(
-                EmptyHiltActivity::class.java,
-                android.R.id.content,
+                MainActivity::class.java,
+                R.id.container,
                 fragmentClass,
                 fragmentArgs = fragmentArgs
             )
@@ -143,10 +145,10 @@ class FragmentScenario<A : AppCompatActivity, F : Fragment> private constructor(
             fragmentClass: Class<F>,
             fragmentSupplier: Supplier<F>,
             fragmentArgs: Bundle? = Bundle.EMPTY
-        ): FragmentScenario<EmptyHiltActivity, F> {
+        ): FragmentScenario<MainActivity, F> {
             return launchIn(
-                EmptyHiltActivity::class.java,
-                android.R.id.content,
+                MainActivity::class.java,
+                R.id.container,
                 fragmentClass,
                 fragmentSupplier,
                 fragmentArgs = fragmentArgs

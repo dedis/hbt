@@ -10,6 +10,7 @@ import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletBinding
 import com.epfl.dedis.hbt.ui.MainActivity
+import com.epfl.dedis.hbt.ui.login.LoginFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,6 +34,11 @@ class WalletFragment : Fragment() {
             walletRole.text = getString(role.roleName)
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
+
+            walletButtonLogout.setOnClickListener {
+                walletViewModel.logout()
+                MainActivity.setCurrentFragment(parentFragmentManager, LoginFragment.newInstance())
+            }
         }
 
         return binding.root
@@ -42,6 +48,7 @@ class WalletFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val sendButton = binding.walletButtonSend
         val receiveButton = binding.walletButtonReceive
+        val logoutButton = binding.walletButtonLogout
 
         receiveButton.setOnClickListener {
             MainActivity.setCurrentFragment(
@@ -55,6 +62,11 @@ class WalletFragment : Fragment() {
                 parentFragmentManager,
                 ScanFragment()
             )
+        }
+
+        logoutButton.setOnClickListener {
+            walletViewModel.logout()
+            MainActivity.setCurrentFragment(parentFragmentManager, LoginFragment.newInstance())
         }
     }
 }

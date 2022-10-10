@@ -2,6 +2,7 @@ package com.epfl.dedis.hbt.test.fragment
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import com.epfl.dedis.hbt.ui.MainActivity
 import java.util.function.Supplier
 
 /**
@@ -10,8 +11,8 @@ import java.util.function.Supplier
  * @param F Fragment type
  */
 class FragmentScenarioRule<F : Fragment>(
-    fragmentScenarioSupplier: Supplier<FragmentScenario<EmptyHiltActivity, F>>
-) : ActivityFragmentScenarioRule<EmptyHiltActivity, F>(fragmentScenarioSupplier) {
+    fragmentScenarioSupplier: Supplier<FragmentScenario<MainActivity, F>>
+) : ActivityFragmentScenarioRule<MainActivity, F>(fragmentScenarioSupplier) {
     companion object {
         fun <F : Fragment> launch(
             fragmentClass: Class<F>,

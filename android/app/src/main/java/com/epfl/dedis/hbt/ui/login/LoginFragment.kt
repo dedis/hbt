@@ -16,6 +16,7 @@ import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.FragmentLoginBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.register.RegisterFragment
+import com.epfl.dedis.hbt.ui.wallet.WalletFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -74,8 +75,9 @@ class LoginFragment : Fragment() {
                     showLoginFailed(it)
                 }
                 loginResult.success?.let {
-                    // TODO: display Wallet tab and fragment
                     updateUiWithUser(it)
+                    // Open Wallet fragment
+                    MainActivity.setCurrentFragment(parentFragmentManager, WalletFragment())
                 }
             })
 
@@ -125,7 +127,6 @@ class LoginFragment : Fragment() {
 
     private fun updateUiWithUser(model: LoggedInUserView) {
         val welcome = getString(R.string.welcome) + model.displayName
-        // TODO : initiate successful logged in experience
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
     }

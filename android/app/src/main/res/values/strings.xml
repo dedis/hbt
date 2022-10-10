@@ -26,4 +26,5 @@
   <string name="validation_string">OK</string>
   <string name="hbt_currency">%.2f HBT</string>
   <string name="hbt_rx_transaction">{\"dst\"=\"%s\",\"amount\"=%.2f}</string>
+  <string name="wallet_button_logout">Logout</string>
 </resources>

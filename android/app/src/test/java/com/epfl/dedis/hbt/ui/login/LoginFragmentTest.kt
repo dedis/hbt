@@ -1,10 +1,8 @@
 package com.epfl.dedis.hbt.ui.login
 
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import androidx.test.espresso.matcher.ViewMatchers.isNotEnabled
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
@@ -13,9 +11,14 @@ import com.epfl.dedis.hbt.data.model.User
 import com.epfl.dedis.hbt.test.ToastUtils
 import com.epfl.dedis.hbt.test.fragment.FragmentScenarioRule
 import com.epfl.dedis.hbt.test.typeNumbers
+import com.epfl.dedis.hbt.test.ui.page.MainActivityPage.currentFragment
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.loginButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.pincodeInput
+import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.registerButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.usernameInput
+import com.epfl.dedis.hbt.test.ui.page.login.RegisterFragmentPage
+import com.epfl.dedis.hbt.test.ui.page.login.RegisterFragmentPage.registerFragmentId
+import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentId
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -26,6 +29,7 @@ import org.junit.runner.RunWith
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -47,21 +51,72 @@ class LoginFragmentTest {
 
     // Test data
     private val user = User("Jon Smith", 12345, "passport")
+
+    private var currentUser: User? = null
     private var currentRepoResult: Result<User> = Result.Success(user)
-    private var currentRepoRegistered = true
+    private var currentRegistered = true
 
     // Called before the fragment in initialized
     // allowing us to setup the dependencies
     private fun setup() {
         // Reset
         currentRepoResult = Result.Success(user)
-        currentRepoRegistered = true
+        currentRegistered = true
+        currentUser = null
+
         // Create mock
         userRepo = mock {
             on { login(any(), any()) } doAnswer { currentRepoResult }
 
-            on { isRegistered(any()) } doAnswer { currentRepoRegistered }
+            on { isRegistered(any()) } doAnswer { currentRegistered }
+
+            on { loggedInUser } doAnswer { currentUser }
+
+            on { isLoggedIn } doAnswer { currentUser != null }
         }
+    }
+
+    @Test
+    fun loginOpensWallet() {
+        // Modify the userRepo mock such that it sets the current user in the repo as user when login is called
+        whenever(userRepo.login(any(), any())).thenAnswer {
+            currentUser = user
+            currentRepoResult
+        }
+
+        // Login procedure
+        usernameInput().perform(replaceText(user.name))
+        pincodeInput().perform(typeNumbers(user.pincode.toString()))
+        loginButton().perform(click())
+
+        currentFragment().check(matches(withId(walletFragmentId())))
+    }
+
+
+    @Test
+    fun registerKeepsAlreadyGivenInput() {
+        currentRegistered = false
+
+        // Login procedure
+        usernameInput().perform(replaceText(user.name))
+        pincodeInput().perform(typeNumbers(user.pincode.toString()))
+        registerButton().perform(click())
+
+        // make sure data has been correctly transferred
+        currentFragment().check(matches(withId(registerFragmentId())))
+        RegisterFragmentPage.usernameInput().check(matches(withText(user.name)))
+        RegisterFragmentPage.pincodeInput().check(matches(withText(user.pincode.toString())))
+    }
+
+    @Test
+    fun doneButtonOnKeyboardActsAsLogin() {
+        currentRegistered = false
+
+        // Login procedure
+        usernameInput().perform(replaceText(user.name))
+        pincodeInput().perform(typeNumbers(user.pincode.toString()), pressImeActionButton())
+
+        currentFragment().check(matches(withId(walletFragmentId())))
     }
 
     @Test
