@@ -14,6 +14,8 @@ object LoginFragmentPage {
 
     fun loginButton(): ViewInteraction = onView(withId(R.id.loginSignin))
 
+    fun registerButton(): ViewInteraction = onView(withId(R.id.loginRegister))
+
     @IdRes
     fun loginFragmentId(): Int = R.id.loginFragment
 }
