@@ -20,7 +20,7 @@
     },
     "amount": {
       "description": "Amount of the transaction",
-      "type": "integer"
+      "type": "number"
     }
   }
 }
