@@ -20,7 +20,8 @@
     },
     "amount": {
       "description": "Amount of the transaction",
-      "type": "number"
+      "type": "number",
+      "minimum": 0
     }
   }
 }
