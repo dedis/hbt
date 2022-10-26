@@ -119,6 +119,25 @@ sonarqube {
     }
 }
 
+// Copy protocol into the resources
+delete 'src/main/resources/protocol'
+
+copy {
+    from '../../protocol'
+    into 'src/main/resources/protocol'
+
+    include '**'
+
+    // Replace the remote part of the base URL ($id) to the local resource path
+    // This modification is done to force the use of local files when loading json sub-schemas ($ref)
+    // https://json-schema.org/understanding-json-schema/structuring.html#base-uri
+
+    filteringCharset = 'UTF-8'
+    filter {
+        String line -> line.replaceAll("https://raw\\.githubusercontent\\.com/[a-zA-Z0-9_-]/[a-zA-Z0-9_-]+/master/", "resource:/")
+    }
+}
+
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
     jacoco.excludes = ['jdk.internal.*']
@@ -171,6 +190,8 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.5.0'
     implementation 'androidx.fragment:fragment-ktx:1.5.3'
     implementation 'com.google.zxing:core:3.5.0'
+    implementation 'com.networknt:json-schema-validator:1.0.73'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4'
 
     debugImplementation 'junit:junit:4.13.2'
     debugImplementation 'androidx.test.ext:junit-ktx:1.1.3'
