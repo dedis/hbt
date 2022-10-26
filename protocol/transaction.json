@@ -23,5 +23,6 @@
       "type": "number",
       "minimum": 0
     }
-  }
+  },
+  "required": ["datetime", "source", "destination", "amount"]
 }
