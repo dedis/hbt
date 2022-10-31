@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.utility.json
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.dedis.hbt.data.model.Transaction
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -7,8 +8,10 @@ import com.networknt.schema.JsonSchemaException
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.hamcrest.CoreMatchers.`is` as eq
 
+@RunWith(AndroidJUnit4::class)
 class JsonServiceTest {
 
     private val mapper = ObjectMapper().registerKotlinModule()
