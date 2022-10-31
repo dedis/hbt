@@ -17,7 +17,14 @@ class Wallet {
 
         if (amount < balance) return false
 
-        if (this.pk != null) transactions.add(Transaction(this.pk!!, destinationPk, amount))
+        if (this.pk != null) transactions.add(
+            Transaction(
+                this.pk!!,
+                destinationPk,
+                amount,
+                0 /*TODO Date time */
+            )
+        )
         else return false
 
         balance -= amount
@@ -28,7 +35,14 @@ class Wallet {
     fun receive(sourcePk: String, amount: Float): Boolean {
         if (amount <= 0F) return false
 
-        if (this.pk != null) transactions.add(Transaction(sourcePk, this.pk!!, amount))
+        if (this.pk != null) transactions.add(
+            Transaction(
+                sourcePk,
+                this.pk!!,
+                amount,
+                0 /*TODO Date time */
+            )
+        )
         else return false
 
         balance += amount
