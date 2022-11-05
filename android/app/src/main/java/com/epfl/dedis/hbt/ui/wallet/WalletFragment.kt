@@ -11,6 +11,7 @@ import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.login.LoginFragment
+import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -58,15 +59,28 @@ class WalletFragment : Fragment() {
         }
 
         sendButton.setOnClickListener {
-            MainActivity.setCurrentFragment(
-                parentFragmentManager,
-                ScanFragment()
-            )
+            walletViewModel.transitionTo(SenderRead)
         }
 
         logoutButton.setOnClickListener {
             walletViewModel.logout()
             MainActivity.setCurrentFragment(parentFragmentManager, LoginFragment.newInstance())
+        }
+
+        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+            when (it) {
+                is ReceiverRead, is SenderRead ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        ScanFragment()
+                    )
+                is ReceiverShow, is SenderShow ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        ShowQrFragment()
+                    )
+                else -> {}
+            }
         }
     }
 }

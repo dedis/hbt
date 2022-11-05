@@ -18,6 +18,9 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
     private val _walletResult = MutableLiveData<WalletResult>()
     val walletResult: LiveData<WalletResult> = _walletResult
 
+    private val _transactionState = MutableLiveData<TransactionState>()
+    val transactionState: LiveData<TransactionState> = _transactionState
+
     val user = userRepository.loggedInUser
     val wallet = userRepository.wallet
 
@@ -41,5 +44,11 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
 
     fun logout() {
         userRepository.logout()
+    }
+
+    fun transitionTo(newState: TransactionState) {
+        if (_transactionState.value != newState) {
+            _transactionState.postValue(newState)
+        }
     }
 }
