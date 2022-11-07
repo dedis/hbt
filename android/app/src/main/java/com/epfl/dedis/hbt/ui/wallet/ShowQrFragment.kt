@@ -106,7 +106,7 @@ class ShowQrFragment : Fragment() {
                         )
                     )
                 }
-                is SenderShow -> generateQrCode(JsonType.TRANSACTION, it.transaction)
+                is SenderShow -> generateQrCode(JsonType.COMPLETE_TRANSACTION, it.transaction)
             }
         }
     }

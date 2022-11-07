@@ -3,7 +3,7 @@ package com.epfl.dedis.hbt.data.model
 class Wallet {
     var pk: String? = null
     var balance: Float = 0F
-    private val transactions: MutableList<Transaction> = mutableListOf()
+    private val transactions: MutableList<CompleteTransaction> = mutableListOf()
 
     companion object {
         fun newInstance() = Wallet().apply {
@@ -18,7 +18,7 @@ class Wallet {
         if (amount < balance) return false
 
         if (this.pk != null) transactions.add(
-            Transaction(
+            CompleteTransaction(
                 this.pk!!,
                 destinationPk,
                 amount,
@@ -36,7 +36,7 @@ class Wallet {
         if (amount <= 0F) return false
 
         if (this.pk != null) transactions.add(
-            Transaction(
+            CompleteTransaction(
                 sourcePk,
                 this.pk!!,
                 amount,

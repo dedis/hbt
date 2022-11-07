@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/dedis/hbt/main/protocole/pending_transaction.json",
+  "title": "pending transaction message",
+  "description": "Content of a transaction message where the source in not known yet",
+  "type": "object",
+  "properties": {
+    "datetime": {
+      "description": "UNIX Timestamp in UTC of this transaction",
+      "type": "integer",
+      "minimum": 0
+    },
+    "destination": {
+      "description": "Destination of the transaction",
+      "type": "string"
+    },
+    "amount": {
+      "description": "Amount of the transaction",
+      "type": "number",
+      "minimum": 0
+    }
+  },
+  "required": ["datetime", "destination", "amount"]
+}

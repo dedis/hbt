@@ -1,8 +1,8 @@
 package com.epfl.dedis.hbt.ui.wallet
 
 import android.widget.EditText
+import com.epfl.dedis.hbt.data.model.CompleteTransaction
 import com.epfl.dedis.hbt.data.model.PendingTransaction
-import com.epfl.dedis.hbt.data.model.Transaction
 
 /**
  * Describe the five states of a transaction process :
@@ -22,6 +22,6 @@ sealed class TransactionState {
     }
 
     object SenderRead : TransactionState()
-    data class SenderShow(val transaction: Transaction) : TransactionState()
+    data class SenderShow(val transaction: CompleteTransaction) : TransactionState()
     data class ReceiverRead(val expected: PendingTransaction) : TransactionState()
 }
