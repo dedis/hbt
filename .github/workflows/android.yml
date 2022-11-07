@@ -76,3 +76,9 @@ jobs:
         run: |
           # To run the CI with debug informations, use --info
           ./gradlew sonarqube --parallel --build-cache
+          
+      - uses: actions/upload-artifact@v3
+        if: failure() 
+        with:
+          name: reports
+          path: ./android/app/build/reports
