@@ -1,11 +1,15 @@
 package com.epfl.dedis.hbt.utility.json
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.dedis.hbt.data.model.Transaction
+import com.epfl.dedis.hbt.data.model.CompleteTransaction
+import com.epfl.dedis.hbt.di.JsonModule
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.networknt.schema.JsonSchemaException
+import org.hamcrest.Description
+import org.hamcrest.Matcher
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.TypeSafeMatcher
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,9 +21,27 @@ class JsonServiceTest {
     private val mapper = ObjectMapper().registerKotlinModule()
 
     companion object {
-        private val validTransaction = Transaction("Source", "Dest", 12.5f, 234)
+        private val validTransaction = CompleteTransaction("Source", "Dest", 12.5f, 234)
         private const val validTransactionJson =
             "{\"datetime\": 234,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}"
+
+        fun jsonEq(
+            jsonString: String,
+            objectMapper: ObjectMapper = JsonModule.provideObjectMapper()
+        ): Matcher<String> {
+            return object : TypeSafeMatcher<String>(String::class.java) {
+                override fun describeTo(description: Description) {
+                    description.appendText("json equivalent to '$jsonString'")
+                }
+
+                override fun matchesSafely(item: String): Boolean {
+                    val expected = objectMapper.readTree(jsonString)
+                    val got = objectMapper.readTree(item)
+
+                    return expected == got
+                }
+            }
+        }
     }
 
     @Test
@@ -27,11 +49,11 @@ class JsonServiceTest {
         val service = JsonService(mapper)
         service.loadSchemas()
 
-        val transaction: Transaction =
+        val transaction: CompleteTransaction =
             service.fromJson(
                 JsonType.COMPLETE_TRANSACTION,
                 validTransactionJson,
-                Transaction::class.java
+                CompleteTransaction::class
             )
         assertThat(transaction, eq(validTransaction))
     }
@@ -41,8 +63,10 @@ class JsonServiceTest {
         val service = JsonService(mapper)
         service.loadSchemas()
 
-        val json = service.toJson(JsonType.COMPLETE_TRANSACTION, validTransaction)
-        assertThat(mapper.readTree(json), eq(mapper.readTree(validTransactionJson)))
+        assertThat(
+            service.toJson(JsonType.COMPLETE_TRANSACTION, validTransaction),
+            jsonEq(validTransactionJson)
+        )
     }
 
     @Test
@@ -54,7 +78,7 @@ class JsonServiceTest {
             service.fromJson(
                 JsonType.COMPLETE_TRANSACTION,
                 "{\"datetime\": -6,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}",
-                Transaction::class.java
+                CompleteTransaction::class
             )
         }
     }
