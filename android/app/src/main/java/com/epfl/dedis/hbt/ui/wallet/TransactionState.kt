@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.ui.wallet
 
+import android.widget.EditText
 import com.epfl.dedis.hbt.data.model.PendingTransaction
 import com.epfl.dedis.hbt.data.model.Transaction
 
@@ -13,7 +14,13 @@ import com.epfl.dedis.hbt.data.model.Transaction
  */
 sealed class TransactionState {
     object None : TransactionState()
-    data class ReceiverShow(val amount: Float, val datetime: Long) : TransactionState()
+    data class ReceiverShow(val amount: Float, val datetime: Long) : TransactionState() {
+        constructor(amount: EditText, datetime: Long) : this(
+            amount.text.toString().toFloat(),
+            datetime
+        )
+    }
+
     object SenderRead : TransactionState()
     data class SenderShow(val transaction: Transaction) : TransactionState()
     data class ReceiverRead(val expected: PendingTransaction) : TransactionState()

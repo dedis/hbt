@@ -45,7 +45,7 @@ class RxAmountFragment : Fragment() {
         val datetime = System.currentTimeMillis()
 
         binding.walletButtonReceive.setOnClickListener {
-            walletViewModel.transitionTo(ReceiverShow(amount.text.toString().toFloat(), datetime))
+            walletViewModel.transitionTo(ReceiverShow(amount, datetime))
         }
 
         walletViewModel.transactionState.observe(viewLifecycleOwner) {
