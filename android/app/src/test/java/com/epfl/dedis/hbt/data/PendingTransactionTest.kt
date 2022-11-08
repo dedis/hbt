@@ -16,7 +16,7 @@ class PendingTransactionTest {
 
     private val transaction = PendingTransaction("dest", 10.5F, 104320)
     private val jsonRepresentation =
-        "{\"datetime\": 104320,\"destination\": \"dest\",\"amount\": 10.5}"
+        "{\"datetime\": 104320,\"destination\": \"marc\",\"amount\": 10.5}"
 
     private val jsonService = JsonService(JsonModule.provideObjectMapper())
         .apply { loadSchemas() }
