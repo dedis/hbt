@@ -53,7 +53,7 @@ class ScanFragment : Fragment() {
             Observer { walletResult ->
                 walletResult ?: return@Observer
                 if (walletResult.error != null) {
-//                    onRegisterFailed(walletResult.error)
+//                  onRegisterFailed(walletResult.error)
                 } else {
 //                  onRegisterSuccess(usernameEditText.text.toString())
                 }

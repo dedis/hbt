@@ -10,6 +10,7 @@ import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletRxAmountBinding
 import com.epfl.dedis.hbt.ui.MainActivity
+import com.epfl.dedis.hbt.ui.wallet.TransactionState.ReceiverShow
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,12 +40,28 @@ class RxAmountFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val receiveButton = binding.walletButtonReceive
-        val amount = binding.walletRxAmount
 
-        receiveButton.setOnClickListener {
-            val sf = ShowQrFragment.newInstance(amount.text.toString().toFloat())
-            MainActivity.setCurrentFragment(parentFragmentManager, sf)
+        val amount = binding.walletRxAmount
+        val datetime = System.currentTimeMillis()
+
+        binding.walletButtonReceive.setOnClickListener {
+            walletViewModel.transitionTo(ReceiverShow(amount, datetime))
+        }
+
+        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+            when (it) {
+                is TransactionState.ReceiverRead, is TransactionState.SenderRead ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        ScanFragment()
+                    )
+                is ReceiverShow, is TransactionState.SenderShow ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        ShowQrFragment()
+                    )
+                else -> {}
+            }
         }
     }
 }

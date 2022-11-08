@@ -1,7 +1,7 @@
 package com.epfl.dedis.hbt.data.model
 
 /**
- * Data class that captures a transaction information to send or receive token
+ * Data class that captures an incomplete transaction of tokens created by the receiver
  */
 data class PendingTransaction(
     val destination: String,
