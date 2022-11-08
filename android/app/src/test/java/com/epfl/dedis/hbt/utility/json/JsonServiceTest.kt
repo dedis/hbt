@@ -21,7 +21,7 @@ class JsonServiceTest {
     private val mapper = ObjectMapper().registerKotlinModule()
 
     companion object {
-        private val validTransaction = CompleteTransaction("Source", "Dest", 12.5f, 234)
+        private val validTransaction = CompleteTransaction("Ben", "Marc", 12.5f, 234)
         private const val validTransactionJson =
             "{\"datetime\": 234,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}"
 
