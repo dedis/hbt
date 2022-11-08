@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/dedis/hbt/main/protocole/transaction.json",
-  "title": "transaction message",
+  "$id": "https://raw.githubusercontent.com/dedis/hbt/main/protocole/complete_transaction.json",
+  "title": "complete transaction message",
   "description": "Content of a transaction message",
   "type": "object",
   "properties": {
@@ -23,5 +23,6 @@
       "type": "number",
       "minimum": 0
     }
-  }
+  },
+  "required": ["datetime", "source", "destination", "amount"]
 }

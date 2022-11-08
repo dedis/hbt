@@ -7,6 +7,7 @@ import com.networknt.schema.*
 import java.net.URI
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.reflect.KClass
 
 @Singleton
 class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
@@ -34,10 +35,10 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         Log.i(TAG, "Schemas loaded successfully")
     }
 
-    fun <T> fromJson(jsonType: JsonType, json: String, type: Class<T>): T {
+    fun <T : Any> fromJson(jsonType: JsonType, json: String, type: KClass<T>): T {
         val node = objectMapper.readTree(json)
         validate(jsonType, node)
-        return objectMapper.treeToValue(node, type)
+        return objectMapper.treeToValue(node, type.java)
     }
 
     fun <T> toJson(jsonType: JsonType, obj: T): String {
