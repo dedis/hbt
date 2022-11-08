@@ -23,7 +23,7 @@ class JsonServiceTest {
     companion object {
         private val validTransaction = CompleteTransaction("Ben", "Marc", 12.5f, 234)
         private const val validTransactionJson =
-            "{\"datetime\": 234,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}"
+            "{\"datetime\": 234,\"source\": \"Ben\",\"destination\": \"Marc\",\"amount\": 12.5}"
 
         fun jsonEq(
             jsonString: String,
