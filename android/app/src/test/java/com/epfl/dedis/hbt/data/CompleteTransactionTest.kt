@@ -14,7 +14,7 @@ import org.hamcrest.CoreMatchers.`is` as eq
 @RunWith(AndroidJUnit4::class)
 class CompleteTransactionTest {
 
-    private val transaction = CompleteTransaction("source", "dest", 10.5F, 104320)
+    private val transaction = CompleteTransaction("ben", "marc", 10.5F, 104320)
     private val jsonRepresentation =
         "{\"datetime\": 104320,\"source\": \"ben\",\"destination\": \"marc\",\"amount\": 10.5}"
 
