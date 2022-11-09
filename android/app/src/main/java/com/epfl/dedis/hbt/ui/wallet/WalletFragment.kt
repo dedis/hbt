@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class WalletFragment : Fragment() {
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletBinding? = null
 
     // This property is only valid between onCreateView and

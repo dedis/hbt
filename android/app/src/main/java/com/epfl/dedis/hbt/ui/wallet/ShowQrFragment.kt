@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
@@ -36,7 +37,7 @@ class ShowQrFragment : Fragment() {
     @Inject
     lateinit var jsonService: JsonService
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletShowqrBinding? = null
 
     // This property is only valid between onCreateView and
@@ -55,6 +56,16 @@ class ShowQrFragment : Fragment() {
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
         }
+
+        // Override back button such that it cancels current transaction
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    walletViewModel.transitionTo(None)
+                }
+            }
+        )
 
         return binding.root
     }

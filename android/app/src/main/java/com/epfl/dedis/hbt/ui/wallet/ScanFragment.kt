@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -15,7 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ScanFragment : Fragment() {
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
 
     // This property is only valid between onCreateView and
@@ -34,6 +35,16 @@ class ScanFragment : Fragment() {
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
         }
+
+        // Override back button such that it cancels current transaction
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    walletViewModel.transitionTo(TransactionState.None)
+                }
+            }
+        )
 
         return binding.root
     }

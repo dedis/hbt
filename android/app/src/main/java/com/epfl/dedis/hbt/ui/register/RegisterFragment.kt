@@ -37,7 +37,7 @@ class RegisterFragment : Fragment() {
     }
 
     private var nfcReader: NfcReader? = null
-    private val registerViewModel: RegisterViewModel by viewModels()
+    private val registerViewModel: RegisterViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentRegisterBinding? = null
 
     // This property is only valid between onCreateView and
