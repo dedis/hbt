@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ScanFragment : Fragment() {
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
 
     // This property is only valid between onCreateView and

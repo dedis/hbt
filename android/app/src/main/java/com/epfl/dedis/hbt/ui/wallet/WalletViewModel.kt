@@ -18,7 +18,7 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
     private val _walletResult = MutableLiveData<WalletResult>()
     val walletResult: LiveData<WalletResult> = _walletResult
 
-    private val _transactionState = MutableLiveData<TransactionState>()
+    private val _transactionState = MutableLiveData<TransactionState>(TransactionState.None)
     val transactionState: LiveData<TransactionState> = _transactionState
 
     val user = userRepository.loggedInUser

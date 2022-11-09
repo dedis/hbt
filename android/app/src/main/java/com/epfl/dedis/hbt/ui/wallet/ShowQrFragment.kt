@@ -36,7 +36,7 @@ class ShowQrFragment : Fragment() {
     @Inject
     lateinit var jsonService: JsonService
 
-    private val walletViewModel: WalletViewModel by viewModels()
+    private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletShowqrBinding? = null
 
     // This property is only valid between onCreateView and
