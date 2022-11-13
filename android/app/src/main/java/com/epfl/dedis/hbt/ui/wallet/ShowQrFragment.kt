@@ -107,7 +107,7 @@ class ShowQrFragment : Fragment() {
                     )
                 is ReceiverShow -> {
                     generateQrCode(
-                        JsonType.PENDING_TRANSACTION,
+                        JsonType.PendingTransactionType,
                         PendingTransaction(
                             walletViewModel.user.name,
                             it.amount,
@@ -115,7 +115,7 @@ class ShowQrFragment : Fragment() {
                         )
                     )
                 }
-                is SenderShow -> generateQrCode(JsonType.COMPLETE_TRANSACTION, it.transaction)
+                is SenderShow -> generateQrCode(JsonType.CompleteTransactionType, it.transaction)
             }
         }
     }

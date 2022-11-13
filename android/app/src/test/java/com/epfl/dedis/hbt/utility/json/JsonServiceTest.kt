@@ -51,9 +51,8 @@ class JsonServiceTest {
 
         val transaction: CompleteTransaction =
             service.fromJson(
-                JsonType.COMPLETE_TRANSACTION,
-                validTransactionJson,
-                CompleteTransaction::class
+                JsonType.CompleteTransactionType,
+                validTransactionJson
             )
         assertThat(transaction, eq(validTransaction))
     }
@@ -64,7 +63,7 @@ class JsonServiceTest {
         service.loadSchemas()
 
         assertThat(
-            service.toJson(JsonType.COMPLETE_TRANSACTION, validTransaction),
+            service.toJson(JsonType.CompleteTransactionType, validTransaction),
             jsonEq(validTransactionJson)
         )
     }
@@ -76,9 +75,8 @@ class JsonServiceTest {
 
         assertThrows(JsonSchemaException::class.java) {
             service.fromJson(
-                JsonType.COMPLETE_TRANSACTION,
-                "{\"datetime\": -6,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}",
-                CompleteTransaction::class
+                JsonType.CompleteTransactionType,
+                "{\"datetime\": -6,\"source\": \"Source\",\"destination\": \"Dest\",\"amount\": 12.5}"
             )
         }
     }

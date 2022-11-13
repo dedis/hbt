@@ -16,7 +16,7 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         private val TAG = JsonService::class.simpleName
     }
 
-    private lateinit var schemas: Map<JsonType, JsonSchema>
+    private lateinit var schemas: Map<JsonType<*>, JsonSchema>
 
     fun loadSchemas() {
         Log.i(TAG, "Loading json schemas")
@@ -26,7 +26,7 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
 
         val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
         // Create the schema map by associating each schema to its generated validator
-        schemas = JsonType.values().associateWith {
+        schemas = JsonType.TYPES.associateWith {
             factory.getSchema(URI.create("resource:/" + it.schemaPath), config)
                 // Preload the schema now such that it isn't done later
                 .apply { preloadJsonSchema() }
@@ -35,19 +35,22 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         Log.i(TAG, "Schemas loaded successfully")
     }
 
-    fun <T : Any> fromJson(jsonType: JsonType, json: String, type: KClass<T>): T {
+    fun <T : Any> fromJson(jsonType: JsonType<T>, json: String): T =
+        fromJson(jsonType, json, jsonType.type)
+
+    fun <T1 : Any, T2 : T1> fromJson(jsonType: JsonType<T1>, json: String, type: KClass<T2>): T2 {
         val node = objectMapper.readTree(json)
         validate(jsonType, node)
         return objectMapper.treeToValue(node, type.java)
     }
 
-    fun <T> toJson(jsonType: JsonType, obj: T): String {
+    fun <T : Any> toJson(jsonType: JsonType<out T>, obj: T): String {
         val node: JsonNode = objectMapper.valueToTree(obj)
         validate(jsonType, node)
         return objectMapper.writeValueAsString(node)
     }
 
-    private fun validate(jsonType: JsonType, node: JsonNode) {
+    private fun validate(jsonType: JsonType<*>, node: JsonNode) {
         val errors = schemas[jsonType]!!.validate(node)
 
         if (errors.isNotEmpty()) {

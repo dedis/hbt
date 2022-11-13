@@ -24,7 +24,7 @@ class PendingTransactionTest {
     @Test
     fun serializationTest() {
         assertThat(
-            jsonService.toJson(JsonType.PENDING_TRANSACTION, transaction),
+            jsonService.toJson(JsonType.PendingTransactionType, transaction),
             jsonEq(jsonRepresentation)
         )
     }
@@ -33,9 +33,8 @@ class PendingTransactionTest {
     fun deserializationTest() {
         assertThat(
             jsonService.fromJson(
-                JsonType.PENDING_TRANSACTION,
-                jsonRepresentation,
-                PendingTransaction::class
+                JsonType.PendingTransactionType,
+                jsonRepresentation
             ),
             eq(transaction)
         )
