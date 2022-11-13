@@ -2,11 +2,9 @@ package com.epfl.dedis.hbt.ui.wallet
 
 import android.Manifest
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.mlkit.vision.MlKitAnalyzer
@@ -21,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.FragmentWalletScanBinding
+import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
 import com.epfl.dedis.hbt.utility.json.JsonService
 import com.epfl.dedis.hbt.utility.json.JsonType
@@ -115,6 +114,22 @@ class ScanFragment : Fragment() {
 //                  onRegisterSuccess(usernameEditText.text.toString())
                 }
             })
+
+        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+            when (it) {
+                None ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        WalletFragment()
+                    )
+                is ReceiverShow, is SenderShow ->
+                    MainActivity.setCurrentFragment(
+                        parentFragmentManager,
+                        ShowQrFragment()
+                    )
+                else -> {}
+            }
+        }
     }
 
     override fun onResume() {
@@ -162,13 +177,14 @@ class ScanFragment : Fragment() {
     }
 
     private fun onResult(barcode: Barcode) {
-        when (val state = walletViewModel.transactionState.value) {
+        when (walletViewModel.transactionState.value) {
             is ReceiverRead -> {
                 val trx = jsonService.fromJson(
                     JsonType.CompleteTransactionType,
                     barcode.rawValue ?: ""
                 )
                 walletViewModel.receive(trx)
+                walletViewModel.transitionTo(None)
             }
             SenderRead -> {
                 val trx = jsonService.fromJson(
@@ -178,8 +194,7 @@ class ScanFragment : Fragment() {
                 walletViewModel.transitionTo(SenderShow(trx.withSource(walletViewModel.user.name)))
             }
             else -> {
-                Log.e(TAG, "Unhandled state in the ShowQrFragment : $state")
-                Toast.makeText(context, "Invalid transaction state", Toast.LENGTH_SHORT).show()
+                // Might occur if the fragment switch is too slow
             }
         }
     }

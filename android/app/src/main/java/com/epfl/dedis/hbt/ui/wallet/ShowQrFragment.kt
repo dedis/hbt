@@ -84,8 +84,10 @@ class ShowQrFragment : Fragment() {
                         )
                     )
                 )
-                is SenderShow ->
+                is SenderShow -> {
                     walletViewModel.send(state.transaction)
+                    walletViewModel.transitionTo(None)
+                }
                 else -> {
                     Log.e(TAG, "Unhandled state in the ShowQrFragment : $state")
                     Toast.makeText(context, "Invalid transaction state", Toast.LENGTH_SHORT).show()
@@ -120,7 +122,7 @@ class ShowQrFragment : Fragment() {
         }
     }
 
-    private fun generateQrCode(type: JsonType, content: Any) {
+    private fun generateQrCode(type: JsonType<*>, content: Any) {
         val imageView: ImageView = binding.walletQrImage
         val size = max(imageView.layoutParams.width, imageView.layoutParams.height)
 

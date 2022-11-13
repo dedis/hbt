@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
@@ -41,9 +42,14 @@ class RxAmountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val amount = binding.walletRxAmount
-        val datetime = System.currentTimeMillis()
+        val okButton = binding.walletButtonReceive
 
-        binding.walletButtonReceive.setOnClickListener {
+        amount.addTextChangedListener {
+            okButton.isEnabled = it?.toString()?.toFloatOrNull() != null
+        }
+
+        okButton.setOnClickListener {
+            val datetime = System.currentTimeMillis()
             walletViewModel.transitionTo(ReceiverShow(amount, datetime))
         }
 

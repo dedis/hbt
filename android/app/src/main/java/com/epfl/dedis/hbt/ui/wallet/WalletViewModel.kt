@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.ui.wallet
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,11 +27,11 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
     val wallet = userRepository.wallet
 
     fun send(transaction: CompleteTransaction) {
-
+        Log.i("Wallet VM", "Sending $transaction")
     }
 
     fun receive(transaction: CompleteTransaction) {
-
+        Log.i("Wallet VM", "Sending $transaction")
     }
 
     fun logout() {
