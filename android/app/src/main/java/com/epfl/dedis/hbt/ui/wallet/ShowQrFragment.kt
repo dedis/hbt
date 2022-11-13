@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.model.PendingTransaction
-import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletShowqrBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
@@ -86,8 +85,7 @@ class ShowQrFragment : Fragment() {
                     )
                 )
                 is SenderShow ->
-                    // TODO Say it is complete ?
-                    walletViewModel.transitionTo(None)
+                    walletViewModel.send(state.transaction)
                 else -> {
                     Log.e(TAG, "Unhandled state in the ShowQrFragment : $state")
                     Toast.makeText(context, "Invalid transaction state", Toast.LENGTH_SHORT).show()

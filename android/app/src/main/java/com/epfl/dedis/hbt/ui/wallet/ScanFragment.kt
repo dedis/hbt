@@ -2,9 +2,11 @@ package com.epfl.dedis.hbt.ui.wallet
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.mlkit.vision.MlKitAnalyzer
@@ -18,21 +20,33 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.Role
+import com.epfl.dedis.hbt.data.model.CompleteTransaction
+import com.epfl.dedis.hbt.data.model.PendingTransaction
 import com.epfl.dedis.hbt.databinding.FragmentWalletScanBinding
+import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
+import com.epfl.dedis.hbt.utility.json.JsonService
+import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.ExecutorService
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class ScanFragment : Fragment() {
 
+    companion object {
+        private val TAG: String = ScanFragment::class.java.simpleName
+    }
+
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
+
+    @Inject
+    lateinit var jsonService: JsonService
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -75,7 +89,7 @@ class ScanFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    walletViewModel.transitionTo(TransactionState.None)
+                    walletViewModel.transitionTo(None)
                 }
             }
         )
@@ -150,7 +164,28 @@ class ScanFragment : Fragment() {
     }
 
     private fun onResult(barcode: Barcode) {
-        TODO("Not yet implemented")
+        when (val state = walletViewModel.transactionState.value) {
+            is ReceiverRead -> {
+                val trx = jsonService.fromJson(
+                    JsonType.COMPLETE_TRANSACTION,
+                    barcode.rawValue ?: "",
+                    CompleteTransaction::class
+                )
+                walletViewModel.receive(trx)
+            }
+            SenderRead -> {
+                val trx = jsonService.fromJson(
+                    JsonType.PENDING_TRANSACTION,
+                    barcode.rawValue ?: "",
+                    PendingTransaction::class
+                )
+                walletViewModel.transitionTo(SenderShow(trx.withSource(walletViewModel.user.name)))
+            }
+            else -> {
+                Log.e(TAG, "Unhandled state in the ShowQrFragment : $state")
+                Toast.makeText(context, "Invalid transaction state", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun applyPermissionToView() {
