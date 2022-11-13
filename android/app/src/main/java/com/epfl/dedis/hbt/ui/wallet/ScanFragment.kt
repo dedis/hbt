@@ -56,8 +56,8 @@ class ScanFragment : Fragment() {
         }
 
         _binding = FragmentWalletScanBinding.inflate(inflater, container, false).apply {
-            walletName.text = walletViewModel.user?.name.toString()
-            val role = walletViewModel.user?.role ?: Role.BENEFICIARY
+            walletName.text = walletViewModel.user.name
+            val role = walletViewModel.user.role
             walletRole.text = getString(role.roleName)
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)

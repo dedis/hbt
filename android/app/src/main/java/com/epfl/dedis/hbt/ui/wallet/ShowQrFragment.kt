@@ -50,8 +50,8 @@ class ShowQrFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWalletShowqrBinding.inflate(inflater, container, false).apply {
-            walletName.text = walletViewModel.user?.name.toString()
-            val role = walletViewModel.user?.role ?: Role.BENEFICIARY
+            walletName.text = walletViewModel.user.name
+            val role = walletViewModel.user.role
             walletRole.text = getString(role.roleName)
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
@@ -79,7 +79,7 @@ class ShowQrFragment : Fragment() {
                 is ReceiverShow -> walletViewModel.transitionTo(
                     ReceiverRead(
                         PendingTransaction(
-                            walletViewModel.user!!.passport,
+                            walletViewModel.user.name,
                             state.amount,
                             state.datetime
                         )
@@ -111,7 +111,7 @@ class ShowQrFragment : Fragment() {
                     generateQrCode(
                         JsonType.PENDING_TRANSACTION,
                         PendingTransaction(
-                            walletViewModel.user!!.passport,
+                            walletViewModel.user.name,
                             it.amount,
                             it.datetime
                         )

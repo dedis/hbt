@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.login.LoginFragment
@@ -30,8 +29,8 @@ class WalletFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWalletBinding.inflate(inflater, container, false).apply {
-            walletName.text = walletViewModel.user?.name.toString()
-            val role = walletViewModel.user?.role ?: Role.BENEFICIARY
+            walletName.text = walletViewModel.user.name
+            val role = walletViewModel.user.role
             walletRole.text = getString(role.roleName)
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)

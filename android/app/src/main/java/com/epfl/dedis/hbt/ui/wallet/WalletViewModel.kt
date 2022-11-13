@@ -21,7 +21,8 @@ class WalletViewModel @Inject constructor(private val userRepository: UserReposi
     private val _transactionState = MutableLiveData<TransactionState>(TransactionState.None)
     val transactionState: LiveData<TransactionState> = _transactionState
 
-    val user = userRepository.loggedInUser
+    val user =
+        userRepository.loggedInUser ?: throw IllegalStateException("User should be logged in")
     val wallet = userRepository.wallet
 
     fun send(amount: Float) {
