@@ -47,7 +47,7 @@ class WalletFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val sendButton = binding.walletButtonSend
-        val receiveButton = binding.walletButtonReceive
+        val receiveButton = binding.rxAmountOk
         val logoutButton = binding.walletButtonLogout
 
         receiveButton.setOnClickListener {

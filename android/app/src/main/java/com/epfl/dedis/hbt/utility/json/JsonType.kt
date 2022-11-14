@@ -18,7 +18,7 @@ sealed class JsonType<T : Any>(val schemaPath: String, val type: KClass<T>) {
         )
 
     companion object {
-        val TYPES: List<JsonType<*>> =
+        fun types(): List<JsonType<*>> =
             JsonType::class.sealedSubclasses.mapNotNull { it.objectInstance }
     }
 }

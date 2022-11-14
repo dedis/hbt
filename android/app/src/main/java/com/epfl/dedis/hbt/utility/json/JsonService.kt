@@ -16,7 +16,7 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         private val TAG = JsonService::class.simpleName
     }
 
-    private lateinit var schemas: Map<JsonType<*>, JsonSchema>
+    private var schemas: Map<JsonType<*>, JsonSchema>? = null
 
     fun loadSchemas() {
         Log.i(TAG, "Loading json schemas")
@@ -26,7 +26,7 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
 
         val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
         // Create the schema map by associating each schema to its generated validator
-        schemas = JsonType.TYPES.associateWith {
+        schemas = JsonType.types().associateWith {
             factory.getSchema(URI.create("resource:/" + it.schemaPath), config)
                 // Preload the schema now such that it isn't done later
                 .apply { preloadJsonSchema() }
@@ -51,11 +51,16 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
     }
 
     private fun validate(jsonType: JsonType<*>, node: JsonNode) {
-        val errors = schemas[jsonType]!!.validate(node)
+        val errors = getSchemas()[jsonType]!!.validate(node)
 
         if (errors.isNotEmpty()) {
             throw JsonSchemaException("ValidationMessage errors : $errors")
         }
+    }
+
+    private fun getSchemas(): Map<JsonType<*>, JsonSchema> {
+        if (schemas == null) loadSchemas()
+        return schemas!!
     }
 
 }

@@ -42,7 +42,7 @@ class RxAmountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val amount = binding.walletRxAmount
-        val okButton = binding.walletButtonReceive
+        val okButton = binding.rxAmountOk
 
         amount.addTextChangedListener {
             okButton.isEnabled = it?.toString()?.toFloatOrNull() != null

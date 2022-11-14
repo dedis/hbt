@@ -28,7 +28,6 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.concurrent.ExecutorService
 import javax.inject.Inject
 
 
@@ -49,7 +48,6 @@ class ScanFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    private lateinit var cameraExecutor: ExecutorService
     private lateinit var barcodeScanner: BarcodeScanner
 
     override fun onCreateView(
@@ -139,7 +137,7 @@ class ScanFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        cameraExecutor.shutdown()
+
         barcodeScanner.close()
     }
 
