@@ -118,7 +118,7 @@ class TransactionScenarioTest {
     @Ignore("Not working yet")
     fun receiverScenario() {
         qrCodeContent = jsonService.toJson(
-            JsonType.CompleteTransactionType, CompleteTransaction(
+            JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
                 "ben",
                 user.name,
                 115.5F,

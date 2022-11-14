@@ -18,6 +18,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.model.CompleteTransaction
+import com.epfl.dedis.hbt.data.model.PendingTransaction
 import com.epfl.dedis.hbt.databinding.FragmentWalletScanBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
@@ -177,16 +179,16 @@ class ScanFragment : Fragment() {
     private fun onResult(barcode: Barcode) {
         when (walletViewModel.transactionState.value) {
             is ReceiverRead -> {
-                val trx = jsonService.fromJson(
-                    JsonType.CompleteTransactionType,
+                val trx = jsonService.fromJson<CompleteTransaction>(
+                    JsonType.COMPLETE_TRANSACTION,
                     barcode.rawValue ?: ""
                 )
                 walletViewModel.receive(trx)
                 walletViewModel.transitionTo(None)
             }
             SenderRead -> {
-                val trx = jsonService.fromJson(
-                    JsonType.PendingTransactionType,
+                val trx = jsonService.fromJson<PendingTransaction>(
+                    JsonType.PENDING_TRANSACTION,
                     barcode.rawValue ?: ""
                 )
                 walletViewModel.transitionTo(SenderShow(trx.withSource(walletViewModel.user.name)))

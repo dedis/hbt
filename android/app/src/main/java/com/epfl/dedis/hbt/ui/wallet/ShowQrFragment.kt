@@ -109,7 +109,7 @@ class ShowQrFragment : Fragment() {
                     )
                 is ReceiverShow -> {
                     generateQrCode(
-                        JsonType.PendingTransactionType,
+                        JsonType.PENDING_TRANSACTION,
                         PendingTransaction(
                             walletViewModel.user.name,
                             it.amount,
@@ -117,12 +117,12 @@ class ShowQrFragment : Fragment() {
                         )
                     )
                 }
-                is SenderShow -> generateQrCode(JsonType.CompleteTransactionType, it.transaction)
+                is SenderShow -> generateQrCode(JsonType.COMPLETE_TRANSACTION, it.transaction)
             }
         }
     }
 
-    private fun generateQrCode(type: JsonType<*>, content: Any) {
+    private fun generateQrCode(type: JsonType, content: Any) {
         val imageView: ImageView = binding.walletQrImage
         val size = max(imageView.layoutParams.width, imageView.layoutParams.height)
 

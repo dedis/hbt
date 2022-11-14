@@ -24,7 +24,7 @@ class CompleteTransactionTest {
     @Test
     fun serializationTest() {
         assertThat(
-            jsonService.toJson(JsonType.CompleteTransactionType, transaction),
+            jsonService.toJson(JsonType.COMPLETE_TRANSACTION, transaction),
             jsonEq(jsonRepresentation)
         )
     }
@@ -33,7 +33,7 @@ class CompleteTransactionTest {
     fun deserializationTest() {
         assertThat(
             jsonService.fromJson(
-                JsonType.CompleteTransactionType,
+                JsonType.COMPLETE_TRANSACTION,
                 jsonRepresentation
             ),
             eq(transaction)

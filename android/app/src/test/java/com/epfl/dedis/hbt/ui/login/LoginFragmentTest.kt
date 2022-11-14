@@ -110,7 +110,11 @@ class LoginFragmentTest {
 
     @Test
     fun doneButtonOnKeyboardActsAsLogin() {
-        currentRegistered = false
+        // Modify the userRepo mock such that it sets the current user in the repo as user when login is called
+        whenever(userRepo.login(any(), any())).thenAnswer {
+            currentUser = user
+            currentRepoResult
+        }
 
         // Login procedure
         usernameInput().perform(replaceText(user.name))
