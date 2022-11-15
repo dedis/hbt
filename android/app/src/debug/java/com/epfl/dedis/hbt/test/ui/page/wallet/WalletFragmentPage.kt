@@ -12,6 +12,8 @@ object WalletFragmentPage {
 
     fun receive(): ViewInteraction = onView(withId(R.id.rxAmountOk))
 
+    fun send(): ViewInteraction = onView(withId(R.id.walletButtonSend))
+
     fun username(): ViewInteraction = onView(withId(R.id.walletName))
 
     fun role(): ViewInteraction = onView(withId(R.id.walletRole))

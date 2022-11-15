@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
@@ -45,6 +44,9 @@ class ScanFragment : Fragment() {
 
     @Inject
     lateinit var jsonService: JsonService
+
+    @Inject
+    lateinit var imageAnalyzerProvider: ImageAnalyzerProvider
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -154,21 +156,12 @@ class ScanFragment : Fragment() {
 
         cameraController.setImageAnalysisAnalyzer(
             ContextCompat.getMainExecutor(requireActivity()),
-            MlKitAnalyzer(
-                listOf(barcodeScanner),
+            imageAnalyzerProvider.provide(
+                barcodeScanner,
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
                 ContextCompat.getMainExecutor(requireActivity())
-            ) { result: MlKitAnalyzer.Result? ->
-                val barcodeResults = result?.getValue(barcodeScanner)
-                // Test result value
-                if ((barcodeResults == null) ||
-                    (barcodeResults.size == 0) ||
-                    (barcodeResults.first() == null)
-                ) {
-                    return@MlKitAnalyzer
-                }
-
-                onResult(barcodeResults[0])
+            ) {
+                onResult(it)
             }
         )
 
@@ -176,12 +169,12 @@ class ScanFragment : Fragment() {
         previewView.controller = cameraController
     }
 
-    private fun onResult(barcode: Barcode) {
+    private fun onResult(value: String) {
         when (walletViewModel.transactionState.value) {
             is ReceiverRead -> {
                 val trx = jsonService.fromJson<CompleteTransaction>(
                     JsonType.COMPLETE_TRANSACTION,
-                    barcode.rawValue ?: ""
+                    value
                 )
                 walletViewModel.receive(trx)
                 walletViewModel.transitionTo(None)
@@ -189,7 +182,7 @@ class ScanFragment : Fragment() {
             SenderRead -> {
                 val trx = jsonService.fromJson<PendingTransaction>(
                     JsonType.PENDING_TRANSACTION,
-                    barcode.rawValue ?: ""
+                    value
                 )
                 walletViewModel.transitionTo(SenderShow(trx.withSource(walletViewModel.user.name)))
             }
