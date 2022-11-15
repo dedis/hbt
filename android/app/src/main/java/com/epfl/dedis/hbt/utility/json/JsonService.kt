@@ -16,7 +16,7 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         private val TAG = JsonService::class.simpleName
     }
 
-    private lateinit var schemas: Map<JsonType, JsonSchema>
+    private var schemas: Map<JsonType, JsonSchema>? = null
 
     fun loadSchemas() {
         Log.i(TAG, "Loading json schemas")
@@ -35,24 +35,32 @@ class JsonService @Inject constructor(private val objectMapper: ObjectMapper) {
         Log.i(TAG, "Schemas loaded successfully")
     }
 
+    inline fun <reified T : Any> fromJson(jsonType: JsonType, json: String): T =
+        fromJson(jsonType, json, T::class)
+
     fun <T : Any> fromJson(jsonType: JsonType, json: String, type: KClass<T>): T {
         val node = objectMapper.readTree(json)
         validate(jsonType, node)
         return objectMapper.treeToValue(node, type.java)
     }
 
-    fun <T> toJson(jsonType: JsonType, obj: T): String {
+    fun <T : Any> toJson(jsonType: JsonType, obj: T): String {
         val node: JsonNode = objectMapper.valueToTree(obj)
         validate(jsonType, node)
         return objectMapper.writeValueAsString(node)
     }
 
     private fun validate(jsonType: JsonType, node: JsonNode) {
-        val errors = schemas[jsonType]!!.validate(node)
+        val errors = getSchemas()[jsonType]!!.validate(node)
 
         if (errors.isNotEmpty()) {
             throw JsonSchemaException("ValidationMessage errors : $errors")
         }
+    }
+
+    private fun getSchemas(): Map<JsonType, JsonSchema> {
+        if (schemas == null) loadSchemas()
+        return schemas!!
     }
 
 }

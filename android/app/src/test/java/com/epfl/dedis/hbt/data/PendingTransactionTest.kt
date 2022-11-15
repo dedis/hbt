@@ -34,8 +34,7 @@ class PendingTransactionTest {
         assertThat(
             jsonService.fromJson(
                 JsonType.PENDING_TRANSACTION,
-                jsonRepresentation,
-                PendingTransaction::class
+                jsonRepresentation
             ),
             eq(transaction)
         )

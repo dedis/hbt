@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentWalletRxAmountBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.TransactionState.ReceiverShow
@@ -28,8 +28,8 @@ class RxAmountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentWalletRxAmountBinding.inflate(inflater, container, false).apply {
-            walletName.text = walletViewModel.user?.name.toString()
-            val role = walletViewModel.user?.role ?: Role.BENEFICIARY
+            walletName.text = walletViewModel.user.name
+            val role = walletViewModel.user.role
             walletRole.text = getString(role.roleName)
             walletBalance.text =
                 getString(R.string.hbt_currency, walletViewModel.wallet?.balance ?: 0.0f)
@@ -42,9 +42,14 @@ class RxAmountFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val amount = binding.walletRxAmount
-        val datetime = System.currentTimeMillis()
+        val okButton = binding.rxAmountOk
 
-        binding.walletButtonReceive.setOnClickListener {
+        amount.addTextChangedListener {
+            okButton.isEnabled = it?.toString()?.toFloatOrNull() != null
+        }
+
+        okButton.setOnClickListener {
+            val datetime = System.currentTimeMillis()
             walletViewModel.transitionTo(ReceiverShow(amount, datetime))
         }
 
@@ -53,7 +58,7 @@ class RxAmountFragment : Fragment() {
                 is TransactionState.ReceiverRead, is TransactionState.SenderRead ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
-                        ScanFragment()
+                        ScanQrFragment()
                     )
                 is ReceiverShow, is TransactionState.SenderShow ->
                     MainActivity.setCurrentFragment(

@@ -34,8 +34,7 @@ class CompleteTransactionTest {
         assertThat(
             jsonService.fromJson(
                 JsonType.COMPLETE_TRANSACTION,
-                jsonRepresentation,
-                CompleteTransaction::class
+                jsonRepresentation
             ),
             eq(transaction)
         )

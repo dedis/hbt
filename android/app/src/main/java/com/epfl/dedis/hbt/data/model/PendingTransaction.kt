@@ -7,4 +7,7 @@ data class PendingTransaction(
     val destination: String,
     val amount: Float,
     val datetime: Long
-)
+) {
+    fun withSource(source: String): CompleteTransaction =
+        CompleteTransaction(source, destination, amount, datetime)
+}
