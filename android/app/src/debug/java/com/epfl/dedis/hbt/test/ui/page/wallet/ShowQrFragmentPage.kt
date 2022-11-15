@@ -6,7 +6,7 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.epfl.dedis.hbt.R
 
-object ShowFragmentPage {
+object ShowQrFragmentPage {
 
     fun showOk(): ViewInteraction = onView(withId(R.id.walletButtonOk))
 

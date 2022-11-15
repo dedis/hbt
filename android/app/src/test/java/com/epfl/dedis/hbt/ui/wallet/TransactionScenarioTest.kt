@@ -19,9 +19,9 @@ import com.epfl.dedis.hbt.test.ui.page.MainActivityPage.currentFragment
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmount
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountOk
-import com.epfl.dedis.hbt.test.ui.page.wallet.ScanFragmentPage.scanFragmentId
-import com.epfl.dedis.hbt.test.ui.page.wallet.ShowFragmentPage.showFragmentId
-import com.epfl.dedis.hbt.test.ui.page.wallet.ShowFragmentPage.showOk
+import com.epfl.dedis.hbt.test.ui.page.wallet.ScanQrFragmentPage.scanFragmentId
+import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showFragmentId
+import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showOk
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.receive
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.send
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentId
