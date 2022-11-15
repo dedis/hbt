@@ -58,7 +58,7 @@ class RxAmountFragment : Fragment() {
                 is TransactionState.ReceiverRead, is TransactionState.SenderRead ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
-                        ScanFragment()
+                        ScanQrFragment()
                     )
                 is ReceiverShow, is TransactionState.SenderShow ->
                     MainActivity.setCurrentFragment(

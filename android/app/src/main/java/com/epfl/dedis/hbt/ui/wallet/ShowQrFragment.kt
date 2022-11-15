@@ -100,7 +100,7 @@ class ShowQrFragment : Fragment() {
                 is SenderRead, is ReceiverRead ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
-                        ScanFragment()
+                        ScanQrFragment()
                     )
                 None ->
                     MainActivity.setCurrentFragment(

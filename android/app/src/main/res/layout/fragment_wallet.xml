@@ -7,7 +7,7 @@
   android:layout_height="match_parent"
   android:paddingHorizontal="@dimen/fragment_horizontal_margin"
   android:paddingVertical="@dimen/fragment_vertical_margin"
-  tools:context=".ui.wallet.ScanFragment">
+  tools:context=".ui.wallet.ScanQrFragment">
 
   <TextView
     android:id="@+id/walletName"
