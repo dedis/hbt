@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "com.epfl.dedis.hbt"
-        minSdk 28
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -200,7 +200,7 @@ dependencies {
     implementation "androidx.camera:camera-video:${camerax_version}"
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
-    implementation 'androidx.test:rules:1.4.0'
+    implementation 'androidx.test:rules:1.5.0'
 
     debugImplementation 'junit:junit:4.13.2'
     debugImplementation 'androidx.test.ext:junit-ktx:1.1.4'
