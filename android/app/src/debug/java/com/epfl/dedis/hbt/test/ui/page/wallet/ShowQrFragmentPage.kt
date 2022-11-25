@@ -11,5 +11,5 @@ object ShowQrFragmentPage {
     fun showOk(): ViewInteraction = onView(withId(R.id.walletButtonOk))
 
     @IdRes
-    fun showFragmentId() = R.id.showQRWalletFragment
+    fun showQrFragmentId() = R.id.showQRWalletFragment
 }

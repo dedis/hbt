@@ -6,5 +6,5 @@ import com.epfl.dedis.hbt.R
 object ScanQrFragmentPage {
 
     @IdRes
-    fun scanFragmentId() = R.id.scanWalletFragment
+    fun scanQrFragmentId() = R.id.scanWalletFragment
 }

@@ -18,8 +18,8 @@ import com.epfl.dedis.hbt.test.ui.page.MainActivityPage.currentFragment
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmount
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountOk
-import com.epfl.dedis.hbt.test.ui.page.wallet.ScanQrFragmentPage.scanFragmentId
-import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showFragmentId
+import com.epfl.dedis.hbt.test.ui.page.wallet.ScanQrFragmentPage.scanQrFragmentId
+import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showQrFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showOk
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.receive
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.send
@@ -110,12 +110,12 @@ class TransactionScenarioTest {
         rxAmount().perform(replaceText("115.5"))
         rxAmountOk().check(matches(isEnabled())).perform(click())
 
-        currentFragment().check(matches(withId(showFragmentId())))
+        currentFragment().check(matches(withId(showQrFragmentId())))
 
         // Act as if the sender scanned the QRCode and click on Ok
         showOk().perform(click())
 
-        currentFragment().check(matches(withId(scanFragmentId())))
+        currentFragment().check(matches(withId(scanQrFragmentId())))
 
         // Provide a fake qrcode result that is a valid complete transaction
         resultConsumer(
@@ -141,7 +141,7 @@ class TransactionScenarioTest {
         // Start the sender transaction process
         send().perform(click())
 
-        currentFragment().check(matches(withId(scanFragmentId())))
+        currentFragment().check(matches(withId(scanQrFragmentId())))
 
         // Provide a fake qrcode result that is a valid pending transaction
         resultConsumer(
@@ -156,7 +156,7 @@ class TransactionScenarioTest {
             )
         )
 
-        currentFragment().check(matches(withId(showFragmentId())))
+        currentFragment().check(matches(withId(showQrFragmentId())))
 
         // After the pending transaction is scanned, the receiver scan the complete transaction
         // Then the sender presses Ok

@@ -33,7 +33,11 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class ScanFragment : Fragment() {
+class ScanQrFragment : Fragment() {
+
+    companion object {
+        private val TAG: String = ScanQrFragment::class.java.simpleName
+    }
 
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null

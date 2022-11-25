@@ -71,7 +71,7 @@ class WalletFragment : Fragment() {
                 is ReceiverRead, is SenderRead ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
-                        ScanFragment()
+                        ScanQrFragment()
                     )
                 is ReceiverShow, is SenderShow ->
                     MainActivity.setCurrentFragment(
