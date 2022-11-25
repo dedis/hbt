@@ -28,6 +28,7 @@ import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentI
 import com.epfl.dedis.hbt.utility.json.JsonService
 import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.common.sdkinternal.MlKitContext
+import com.google.mlkit.vision.barcode.BarcodeScanner
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -35,10 +36,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExternalResource
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import javax.inject.Inject
 
 @HiltAndroidTest
@@ -83,7 +81,7 @@ class TransactionScenarioTest {
         // Create a fake image analyzer whose sole purpose is to retrieve to result consumer
         // of the qrcode scanning pipeline
         fakeImageAnalyzerProvider = mock {
-            on { provide(any(), any(), any(), any()) } doAnswer {
+            on { provide(isA<BarcodeScanner>(), any(), any(), any()) } doAnswer {
                 resultConsumer = it.getArgument(3) as Consumer<String>
                 it.callRealMethod() as Analyzer
             }

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/scanPassportFragment"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingHorizontal="@dimen/fragment_horizontal_margin"
+  android:paddingVertical="@dimen/fragment_vertical_margin"
+  tools:context=".ui.register.ScanPassportFragment">
+
+  <FrameLayout
+    android:id="@+id/requestPermission"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_margin="15dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <Button
+      android:id="@+id/requestPermissionButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:text="@string/request_permission"
+      android:textSize="20sp" />
+
+    <ImageView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:src="@drawable/rectangle"
+      tools:ignore="ContentDescription,ImageContrastCheck" />
+  </FrameLayout>
+
+  <androidx.camera.view.PreviewView
+    android:id="@+id/preview_view"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_margin="15dp"
+    android:contentDescription="@string/qr_code_place_holder"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

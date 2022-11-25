@@ -35,10 +35,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ScanFragment : Fragment() {
 
-    companion object {
-        private val TAG: String = ScanFragment::class.java.simpleName
-    }
-
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
 
@@ -160,8 +156,11 @@ class ScanFragment : Fragment() {
                 barcodeScanner,
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
                 ContextCompat.getMainExecutor(requireActivity())
-            ) {
-                onResult(it)
+            ) { barcodeResults ->
+                // Test result value
+                if (barcodeResults != null && barcodeResults.size != 0 && barcodeResults.first() != null) {
+                    onResult(barcodeResults[0].rawValue ?: "")
+                }
             }
         )
 
