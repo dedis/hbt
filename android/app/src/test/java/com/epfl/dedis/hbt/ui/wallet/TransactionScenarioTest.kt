@@ -1,7 +1,6 @@
 package com.epfl.dedis.hbt.ui.wallet
 
 import androidx.camera.core.ImageAnalysis.Analyzer
-import androidx.core.util.Consumer
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -29,6 +28,7 @@ import com.epfl.dedis.hbt.utility.json.JsonService
 import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.common.Barcode
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -43,13 +43,12 @@ import javax.inject.Inject
 @RunWith(AndroidJUnit4::class)
 class TransactionScenarioTest {
 
-
     @BindValue
     lateinit var userRepo: UserRepository
 
     @BindValue
     lateinit var fakeImageAnalyzerProvider: ImageAnalyzerProvider
-    lateinit var resultConsumer: Consumer<String>
+    private lateinit var resultConsumer: (List<Barcode>?) -> Unit
 
     @Inject
     lateinit var jsonService: JsonService
@@ -82,7 +81,7 @@ class TransactionScenarioTest {
         // of the qrcode scanning pipeline
         fakeImageAnalyzerProvider = mock {
             on { provide(isA<BarcodeScanner>(), any(), any(), any()) } doAnswer {
-                resultConsumer = it.getArgument(3) as Consumer<String>
+                resultConsumer = it.getArgument(3) as (List<Barcode>?) -> Unit
                 it.callRealMethod() as Analyzer
             }
         }
@@ -119,13 +118,15 @@ class TransactionScenarioTest {
         currentFragment().check(matches(withId(scanFragmentId())))
 
         // Provide a fake qrcode result that is a valid complete transaction
-        resultConsumer.accept(
-            jsonService.toJson(
-                JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
-                    "ben",
-                    user.name,
-                    115.5F,
-                    33917321
+        resultConsumer(
+            createBarcode(
+                jsonService.toJson(
+                    JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
+                        "ben",
+                        user.name,
+                        115.5F,
+                        33917321
+                    )
                 )
             )
         )
@@ -143,12 +144,14 @@ class TransactionScenarioTest {
         currentFragment().check(matches(withId(scanFragmentId())))
 
         // Provide a fake qrcode result that is a valid pending transaction
-        resultConsumer.accept(
-            jsonService.toJson(
-                JsonType.PENDING_TRANSACTION, PendingTransaction(
-                    "ben",
-                    115.5F,
-                    33917321
+        resultConsumer(
+            createBarcode(
+                jsonService.toJson(
+                    JsonType.PENDING_TRANSACTION, PendingTransaction(
+                        "ben",
+                        115.5F,
+                        33917321
+                    )
                 )
             )
         )
@@ -162,4 +165,11 @@ class TransactionScenarioTest {
         // the transaction is complete, we should be back to the wallet fragment
         currentFragment().check(matches(withId(walletFragmentId())))
     }
+
+    private fun createBarcode(value: String): List<Barcode> =
+        listOf(
+            mock {
+                on { rawValue } doReturn value
+            }
+        )
 }
