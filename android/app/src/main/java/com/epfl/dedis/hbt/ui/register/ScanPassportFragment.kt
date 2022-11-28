@@ -27,9 +27,28 @@ import javax.inject.Inject
 class ScanPassportFragment : Fragment() {
 
     companion object {
-        private val LINE_1_PATTERN = Pattern.compile("(P[A-Z0-9<]{1})([A-Z]{3})([A-Z0-9<]{39})")
+        // https://en.wikipedia.org/wiki/Machine-readable_passport
+        /**
+         * Group 1 : Country code
+         * Group 2 : Holder's name
+         */
+        private val LINE_1_PATTERN = Pattern.compile("P[A-Z<]([A-Z<]{3})([A-Z<]{39})")
+
+        /**
+         * Group 1 : Passport number
+         * Group 2 : Passport number's checksum
+         * Group 3 : Nationality
+         * Group 4 : Date of birth (YYMMDD)
+         * Group 5 : Date of birth checksum
+         * Group 6 : Sex (M, F or < for male, female or unspecified)
+         * Group 7 : Expiration date of passport (YYMMDD)
+         * Group 8 : Expiration date's checksum
+         * Group 9 : Personal number (may be used by the issuing country as it desires)
+         * Group 10 : Personal number's checksum (may be < if all characters are <)
+         * Group 11 : Checksum on Passport number, Date of birth, Expiration date and there checksums
+         */
         private val LINE_2_PATTERN =
-            Pattern.compile("([A-Z0-9<]{9})([0-9]{1})([A-Z]{3})([0-9]{6})([0-9]{1})([M|F|X|<]{1})([0-9]{6})([0-9]{1})([A-Z0-9<]{14})([0-9<]{1})([0-9]{1})")
+            Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-B])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d)")
     }
 
     private var _binding: FragmentPassportScanBinding? = null
@@ -97,14 +116,13 @@ class ScanPassportFragment : Fragment() {
                 ContextCompat.getMainExecutor(requireActivity())
             ) {
                 val raw = it?.text ?: return@provide
+                // The vision algorithm sometimes adds spaces and mistakes '<<' for '«'
                 val text = raw.replace(" ", "").replace("«", "<<")
                 val matcher1 = LINE_1_PATTERN.matcher(text)
                 val matcher2 = LINE_2_PATTERN.matcher(text)
 
-                // https://en.wikipedia.org/wiki/Machine-readable_passport
                 if (matcher1.find() && matcher2.find()) {
-                    val names = matcher1.group()
-                        .substring(5)
+                    val names = (matcher1.group(2) ?: "")
                         .split("<")
                         .filter { s -> s.isNotEmpty() }
                     MainActivity.setCurrentFragment(
@@ -112,7 +130,7 @@ class ScanPassportFragment : Fragment() {
                         RegisterFragment.newInstance(
                             names.joinToString(" "),
                             "",
-                            matcher2.group().substring(0, 9).replace("<", "")
+                            matcher2.group(1)?.replace("<", "") ?: ""
                         )
                     )
                 }
