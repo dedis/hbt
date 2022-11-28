@@ -20,36 +20,10 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.regex.Pattern
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanPassportFragment : Fragment() {
-
-    companion object {
-        // https://en.wikipedia.org/wiki/Machine-readable_passport
-        /**
-         * Group 1 : Country code
-         * Group 2 : Holder's name
-         */
-        private val LINE_1_PATTERN = Pattern.compile("P[A-Z<]([A-Z<]{3})([A-Z<]{39})")
-
-        /**
-         * Group 1 : Passport number
-         * Group 2 : Passport number's checksum
-         * Group 3 : Nationality
-         * Group 4 : Date of birth (YYMMDD)
-         * Group 5 : Date of birth checksum
-         * Group 6 : Sex (M, F or < for male, female or unspecified)
-         * Group 7 : Expiration date of passport (YYMMDD)
-         * Group 8 : Expiration date's checksum
-         * Group 9 : Personal number (may be used by the issuing country as it desires)
-         * Group 10 : Personal number's checksum (may be < if all characters are <)
-         * Group 11 : Checksum on Passport number, Date of birth, Expiration date and there checksums
-         */
-        private val LINE_2_PATTERN =
-            Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-B])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d)")
-    }
 
     private var _binding: FragmentPassportScanBinding? = null
 
@@ -118,19 +92,13 @@ class ScanPassportFragment : Fragment() {
                 val raw = it?.text ?: return@provide
                 // The vision algorithm sometimes adds spaces and mistakes '<<' for '«'
                 val text = raw.replace(" ", "").replace("«", "<<")
-                val matcher1 = LINE_1_PATTERN.matcher(text)
-                val matcher2 = LINE_2_PATTERN.matcher(text)
-
-                if (matcher1.find() && matcher2.find()) {
-                    val names = (matcher1.group(2) ?: "")
-                        .split("<")
-                        .filter { s -> s.isNotEmpty() }
+                PassportData.match(text)?.also { data ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
                         RegisterFragment.newInstance(
-                            names.joinToString(" "),
+                            data.name + data.surname,
                             "",
-                            matcher2.group(1)?.replace("<", "") ?: ""
+                            data.number
                         )
                     )
                 }
