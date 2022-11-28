@@ -100,6 +100,8 @@ class ScanPassportFragment : Fragment() {
                 val text = raw.replace(" ", "").replace("«", "<<")
                 val matcher1 = LINE_1_PATTERN.matcher(text)
                 val matcher2 = LINE_2_PATTERN.matcher(text)
+
+                // https://en.wikipedia.org/wiki/Machine-readable_passport
                 if (matcher1.find() && matcher2.find()) {
                     val names = matcher1.group()
                         .substring(5)
@@ -124,7 +126,7 @@ class ScanPassportFragment : Fragment() {
     private fun applyPermissionToView() {
         // Depending on the current permission state,
         // show the preview or the request permission views
-        if (checkPermission()) {
+        if (isPermissionGranted()) {
             binding.requestPermission.visibility = View.GONE
             binding.previewView.visibility = View.VISIBLE
             startCamera()
@@ -134,7 +136,7 @@ class ScanPassportFragment : Fragment() {
         }
     }
 
-    private fun checkPermission() =
+    private fun isPermissionGranted() =
         PermissionChecker.checkSelfPermission(
             requireContext(),
             Manifest.permission.CAMERA

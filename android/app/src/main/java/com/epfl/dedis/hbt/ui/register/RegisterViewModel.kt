@@ -72,6 +72,6 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
 
     // Validate passport number
     private fun isPassportValid(passport: String): Boolean {
-        return passport.length in 1..9
+        return passport.length in 8..9
     }
 }
