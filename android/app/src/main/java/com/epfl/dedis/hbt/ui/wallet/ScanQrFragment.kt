@@ -35,10 +35,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ScanQrFragment : Fragment() {
 
-    companion object {
-        private val TAG: String = ScanQrFragment::class.java.simpleName
-    }
-
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
 
@@ -104,16 +100,6 @@ class ScanQrFragment : Fragment() {
             Observer { walletFormState ->
                 if (walletFormState == null) {
                     return@Observer
-                }
-            })
-
-        walletViewModel.walletResult.observe(viewLifecycleOwner,
-            Observer { walletResult ->
-                walletResult ?: return@Observer
-                if (walletResult.error != null) {
-//                  onRegisterFailed(walletResult.error)
-                } else {
-//                  onRegisterSuccess(usernameEditText.text.toString())
                 }
             })
 
