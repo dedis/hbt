@@ -59,13 +59,19 @@ data class Passport(
             // Extract data adn validate them with checksums
             val (number, numberCheck) = line2.extractAndCheck("passport number", 1) ?: return null
             val (dateOfBirth, birthCheck) = line2.extractAndCheck("date of birth", 4) ?: return null
-            val (expiration, expirationCheck) = line2.extractAndCheck("expiration date", 7)
-                ?: return null
+            val (expiration, expCheck) = line2.extractAndCheck("expiration date", 7) ?: return null
 
             val totalData =
-                number + numberCheck + dateOfBirth + birthCheck + expiration + expirationCheck
+                number + numberCheck + dateOfBirth + birthCheck + expiration + expCheck
             val totalChecksum = line2.group(11)!!.toInt()
             if (!validateCheckSum(totalData, totalChecksum)) return null
+
+            // Remove < in the pass and make sure they were at the end
+            val passNumber = number.replace("<", "")
+            if (!number.startsWith(passNumber)) {
+                Log.d(TAG, "There were '<' in the middle of the passport number $number")
+                return null
+            }
 
             // Extract name
             val (surname, name) = extractName(line1)
@@ -75,7 +81,7 @@ data class Passport(
                 country,
                 surname,
                 name,
-                number,
+                passNumber,
                 dateOfBirth,
                 expiration
             )
@@ -86,7 +92,10 @@ data class Passport(
             var name = ""
 
             val split =
-                line1.group(2)!!.dropLastWhile { it == '<' }.split("  ").filter { it.isNotEmpty() }
+                line1.group(2)!!
+                    .replace('<', ' ') // Replace with whitespace
+                    .dropLastWhile { it.isWhitespace() } // Remove trailing spaces
+                    .split("  ") // split first name and last name
 
             if (split.isEmpty()) {
                 Log.d(TAG, "No name information could be retrieved")
