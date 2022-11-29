@@ -12,6 +12,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
+import com.epfl.dedis.hbt.data.Passport
 import com.epfl.dedis.hbt.databinding.FragmentPassportScanBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.ImageAnalyzerProvider
@@ -92,7 +93,7 @@ class ScanPassportFragment : Fragment() {
                 val raw = it?.text ?: return@provide
                 // The vision algorithm sometimes adds spaces and mistakes '<<' for '«'
                 val text = raw.replace(" ", "").replace("«", "<<")
-                PassportData.match(text)?.also { data ->
+                Passport.match(text)?.also { data ->
                     MainActivity.setCurrentFragment(
                         parentFragmentManager,
                         RegisterFragment.newInstance(

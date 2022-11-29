@@ -1,10 +1,10 @@
-package com.epfl.dedis.hbt.ui.register
+package com.epfl.dedis.hbt.data
 
 import android.util.Log
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-data class PassportData(
+data class Passport(
     val country: String,
     val surname: String,
     val name: String,
@@ -36,9 +36,9 @@ data class PassportData(
          * Group 11 : Checksum on Passport number, Date of birth, Expiration date and there checksums
          */
         private val LINE_2_PATTERN =
-            Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-B])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d)")
+            Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-Z])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d)")
 
-        fun match(text: String): PassportData? {
+        fun match(text: String): Passport? {
             val matcher1 = LINE_1_PATTERN.matcher(text)
             val matcher2 = LINE_2_PATTERN.matcher(text)
 
@@ -47,7 +47,7 @@ data class PassportData(
             else null
         }
 
-        private fun extractData(line1: Matcher, line2: Matcher): PassportData? {
+        private fun extractData(line1: Matcher, line2: Matcher): Passport? {
             if (line1.groupCount() != 2) return null
             if (line2.groupCount() != 11) return null
 
@@ -71,7 +71,7 @@ data class PassportData(
             val (surname, name) = extractName(line1)
             val country = line1.group(1)!!
 
-            return PassportData(
+            return Passport(
                 country,
                 surname,
                 name,
