@@ -2,6 +2,7 @@ package com.epfl.dedis.hbt.ui.register
 
 import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,11 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
-import com.epfl.dedis.hbt.data.Passport
+import com.epfl.dedis.hbt.data.Result.Error
+import com.epfl.dedis.hbt.data.Result.Success
 import com.epfl.dedis.hbt.databinding.FragmentPassportScanBinding
+import com.epfl.dedis.hbt.service.passport.mrz.MRZExtractor
+import com.epfl.dedis.hbt.service.passport.mrz.ValidationException
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.ImageAnalyzerProvider
 import com.epfl.dedis.hbt.utility.json.JsonService
@@ -25,6 +29,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanPassportFragment : Fragment() {
+
+    companion object {
+        private val TAG = ScanPassportFragment::class.java.simpleName
+    }
 
     private var _binding: FragmentPassportScanBinding? = null
 
@@ -93,15 +101,24 @@ class ScanPassportFragment : Fragment() {
                 val raw = it?.text ?: return@provide
                 // The vision algorithm sometimes adds spaces and mistakes '<<' for '«'
                 val text = raw.replace(" ", "").replace("«", "<<")
-                Passport.match(text)?.also { data ->
-                    MainActivity.setCurrentFragment(
-                        parentFragmentManager,
-                        RegisterFragment.newInstance(
-                            data.name + data.surname,
-                            "",
-                            data.number
+                when (val result = MRZExtractor.match(text)) {
+                    is Success -> {
+                        val mrz = result.data
+                        MainActivity.setCurrentFragment(
+                            parentFragmentManager,
+                            RegisterFragment.newInstance(
+                                mrz.name + mrz.surname,
+                                "",
+                                mrz.number
+                            )
                         )
-                    )
+                    }
+                    is Error -> when (result.exception) {
+                        is ValidationException ->
+                            Log.i(TAG, result.exception.message ?: "")
+                        else ->
+                            Log.d(TAG, result.exception.message ?: "")
+                    }
                 }
             }
         )

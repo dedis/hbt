@@ -1,29 +1,32 @@
 package com.epfl.dedis.hbt.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.epfl.dedis.hbt.service.passport.mrz.MRZExtractor
+import com.epfl.dedis.hbt.service.passport.mrz.MRZInfo
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class PassportTest {
+class MRZInfoTest {
 
     @Test
     fun canParseValidPassport() {
         val text = """PXABCDUMMY<<BOB<SMITH<<<<<<<<<<<<<<<<<<<<<<<
                       A1234567<6ABC0102030X0405063<<<<<<<<<<<<<<<0"""
-        val passport = Passport.match(text)
         assertThat(
-            passport,
+            MRZExtractor.match(text),
             `is`(
-                Passport(
-                    "ABC",
-                    "DUMMY",
-                    "BOB SMITH",
-                    "A1234567",
-                    "010203",
-                    "040506"
+                Result.Success(
+                    MRZInfo(
+                        "ABC",
+                        "DUMMY",
+                        "BOB SMITH",
+                        "A1234567",
+                        "010203",
+                        "040506"
+                    )
                 )
             )
         )
