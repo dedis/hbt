@@ -1,7 +1,6 @@
 package com.epfl.dedis.hbt.ui.wallet
 
 import androidx.camera.core.ImageAnalysis.Analyzer
-import androidx.core.util.Consumer
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -28,6 +27,8 @@ import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentI
 import com.epfl.dedis.hbt.utility.json.JsonService
 import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.common.sdkinternal.MlKitContext
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.common.Barcode
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -35,23 +36,19 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExternalResource
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
+import org.mockito.kotlin.*
 import javax.inject.Inject
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class TransactionScenarioTest {
 
-
     @BindValue
     lateinit var userRepo: UserRepository
 
     @BindValue
     lateinit var fakeImageAnalyzerProvider: ImageAnalyzerProvider
-    lateinit var resultConsumer: Consumer<String>
+    private lateinit var resultConsumer: (List<Barcode>?) -> Unit
 
     @Inject
     lateinit var jsonService: JsonService
@@ -83,8 +80,8 @@ class TransactionScenarioTest {
         // Create a fake image analyzer whose sole purpose is to retrieve to result consumer
         // of the qrcode scanning pipeline
         fakeImageAnalyzerProvider = mock {
-            on { provide(any(), any(), any(), any()) } doAnswer {
-                resultConsumer = it.getArgument(3) as Consumer<String>
+            on { provide(isA<BarcodeScanner>(), any(), any(), any()) } doAnswer {
+                resultConsumer = it.getArgument(3) as (List<Barcode>?) -> Unit
                 it.callRealMethod() as Analyzer
             }
         }
@@ -121,13 +118,15 @@ class TransactionScenarioTest {
         currentFragment().check(matches(withId(scanQrFragmentId())))
 
         // Provide a fake qrcode result that is a valid complete transaction
-        resultConsumer.accept(
-            jsonService.toJson(
-                JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
-                    "ben",
-                    user.name,
-                    115.5F,
-                    33917321
+        resultConsumer(
+            createBarcode(
+                jsonService.toJson(
+                    JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
+                        "ben",
+                        user.name,
+                        115.5F,
+                        33917321
+                    )
                 )
             )
         )
@@ -145,12 +144,14 @@ class TransactionScenarioTest {
         currentFragment().check(matches(withId(scanQrFragmentId())))
 
         // Provide a fake qrcode result that is a valid pending transaction
-        resultConsumer.accept(
-            jsonService.toJson(
-                JsonType.PENDING_TRANSACTION, PendingTransaction(
-                    "ben",
-                    115.5F,
-                    33917321
+        resultConsumer(
+            createBarcode(
+                jsonService.toJson(
+                    JsonType.PENDING_TRANSACTION, PendingTransaction(
+                        "ben",
+                        115.5F,
+                        33917321
+                    )
                 )
             )
         )
@@ -164,4 +165,11 @@ class TransactionScenarioTest {
         // the transaction is complete, we should be back to the wallet fragment
         currentFragment().check(matches(withId(walletFragmentId())))
     }
+
+    private fun createBarcode(value: String): List<Barcode> =
+        listOf(
+            mock {
+                on { rawValue } doReturn value
+            }
+        )
 }

@@ -34,6 +34,15 @@ class RegisterFragment : Fragment() {
             bundle.putString(PINCODE, pincode)
             arguments = bundle
         }
+
+        fun newInstance(username: String, pincode: String, passport: String) =
+            RegisterFragment().apply {
+                val bundle = Bundle()
+                bundle.putString(USERNAME, username)
+                bundle.putString(PINCODE, pincode)
+                bundle.putString(PASSPORT, passport)
+                arguments = bundle
+            }
     }
 
     private var nfcReader: NfcReader? = null
@@ -78,7 +87,10 @@ class RegisterFragment : Fragment() {
         val pincodeEditText = binding.registerPincode
         val passportEditText = binding.registerPassport
         val registerButton = binding.registerRegister
+        val scanPassportButton = binding.scanPassport
         val roleButton = binding.radioGroup
+
+        // Set values from view model to entries
 
         registerViewModel.registerFormState.observe(
             viewLifecycleOwner,
@@ -147,6 +159,10 @@ class RegisterFragment : Fragment() {
                 passportEditText.text.toString(),
                 role
             )
+        }
+
+        scanPassportButton.setOnClickListener {
+            MainActivity.setCurrentFragment(parentFragmentManager, ScanPassportFragment())
         }
 
         // Set the default result with the current texts

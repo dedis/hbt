@@ -89,8 +89,20 @@
     android:layout_marginTop="8dp"
     android:layout_marginEnd="48dp"
     android:enabled="false"
-    android:visibility="gone"
+    android:visibility="visible"
     android:text="@string/action_register"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/scanPassport" />
+  <Button
+    android:id="@+id/scanPassport"
+    android:layout_width="204dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="48dp"
+    android:layout_marginEnd="48dp"
+    android:text="@string/action_scan_passport"
+    android:visibility="visible"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/radioGroup" />

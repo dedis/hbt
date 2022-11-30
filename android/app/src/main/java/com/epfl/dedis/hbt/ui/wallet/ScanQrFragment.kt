@@ -35,10 +35,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ScanQrFragment : Fragment() {
 
-    companion object {
-        private val TAG: String = ScanQrFragment::class.java.simpleName
-    }
-
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletScanBinding? = null
 
@@ -107,16 +103,6 @@ class ScanQrFragment : Fragment() {
                 }
             })
 
-        walletViewModel.walletResult.observe(viewLifecycleOwner,
-            Observer { walletResult ->
-                walletResult ?: return@Observer
-                if (walletResult.error != null) {
-//                  onRegisterFailed(walletResult.error)
-                } else {
-//                  onRegisterSuccess(usernameEditText.text.toString())
-                }
-            })
-
         walletViewModel.transactionState.observe(viewLifecycleOwner) {
             when (it) {
                 None ->
@@ -160,8 +146,11 @@ class ScanQrFragment : Fragment() {
                 barcodeScanner,
                 COORDINATE_SYSTEM_VIEW_REFERENCED,
                 ContextCompat.getMainExecutor(requireActivity())
-            ) {
-                onResult(it)
+            ) { barcodeResults ->
+                // Test result value
+                if (barcodeResults != null && barcodeResults.size != 0 && barcodeResults.first() != null) {
+                    onResult(barcodeResults[0].rawValue ?: "")
+                }
             }
         )
 
