@@ -33,4 +33,6 @@
   <string name="validate">Validate</string>
   <string name="manual_input">Manual Input</string>
   <string name="automatic_input">Automatic Input</string>
+  <string name="expiration_hint">Expiration</string>
+  <string name="birth_date_hint">Birth Date</string>
 </resources>

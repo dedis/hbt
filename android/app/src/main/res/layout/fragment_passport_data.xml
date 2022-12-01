@@ -40,15 +40,14 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:ems="6"
-    android:hint="@string/birth_date"
+    android:hint="@string/birth_date_hint"
     android:importantForAutofill="no"
     android:inputType="date"
     android:minHeight="48dp"
     app:layout_constraintBottom_toTopOf="@+id/edit_expiration_date"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="@+id/split"
-    app:layout_constraintTop_toBottomOf="@+id/manual_title"
-    app:layout_constraintVertical_chainStyle="packed" />
+    app:layout_constraintTop_toBottomOf="@+id/passport_number" />
 
   <EditText
     android:id="@+id/edit_expiration_date"
@@ -56,11 +55,11 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:ems="6"
-    android:hint="@string/expiration_date"
+    android:hint="@string/expiration_hint"
     android:importantForAutofill="no"
     android:inputType="date"
     android:minHeight="48dp"
-    app:layout_constraintBottom_toTopOf="@+id/passport_number"
+    app:layout_constraintBottom_toTopOf="@+id/automatic_scan"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="@+id/split"
     app:layout_constraintTop_toBottomOf="@+id/edit_birth_date" />
@@ -76,10 +75,11 @@
     android:inputType="textCapWords"
     android:minHeight="48dp"
     android:textColorHint="#757575"
-    app:layout_constraintBottom_toTopOf="@+id/automatic_scan"
+    app:layout_constraintBottom_toTopOf="@+id/edit_birth_date"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toEndOf="@id/pass_number"
-    app:layout_constraintTop_toBottomOf="@id/edit_expiration_date"
+    app:layout_constraintTop_toBottomOf="@id/manual_title"
+    app:layout_constraintVertical_chainStyle="packed"
     tools:ignore="TextFields" />
 
   <TextView
@@ -133,6 +133,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    app:layout_constraintGuide_percent="0.56" />
+    app:layout_constraintGuide_percent="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
