@@ -3,11 +3,14 @@ package com.epfl.dedis.hbt.ui
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.lifecycle.Lifecycle.State.CREATED
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import com.epfl.dedis.hbt.test.fragment.FragmentScenario.Companion.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @HiltViewModel
-class NFCViewModel : ViewModel() {
+class NFCViewModel @Inject constructor() : ViewModel() {
 
     private var curCallBack: ((Intent) -> Unit)? = null
 
@@ -19,26 +22,22 @@ class NFCViewModel : ViewModel() {
     }
 
     fun setCallback(lifecycle: Lifecycle, callback: (Intent) -> Unit) {
-        if (lifecycle.currentState == Lifecycle.State.DESTROYED)
-            return
-
         if (curCallBack != null) {
             Log.e(TAG, "A callback is already defined, cannot set a new one yet")
             return
         }
 
-        this.curCallBack = callback
-        // Subscribe to lifecycle to remove callback when the observer gets destroyed
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event.targetState == Lifecycle.State.DESTROYED) curCallBack = null
+        // Subscribe to lifecycle set and the remove callback when the observer gets destroyed
+        lifecycle.addObserver(LifecycleEventObserver { owner, event ->
+            if (event.targetState == RESUMED) {
+                curCallBack = callback
+                _listenToNFC.value = true
+            }
+            // If we move out of resume state, remove callback
+            if (owner.lifecycle.currentState == RESUMED && event.targetState == CREATED) {
+                _listenToNFC.value = false
+                curCallBack = null
+            }
         })
-    }
-
-    fun listenToNFC() {
-        _listenToNFC.value = true
-    }
-
-    fun completeNFC() {
-        _listenToNFC.value = false
     }
 }
