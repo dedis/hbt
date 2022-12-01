@@ -50,7 +50,7 @@
     android:layout_marginTop="8dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/passport_number">
+    app:layout_constraintTop_toBottomOf="@id/passport_checksum">
 
     <RadioButton
       android:id="@+id/radioButtonBeneficiary"
