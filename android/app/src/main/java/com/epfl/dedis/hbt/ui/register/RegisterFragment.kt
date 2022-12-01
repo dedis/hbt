@@ -17,35 +17,24 @@ import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.WalletFragment
-import com.epfl.dedis.hbt.utility.NfcReader
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class RegisterFragment : Fragment() {
 
     companion object {
-        private const val USERNAME = "USERNAME"
-        private const val PINCODE = "PINCODE"
-        private const val PASSPORT = "PASSPORT"
 
-        fun newInstance(username: String?, pincode: String?) = RegisterFragment().apply {
+        private const val PASSPORT = "PASSPORT"
+        private const val CHECKSUM = "CHECKSUM"
+
+        fun newInstance(passport: String, checksum: ByteArray) = RegisterFragment().apply {
             val bundle = Bundle()
-            bundle.putString(USERNAME, username)
-            bundle.putString(PINCODE, pincode)
+            bundle.putString(PASSPORT, passport)
+            bundle.putByteArray(CHECKSUM, checksum)
             arguments = bundle
         }
-
-        fun newInstance(username: String, pincode: String, passport: String) =
-            RegisterFragment().apply {
-                val bundle = Bundle()
-                bundle.putString(USERNAME, username)
-                bundle.putString(PINCODE, pincode)
-                bundle.putString(PASSPORT, passport)
-                arguments = bundle
-            }
     }
 
-    private var nfcReader: NfcReader? = null
     private val registerViewModel: RegisterViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentRegisterBinding? = null
 
@@ -53,28 +42,26 @@ class RegisterFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private lateinit var passport: String
+    private lateinit var checksum: ByteArray
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRegisterBinding.inflate(inflater, container, false).apply {
-            // Set the username field to the value given as argument (if present)
-            arguments?.getString(USERNAME)?.let {
-                registerUsername.setText(it)
+            // Set the passport number field to the value given as argument
+            requireArguments().getString(PASSPORT)!!.let {
+                passport = it
+                passportNumber.text = it
             }
-            // Same for pincode
-            arguments?.getString(PINCODE)?.let {
-                registerPincode.setText(it)
-            }
-            // Same for passport number
-            arguments?.getString(PASSPORT)?.let {
-                registerPassport.setText(it)
-            }
-        }
 
-        nfcReader = NfcReader(requireActivity()).also {
-            //TODO: it.start()
+            requireArguments().getByteArray(CHECKSUM)!!.let {
+                checksum = it
+                passportChecksum.text =
+                    it.joinToString(separator = "") { b -> "%02x".format(b) }.substring(0, 16)
+            }
         }
 
         return binding.root
@@ -85,9 +72,7 @@ class RegisterFragment : Fragment() {
 
         val usernameEditText = binding.registerUsername
         val pincodeEditText = binding.registerPincode
-        val passportEditText = binding.registerPassport
         val registerButton = binding.registerRegister
-        val scanPassportButton = binding.scanPassport
         val roleButton = binding.radioGroup
 
         // Set values from view model to entries
@@ -105,10 +90,6 @@ class RegisterFragment : Fragment() {
 
                 registerFormState.pincodeError?.let {
                     pincodeEditText.error = getString(it)
-                }
-
-                registerFormState.passportError?.let {
-                    passportEditText.error = getString(it)
                 }
 
                 registerButton.isEnabled = registerFormState.isDataValid
@@ -137,14 +118,12 @@ class RegisterFragment : Fragment() {
             override fun afterTextChanged(s: Editable) {
                 registerViewModel.registerDataChanged(
                     usernameEditText.text.toString(),
-                    pincodeEditText.text.toString(),
-                    passportEditText.text.toString()
+                    pincodeEditText.text.toString()
                 )
             }
         }
         usernameEditText.addTextChangedListener(afterTextChangedListener)
         pincodeEditText.addTextChangedListener(afterTextChangedListener)
-        passportEditText.addTextChangedListener(afterTextChangedListener)
 
         registerButton.setOnClickListener {
             val role = when (roleButton.checkedRadioButtonId) {
@@ -156,20 +135,16 @@ class RegisterFragment : Fragment() {
             registerViewModel.register(
                 usernameEditText.text.toString(),
                 pincodeEditText.text.toString(),
-                passportEditText.text.toString(),
+                passport,
+                checksum,
                 role
             )
-        }
-
-        scanPassportButton.setOnClickListener {
-            MainActivity.setCurrentFragment(parentFragmentManager, ScanPassportFragment())
         }
 
         // Set the default result with the current texts
         registerViewModel.registerDataChanged(
             usernameEditText.text.toString(),
-            pincodeEditText.text.toString(),
-            passportEditText.text.toString()
+            pincodeEditText.text.toString()
         )
     }
 

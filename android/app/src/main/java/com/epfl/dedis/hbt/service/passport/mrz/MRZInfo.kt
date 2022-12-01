@@ -5,20 +5,20 @@ import java.io.Serializable
 import org.jmrtd.lds.icao.MRZInfo as MRZ
 
 data class MRZInfo(
-    val country: String,
-    val surname: String,
-    val name: String,
     val number: String,
     val dateOfBirth: String,
-    val expiration: String
+    val expiration: String,
+    val country: String? = null,
+    val surname: String? = null,
+    val name: String? = null
 ) : Serializable {
     constructor(mrz: MRZ) : this(
-        mrz.issuingState,
-        mrz.primaryIdentifier,
-        mrz.secondaryIdentifier,
         mrz.documentNumber,
         mrz.dateOfBirth,
-        mrz.dateOfExpiry
+        mrz.dateOfExpiry,
+        mrz.issuingState,
+        mrz.primaryIdentifier,
+        mrz.secondaryIdentifier
     )
 
     val bacKey: BACKey

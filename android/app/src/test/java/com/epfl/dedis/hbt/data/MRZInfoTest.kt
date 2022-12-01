@@ -20,12 +20,12 @@ class MRZInfoTest {
             `is`(
                 Result.Success(
                     MRZInfo(
-                        "ABC",
-                        "DUMMY",
-                        "BOB SMITH",
                         "A1234567",
                         "010203",
-                        "040506"
+                        "040506",
+                        "ABC",
+                        "DUMMY",
+                        "BOB SMITH"
                     )
                 )
             )

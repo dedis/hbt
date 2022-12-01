@@ -50,7 +50,7 @@
     android:layout_marginTop="8dp"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/registerPassport">
+    app:layout_constraintTop_toBottomOf="@+id/passport_number">
 
     <RadioButton
       android:id="@+id/radioButtonBeneficiary"
@@ -66,20 +66,25 @@
       android:text="@string/role_merchant" />
   </RadioGroup>
 
-  <EditText
-    android:id="@+id/registerPassport"
+  <TextView
+    android:id="@+id/passport_number"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="8dp"
-    android:autofillHints="@string/hint_passport_number"
-    android:hint="@string/hint_passport_number"
-    android:importantForAutofill="auto"
-    android:inputType="textCapWords"
-    android:minHeight="48dp"
     android:textColorHint="#757575"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/registerPincode" />
+
+  <TextView
+    android:id="@+id/passport_checksum"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:textColorHint="#757575"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/passport_number" />
 
   <Button
     android:id="@+id/registerRegister"
@@ -93,18 +98,6 @@
     android:text="@string/action_register"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/scanPassport" />
-  <Button
-    android:id="@+id/scanPassport"
-    android:layout_width="204dp"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:layout_marginStart="48dp"
-    android:layout_marginEnd="48dp"
-    android:text="@string/action_scan_passport"
-    android:visibility="visible"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
+    app:layout_constraintTop_toBottomOf="@id/radioGroup" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
