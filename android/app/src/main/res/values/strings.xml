@@ -26,4 +26,11 @@
   <string name="wallet_button_logout">Logout</string>
   <string name="request_permission">Allow Camera</string>
   <string name="action_scan_passport">Scan Passport</string>
+  <string name="loading">Reading passport data</string>
+  <string name="passport_number">Passport Number :</string>
+  <string name="expiration_date">Expiration Date :</string>
+  <string name="birth_date">Birth Date :</string>
+  <string name="validate">Validate</string>
+  <string name="manual_input">Manual Input</string>
+  <string name="automatic_input">Automatic Input</string>
 </resources>
