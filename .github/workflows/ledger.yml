@@ -59,14 +59,8 @@ jobs:
           make
           make install_sw
 
-      # Inspired from https://github.com/zeromq/libzmq/blob/master/.github/workflows/CI.yaml
       - name: Install ZMQ
-        uses: myci-actions/add-deb-repo@10
-        with:
-          repo-name: obs
-          repo: deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/git-stable/xUbuntu_20.04/ ./
-          keys-asc: https://download.opensuse.org/repositories/network:/messaging:/zeromq:/git-stable/xUbuntu_20.04/Release.key
-          install: libzmq3-dev
+        run: sudo apt install libzmq3-dev
 
       - name: Test all
         run: |
