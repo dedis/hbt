@@ -27,13 +27,7 @@ class MainActivity : AppCompatActivity() {
     private val nfcViewModel: NFCViewModel by viewModels()
     private var nfcAdapter: NfcAdapter? = null
 
-    private val pendingIntent =
-        PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, this.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
-            (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) FLAG_MUTABLE else 0) or FLAG_UPDATE_CURRENT
-        )
+    private lateinit var pendingIntent: PendingIntent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +36,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
+
+        pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, this.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) FLAG_MUTABLE else 0) or FLAG_UPDATE_CURRENT
+            )
 
         // Set default fragment (MainFragment)
         setCurrentFragment(supportFragmentManager, LoginFragment.newInstance(), false)
@@ -99,7 +101,6 @@ class MainActivity : AppCompatActivity() {
                 getSerializable(key) as? T
             }
         }
-
 
         @Suppress("DEPRECATION")
         inline fun <reified T : Parcelable> Bundle.getSafeParcelable(key: String): T? {
