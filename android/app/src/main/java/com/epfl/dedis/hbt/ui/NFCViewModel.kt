@@ -5,12 +5,15 @@ import android.util.Log
 import androidx.lifecycle.*
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
-import com.epfl.dedis.hbt.test.fragment.FragmentScenario.Companion.TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class NFCViewModel @Inject constructor() : ViewModel() {
+
+    companion object {
+        private val TAG: String? = NFCViewModel::class.simpleName
+    }
 
     private var curCallBack: ((Intent) -> Unit)? = null
 
