@@ -203,6 +203,10 @@ dependencies {
     implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
     implementation 'androidx.test:rules:1.5.0'
 
+    //NFC Passport
+    implementation 'org.jmrtd:jmrtd:0.7.35'
+    implementation 'net.sf.scuba:scuba-sc-android:0.0.20'
+
     debugImplementation 'junit:junit:4.13.2'
     debugImplementation 'androidx.test.ext:junit-ktx:1.1.4'
     debugImplementation "androidx.test.espresso:espresso-core:$espresso_version"
