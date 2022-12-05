@@ -54,7 +54,7 @@ object MRZExtractor {
             "Validating passport date on lines :\n  ${line1.group()}\n  ${line2.group()}"
         )
 
-        // Extract data adn validate them with checksums
+        // Extract data and validate them with checksums
         val (number, numberCheck) = line2.extractAndCheck("passport number", 1)
         val (dateOfBirth, birthCheck) = line2.extractAndCheck("date of birth", 4)
         val (expiration, expCheck) = line2.extractAndCheck("expiration date", 7)
