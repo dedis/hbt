@@ -1,17 +1,13 @@
 package com.epfl.dedis.hbt.service.passport.mrz
 
-import org.jmrtd.BACKey
-import java.io.Serializable
 import org.jmrtd.lds.icao.MRZInfo as MRZ
 
 data class MRZInfo(
-    val number: String,
-    val dateOfBirth: String,
-    val expiration: String,
-    val country: String? = null,
-    val surname: String? = null,
-    val name: String? = null
-) : Serializable {
+    val bacData: BACData,
+    val country: String,
+    val surname: String,
+    val name: String
+) : BACData by bacData {
     constructor(mrz: MRZ) : this(
         mrz.documentNumber,
         mrz.dateOfBirth,
@@ -21,6 +17,21 @@ data class MRZInfo(
         mrz.secondaryIdentifier
     )
 
-    val bacKey: BACKey
-        get() = BACKey(number, dateOfBirth, expiration)
+    constructor(
+        passNumber: String,
+        dateOfBirth: String,
+        expiration: String,
+        country: String,
+        surname: String,
+        name: String
+    ) : this(
+        BACData.create(
+            passNumber,
+            dateOfBirth,
+            expiration
+        ),
+        country,
+        surname,
+        name
+    )
 }

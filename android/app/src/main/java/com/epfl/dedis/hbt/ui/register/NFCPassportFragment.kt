@@ -11,14 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import com.epfl.dedis.hbt.data.Result
 import com.epfl.dedis.hbt.databinding.FragmentNfcPassportBinding
-import com.epfl.dedis.hbt.service.passport.mrz.MRZInfo
-import com.epfl.dedis.hbt.service.passport.ncf.NFCUtils
+import com.epfl.dedis.hbt.service.passport.mrz.BACData
+import com.epfl.dedis.hbt.service.passport.ncf.NFCReader
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.MainActivity.Companion.getSafeSerializable
 import com.epfl.dedis.hbt.ui.NFCViewModel
 import kotlinx.coroutines.launch
 
-private const val MRZ_INFO = "mrz_info"
+private const val BAC_DATA = "bac_data"
 
 /**
  * A simple [Fragment] subclass.
@@ -29,12 +29,12 @@ class NFCPassportFragment : Fragment() {
 
     private val nfcViewModel: NFCViewModel by viewModels(ownerProducer = { requireActivity() })
 
-    private lateinit var mrzInfo: MRZInfo
+    private lateinit var bacData: BACData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            mrzInfo = it.getSafeSerializable(MRZ_INFO)!!
+            bacData = it.getSafeSerializable(BAC_DATA)!!
         }
     }
 
@@ -44,14 +44,14 @@ class NFCPassportFragment : Fragment() {
     ): View {
         nfcViewModel.setCallback(lifecycle) { intent ->
             lifecycle.coroutineScope.launch {
-                when (val result = NFCUtils.readPassport(intent, mrzInfo)) {
+                when (val result = NFCReader.readPassport(intent, bacData)) {
                     is Result.Success -> {
                         val passport = result.data
                         MainActivity.setCurrentFragment(
                             parentFragmentManager,
                             RegisterFragment.newInstance(
                                 passport.mrzInfo.number,
-                                passport.sodFile.docSigningCertificate.signature
+                                passport.dg11File!!.personalNumber
                             )
                         )
                     }
@@ -76,14 +76,14 @@ class NFCPassportFragment : Fragment() {
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.
          *
-         * @param mrzInfo MRZ of the passport
+         * @param bacData items needed to compute the BAC key
          * @return A new instance of fragment NCFPassportFragment.
          */
         @JvmStatic
-        fun newInstance(mrzInfo: MRZInfo) =
+        fun newInstance(bacData: BACData) =
             NFCPassportFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(MRZ_INFO, mrzInfo)
+                    putSerializable(BAC_DATA, bacData)
                 }
             }
     }

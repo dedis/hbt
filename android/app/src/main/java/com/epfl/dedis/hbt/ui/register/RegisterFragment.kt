@@ -27,10 +27,10 @@ class RegisterFragment : Fragment() {
         private const val PASSPORT = "PASSPORT"
         private const val CHECKSUM = "CHECKSUM"
 
-        fun newInstance(passport: String, checksum: ByteArray) = RegisterFragment().apply {
+        fun newInstance(passport: String, checksum: String) = RegisterFragment().apply {
             val bundle = Bundle()
             bundle.putString(PASSPORT, passport)
-            bundle.putByteArray(CHECKSUM, checksum)
+            bundle.putString(CHECKSUM, checksum)
             arguments = bundle
         }
     }
@@ -57,10 +57,9 @@ class RegisterFragment : Fragment() {
                 passportNumber.text = it
             }
 
-            requireArguments().getByteArray(CHECKSUM)!!.let {
-                checksum = it
-                passportChecksum.text =
-                    it.joinToString(separator = "") { b -> "%02x".format(b) }.substring(0, 16)
+            requireArguments().getString(CHECKSUM)!!.let {
+                //checksum = it
+                passportChecksum.text = it
             }
         }
 

@@ -1,7 +1,7 @@
 package com.epfl.dedis.hbt.service.passport.ncf
 
 import android.util.Log
-import com.epfl.dedis.hbt.service.passport.mrz.MRZInfo
+import com.epfl.dedis.hbt.service.passport.mrz.BACData
 import net.sf.scuba.smartcards.CardServiceException
 import org.jmrtd.BACKey
 import org.jmrtd.PACEKeySpec
@@ -20,12 +20,12 @@ import java.security.GeneralSecurityException
  * Strongly inspired by https://github.com/jllarraz/AndroidPassportReader
  *
  * @param service the service to read from
- * @param mrzInfo the BAC entries
+ * @param bacData the BAC entries
  *
  * @throws GeneralSecurityException if certain security primitives are not supported
  */
 class PassportNFC @Throws(GeneralSecurityException::class)
-constructor(service: PassportService, mrzInfo: MRZInfo) {
+constructor(service: PassportService, bacData: BACData) {
 
     var sodFile: SODFile? = null
         private set
@@ -61,7 +61,7 @@ constructor(service: PassportService, mrzInfo: MRZInfo) {
 
             if (hasSAC) {
                 isSACSucceeded = try {
-                    service.doPACE(mrzInfo)
+                    service.doPACE(bacData)
                     true
                 } catch (e: Exception) {
                     Log.i(TAG, "PACE failed, falling back to BAC", e)
@@ -94,7 +94,7 @@ constructor(service: PassportService, mrzInfo: MRZInfo) {
 
         /* If we have to do BAC, try to do BAC. */
         if (hasBAC && !(hasSAC && isSACSucceeded)) {
-            val bacKey = mrzInfo.bacKey
+            val bacKey = bacData.bacKey
             val triedBACEntries = ArrayList<BACKey>()
             triedBACEntries.add(bacKey)
             try {
@@ -115,9 +115,8 @@ constructor(service: PassportService, mrzInfo: MRZInfo) {
     }
 
     @Throws(IOException::class, CardServiceException::class, GeneralSecurityException::class)
-    private fun PassportService.doPACE(mrzInfo: MRZInfo) {
-        val bacKey = mrzInfo.bacKey
-        val paceKeySpec = PACEKeySpec.createMRZKey(bacKey)
+    private fun PassportService.doPACE(bacData: BACData) {
+        val paceKeySpec = PACEKeySpec.createMRZKey(bacData.bacKey)
 
         getInputStream(PassportService.EF_CARD_ACCESS, PassportService.DEFAULT_MAX_BLOCKSIZE).use {
             val cardAccessFile = CardAccessFile(it)
