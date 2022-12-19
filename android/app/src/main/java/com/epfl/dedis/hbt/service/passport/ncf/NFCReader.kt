@@ -16,17 +16,20 @@ import net.sf.scuba.smartcards.CardService
 import org.jmrtd.PassportService
 import java.security.Security
 
+/**
+ * This object holds routines to read NFC data
+ *
+ * Right now, only read Passport
+ */
 object NFCReader {
 
-    /**
-     * Read the passport data given the NFC Intent and the
-     */
+    /** Read the passport data given the NFC Intent and the BACData */
     fun readPassport(intent: Intent, bacData: BACData): Result<Passport> {
         val tag = intent.extras?.getSafeParcelable<Tag>(NfcAdapter.EXTRA_TAG) ?: return Error(
             UnsupportedOperationException("The nfc tag is not present in the provided intent")
         )
 
-        val nfc = IsoDep.get(tag).apply { timeout = 5 * 1000 } //5 seconds timeout
+        val nfc = IsoDep.get(tag).apply { timeout = 5 * 1000 } // 5 seconds timeout
             ?: return Error(UnsupportedOperationException("ISODep could not be created"))
 
         val ps = PassportService(

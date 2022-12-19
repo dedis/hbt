@@ -3,6 +3,7 @@ package com.epfl.dedis.hbt.service.passport.mrz
 import org.jmrtd.BACKey
 import java.io.Serializable
 
+/** This interface holds the BAC fields needed to generate a BAC Key */
 interface BACData : Serializable {
     val number: String
     val dateOfBirth: String
@@ -11,6 +12,8 @@ interface BACData : Serializable {
     val bacKey: BACKey
 
     companion object {
+
+        /** Create a new BACData instance given its fields */
         fun create(documentNumber: String, dateOfBirth: String, dateOfExpiry: String): BACData =
             BACDataImpl(documentNumber, dateOfBirth, dateOfExpiry)
     }
