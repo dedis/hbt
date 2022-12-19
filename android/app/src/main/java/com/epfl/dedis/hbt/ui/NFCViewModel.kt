@@ -30,7 +30,7 @@ class NFCViewModel @Inject constructor() : ViewModel() {
             return
         }
 
-        // Subscribe to lifecycle set and the remove callback when the observer gets destroyed
+        // Subscribe to lifecycle set, then remove callback when the observer gets destroyed
         lifecycle.addObserver(LifecycleEventObserver { owner, event ->
             if (event.targetState == RESUMED) {
                 curCallBack = callback
