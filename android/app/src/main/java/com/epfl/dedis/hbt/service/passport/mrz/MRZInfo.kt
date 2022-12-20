@@ -9,12 +9,12 @@ data class MRZInfo(
     val name: String
 ) : BACData by bacData {
     constructor(mrz: MRZ) : this(
-        mrz.issuingState,
-        mrz.primaryIdentifier,
-        mrz.secondaryIdentifier,
         mrz.documentNumber,
         mrz.dateOfBirth,
-        mrz.dateOfExpiry
+        mrz.dateOfExpiry,
+        mrz.issuingState,
+        mrz.primaryIdentifier,
+        mrz.secondaryIdentifier
     )
 
     constructor(

@@ -74,12 +74,12 @@ object MRZExtractor {
         val country = line1.group(1)!!
 
         return MRZInfo(
-            country,
-            surname,
-            name,
             passNumber,
             dateOfBirth,
-            expiration
+            expiration,
+            country,
+            surname,
+            name
         )
     }
 

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/passportDataFragment"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".ui.register.PassportDataFragment">
+
+  <Button
+    android:id="@+id/validate"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="60dp"
+    android:layout_marginVertical="@dimen/activity_vertical_margin"
+    android:text="@string/validate"
+    android:textSize="16sp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.498"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/manual_title"
+    app:layout_constraintVertical_bias="0.944" />
+
+  <Button
+    android:id="@+id/automatic_scan"
+    style="@style/Widget.AppCompat.Button.Colored"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/activity_vertical_margin"
+    android:text="@string/automatic_input"
+    android:textSize="16sp"
+    app:layout_constraintBottom_toTopOf="@id/validate"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+
+  <EditText
+    android:id="@+id/edit_birth_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:ems="6"
+    android:hint="@string/birth_date_hint"
+    android:importantForAutofill="no"
+    android:inputType="date"
+    android:minHeight="48dp"
+    app:layout_constraintBottom_toTopOf="@+id/edit_expiration_date"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="@+id/split"
+    app:layout_constraintTop_toBottomOf="@+id/passport_number" />
+
+  <EditText
+    android:id="@+id/edit_expiration_date"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:ems="6"
+    android:hint="@string/expiration_hint"
+    android:importantForAutofill="no"
+    android:inputType="date"
+    android:minHeight="48dp"
+    app:layout_constraintBottom_toTopOf="@+id/automatic_scan"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="@+id/split"
+    app:layout_constraintTop_toBottomOf="@+id/edit_birth_date" />
+
+  <EditText
+    android:id="@+id/passport_number"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:autofillHints="@string/hint_passport_number"
+    android:hint="@string/hint_passport_number"
+    android:importantForAutofill="no"
+    android:inputType="textCapWords"
+    android:minHeight="48dp"
+    android:textColorHint="#757575"
+    app:layout_constraintBottom_toTopOf="@+id/edit_birth_date"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@id/pass_number"
+    app:layout_constraintTop_toBottomOf="@id/manual_title"
+    app:layout_constraintVertical_chainStyle="packed"
+    tools:ignore="TextFields" />
+
+  <TextView
+    android:id="@+id/manual_title"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/activity_vertical_margin"
+    android:text="@string/manual_input"
+    android:textSize="24sp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+    android:id="@+id/birth_date"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="@dimen/activity_vertical_margin"
+    android:text="@string/birth_date"
+    android:textSize="20sp"
+    app:layout_constraintBottom_toBottomOf="@id/edit_birth_date"
+    app:layout_constraintEnd_toStartOf="@id/split"
+    app:layout_constraintTop_toTopOf="@id/edit_birth_date" />
+
+  <TextView
+    android:id="@+id/expiration_date"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/expiration_date"
+    android:textSize="20sp"
+    app:layout_constraintBottom_toBottomOf="@+id/edit_expiration_date"
+    app:layout_constraintEnd_toStartOf="@+id/split"
+    app:layout_constraintTop_toTopOf="@+id/edit_expiration_date" />
+
+  <TextView
+    android:id="@+id/pass_number"
+    android:textStyle="bold"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/passport_number"
+    android:textSize="20sp"
+    app:layout_constraintBottom_toBottomOf="@+id/passport_number"
+    app:layout_constraintEnd_toStartOf="@+id/split"
+    app:layout_constraintTop_toTopOf="@+id/passport_number" />
+
+  <androidx.constraintlayout.widget.Guideline
+    android:id="@+id/split"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    app:layout_constraintGuide_percent="0.5" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

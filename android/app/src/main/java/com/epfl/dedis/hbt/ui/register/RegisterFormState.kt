@@ -6,6 +6,5 @@ package com.epfl.dedis.hbt.ui.register
 data class RegisterFormState(
     val usernameError: Int? = null,
     val pincodeError: Int? = null,
-    val passportError: Int? = null,
     val isDataValid: Boolean = false
 )

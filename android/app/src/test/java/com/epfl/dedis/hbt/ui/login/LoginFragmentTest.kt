@@ -16,8 +16,7 @@ import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.loginButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.pincodeInput
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.registerButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.usernameInput
-import com.epfl.dedis.hbt.test.ui.page.login.RegisterFragmentPage
-import com.epfl.dedis.hbt.test.ui.page.login.RegisterFragmentPage.registerFragmentId
+import com.epfl.dedis.hbt.test.ui.page.register.ScanPassportFragmentPage.scanPassportFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentId
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -102,10 +101,8 @@ class LoginFragmentTest {
         pincodeInput().perform(typeNumbers(user.pincode.toString()))
         registerButton().perform(click())
 
-        // make sure data has been correctly transferred
-        currentFragment().check(matches(withId(registerFragmentId())))
-        RegisterFragmentPage.usernameInput().check(matches(withText(user.name)))
-        RegisterFragmentPage.pincodeInput().check(matches(withText(user.pincode.toString())))
+        // make sure the scan passport has been opened
+        currentFragment().check(matches(withId(scanPassportFragmentId())))
     }
 
     @Test

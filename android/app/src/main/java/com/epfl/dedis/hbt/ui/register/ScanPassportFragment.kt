@@ -69,6 +69,13 @@ class ScanPassportFragment : Fragment() {
                     Manifest.permission.CAMERA
                 )
             }
+
+            manualInput.setOnClickListener {
+                MainActivity.setCurrentFragment(
+                    parentFragmentManager,
+                    PassportDataFragment()
+                )
+            }
         }
 
         return binding.root
@@ -102,17 +109,11 @@ class ScanPassportFragment : Fragment() {
                 // The vision algorithm sometimes adds spaces and mistakes '<<' for '«'
                 val text = raw.replace(" ", "").replace("«", "<<")
                 when (val result = MRZExtractor.match(text)) {
-                    is Success -> {
-                        val mrz = result.data
+                    is Success ->
                         MainActivity.setCurrentFragment(
                             parentFragmentManager,
-                            RegisterFragment.newInstance(
-                                mrz.name + mrz.surname,
-                                "",
-                                mrz.number
-                            )
+                            NFCPassportFragment.newInstance(result.data)
                         )
-                    }
                     is Error -> when (result.exception) {
                         is ValidationException ->
                             Log.i(TAG, result.exception.message ?: "")

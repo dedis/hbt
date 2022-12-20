@@ -9,12 +9,21 @@
   android:paddingVertical="@dimen/fragment_vertical_margin"
   tools:context=".ui.register.ScanPassportFragment">
 
+  <Button
+    android:id="@+id/manual_input"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/manual_input"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+
   <FrameLayout
     android:id="@+id/requestPermission"
     android:layout_width="0dp"
     android:layout_height="0dp"
     android:layout_margin="15dp"
-    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/manual_input"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
@@ -41,7 +50,7 @@
     android:layout_margin="15dp"
     android:contentDescription="@string/qr_code_place_holder"
     android:visibility="gone"
-    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintBottom_toTopOf="@+id/manual_input"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />

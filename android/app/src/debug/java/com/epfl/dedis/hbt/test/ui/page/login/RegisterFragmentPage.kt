@@ -12,7 +12,7 @@ object RegisterFragmentPage {
 
     fun pincodeInput(): ViewInteraction = onView(withId(R.id.registerPincode))
 
-    fun passportInput(): ViewInteraction = onView(withId(R.id.registerPassport))
+    fun passportInput(): ViewInteraction = onView(withId(R.id.passport_number))
 
     fun registerButton(): ViewInteraction = onView(withId(R.id.registerRegister))
 

@@ -62,6 +62,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        if (nfcViewModel.listenToNFC.value == true) {
+            nfcAdapter?.enableForegroundDispatch(
+                this, pendingIntent, null, null
+            )
+        }
+
+        super.onResume()
+    }
+
     override fun onNewIntent(intent: Intent) {
         if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action || NfcAdapter.ACTION_TECH_DISCOVERED == intent.action) {
             nfcViewModel.onNewIntent(intent)
