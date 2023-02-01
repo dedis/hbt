@@ -9,14 +9,18 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
+import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
 import com.epfl.dedis.hbt.databinding.FragmentNfcPassportBinding
+import com.epfl.dedis.hbt.service.passport.Passport
 import com.epfl.dedis.hbt.service.passport.mrz.BACData
 import com.epfl.dedis.hbt.service.passport.ncf.NFCReader
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.MainActivity.Companion.getSafeSerializable
 import com.epfl.dedis.hbt.ui.NFCViewModel
 import kotlinx.coroutines.launch
+
+private const val USE_PERSONAL_DATA = true
 
 private const val BAC_DATA = "bac_data"
 
@@ -47,13 +51,24 @@ class NFCPassportFragment : Fragment() {
                 when (val result = NFCReader.readPassport(intent, bacData)) {
                     is Result.Success -> {
                         val passport = result.data
-                        MainActivity.setCurrentFragment(
-                            parentFragmentManager,
-                            RegisterFragment.newInstance(
-                                passport.mrzInfo.number,
-                                passport.dg11File!!.personalNumber
+                        val personalData = extractPersonalData(passport)
+
+                        if (personalData == null) {
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.error_invalid_passport),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            MainActivity.setCurrentFragment(
+                                parentFragmentManager,
+                                RegisterFragment.newInstance(
+                                    passport.mrzInfo.number,
+                                    personalData
+                                )
                             )
-                        )
+                        }
+
                     }
                     is Result.Error -> {
                         Log.e("NFC-PASSPORT", "Error in communication", result.exception)
@@ -68,6 +83,18 @@ class NFCPassportFragment : Fragment() {
         }
 
         return FragmentNfcPassportBinding.inflate(inflater, container, false).root
+    }
+
+    private fun extractPersonalData(passport: Passport): String? {
+        return if (USE_PERSONAL_DATA) {
+            passport.dg11File?.personalNumber
+        } else {
+            // generate a dummy personal number based on the hash of the name and surname
+            (passport.mrzInfo.name.hashCode() + passport.mrzInfo.surname.hashCode())
+                .toString()
+                .padStart(14, 'X')
+                .substring(0 until 14)
+        }
     }
 
     companion object {
