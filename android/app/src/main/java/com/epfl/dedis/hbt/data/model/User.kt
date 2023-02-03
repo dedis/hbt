@@ -10,4 +10,4 @@ data class User(
     val pincode: Int,
     val passport: String,
     val role: Role = BENEFICIARY
-    )
+)

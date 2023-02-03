@@ -1,8 +1,11 @@
 package com.epfl.dedis.hbt.data
 
+import android.content.SharedPreferences
 import com.epfl.dedis.hbt.data.model.Role
 import com.epfl.dedis.hbt.data.model.User
 import com.epfl.dedis.hbt.data.model.Wallet
+import com.epfl.dedis.hbt.utility.json.JsonService
+import com.epfl.dedis.hbt.utility.json.JsonType.USER_DATA
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -10,16 +13,39 @@ import javax.inject.Singleton
  * Class that handles authentication w/ login credentials and retrieves user information.
  */
 @Singleton
-class UserDataSource @Inject constructor() {
+class UserDataSource @Inject constructor(
+    private val sharedPref: SharedPreferences,
+    private val jsonService: JsonService
+) {
+
+    private val usernamesKey: String = "users"
 
     private val users: MutableMap<String, User> = mutableMapOf()
     private val wallets: MutableMap<User, Wallet> = mutableMapOf()
 
-    // TODO: add a datastore for persistence,
-    //  as described in https://developer.android.com/topic/libraries/architecture/datastore
+    init {
+        // Load data from preferences
+        val usernames = sharedPref.getStringSet(usernamesKey, setOf())!!
+        usernames.forEach {
+            val user = getUserData(it, sharedPref, jsonService)
+            users[it] = user
+            wallets[user] = Wallet.newInstance()
+        }
+    }
+
+    private fun getUserData(
+        name: String,
+        sharedPref: SharedPreferences,
+        jsonService: JsonService
+    ): User =
+        jsonService.fromJson(
+            USER_DATA,
+            sharedPref.getString(name, null)
+                ?: throw IllegalStateException("The user $name is present is the user list but has no data")
+        )
 
     fun isRegistered(username: String): Boolean {
-        return users.containsKey(username)
+        return username == usernamesKey || users.containsKey(username)
     }
 
     fun register(username: String, pincode: Int, passport: String, role: Role): Result<User> {
@@ -31,6 +57,8 @@ class UserDataSource @Inject constructor() {
 
         //create wallet
         wallets[user] = Wallet.newInstance()
+
+        updateUser(user, true)
 
         return Result.Success(user)
     }
@@ -48,5 +76,13 @@ class UserDataSource @Inject constructor() {
         val wallet = wallets[user] ?: return Result.Error(Exception("The wallet does not exist"))
 
         return Result.Success(wallet)
+    }
+
+    fun updateUser(user: User, newUser: Boolean = false) {
+        with(sharedPref.edit()) {
+            putString(user.name, jsonService.toJson(USER_DATA, user))
+            if (newUser) putStringSet(usernamesKey, users.keys)
+            apply()
+        }
     }
 }
