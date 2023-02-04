@@ -58,7 +58,7 @@ class RegisterFragment : Fragment() {
             }
 
             requireArguments().getString(CHECKSUM)!!.let {
-                //checksum = it
+                checksum = it.toByteArray()
                 passportChecksum.text = it
             }
         }

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "transaction message",
+  "description": "The data of a user stored in the shared preferences",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "Name of the user",
+      "type": "string"
+    },
+    "pincode": {
+      "description": "Pincode of the user",
+      "type": "integer"
+    },
+    "passport": {
+      "description": "Passport identification string",
+      "type": "string"
+    },
+    "role": {
+      "description": "role of the user in the system",
+      "enum": [
+        "BENEFICIARY",
+        "MERCHANT"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "pincode",
+    "passport",
+    "role"
+  ]
+}

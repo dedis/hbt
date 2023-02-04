@@ -26,7 +26,7 @@ class LoginFragment : Fragment() {
         fun newInstance() = LoginFragment()
     }
 
-    private val loginViewModel: LoginViewModel by viewModels(ownerProducer = { requireActivity() })
+    private val loginViewModel: LoginViewModel by viewModels()
     private var _binding: FragmentLoginBinding? = null
 
     // This property is only valid between onCreateView and
