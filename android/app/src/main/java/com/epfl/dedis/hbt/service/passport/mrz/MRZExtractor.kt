@@ -32,36 +32,37 @@ object MRZExtractor {
      * Group 11 : Checksum on Passport number, Date of birth, Expiration date and there checksums
      */
     private val LINE_2_PATTERN =
-        Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-Z])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d)")
+        Pattern.compile("([A-Z\\d<]{9})(\\d)([A-Z]{3})(\\d{6})(\\d)([A-Z])(\\d{6})(\\d)([A-Z\\d<]{14})([\\d<])(\\d|o|O)")
 
-    fun match(text: String): Result<MRZInfo> {
+    fun match(text: String, forceLine1: Boolean = false): Result<BACData> {
         val matcher1 = LINE_1_PATTERN.matcher(text)
         val matcher2 = LINE_2_PATTERN.matcher(text)
 
-        if (!matcher1.find()) return Error(NoMatchException("line1", text))
         if (!matcher2.find()) return Error(NoMatchException("line2", text))
 
         return try {
-            Success(extractData(matcher1, matcher2))
+            if (!matcher1.find()) {
+                if (forceLine1) return Error(NoMatchException("line1", text))
+                else Success(extractBAC(matcher2))
+            } else {
+                Success(extractMRZ(matcher1, matcher2))
+            }
         } catch (e: ValidationException) {
             Error(e)
         }
     }
 
-    private fun extractData(line1: Matcher, line2: Matcher): MRZInfo {
-        Log.d(
-            TAG,
-            "Validating passport date on lines :\n  ${line1.group()}\n  ${line2.group()}"
-        )
+    private fun extractBAC(matcher: Matcher): BACData {
+        Log.d(TAG, "Validating passport data on line :\n  ${matcher.group()}}")
 
         // Extract data and validate them with checksums
-        val (number, numberCheck) = line2.extractAndCheck("passport number", 1)
-        val (dateOfBirth, birthCheck) = line2.extractAndCheck("date of birth", 4)
-        val (expiration, expCheck) = line2.extractAndCheck("expiration date", 7)
+        val (number, numberCheck) = matcher.extractAndCheck("passport number", 1)
+        val (dateOfBirth, birthCheck) = matcher.extractAndCheck("date of birth", 4)
+        val (expiration, expCheck) = matcher.extractAndCheck("expiration date", 7)
 
         val totalData =
             number + numberCheck + dateOfBirth + birthCheck + expiration + expCheck
-        val totalChecksum = line2.group(11)!!.toInt()
+        val totalChecksum = matcher.group(11)!!
         validateChecksum("whole passport", totalData, totalChecksum)
 
         // Remove < in the pass and make sure they were at the end
@@ -69,14 +70,20 @@ object MRZExtractor {
         if (!number.startsWith(passNumber))
             throw ValidationException("There were '<' in the middle of the passport number $number")
 
+        return BACData.create(passNumber, dateOfBirth, expiration)
+    }
+
+    private fun extractMRZ(line1: Matcher, line2: Matcher): MRZInfo {
+        Log.d(TAG, "Validating passport date on line :\n ${line2.group()}")
+
+        val bacData = extractBAC(line2)
+
         // Extract name
         val (surname, name) = extractName(line1)
         val country = line1.group(1)!!
 
         return MRZInfo(
-            passNumber,
-            dateOfBirth,
-            expiration,
+            bacData,
             country,
             surname,
             name
@@ -105,14 +112,17 @@ object MRZExtractor {
     private fun Matcher.extractAndCheck(dataType: String, groupId: Int): Pair<String, Int> {
         val data = group(groupId)!!
         // The checksum always directly follow the extracted data
-        val checksum = group(groupId + 1)!!.toInt()
-        validateChecksum(dataType, data, checksum)
+        val checksum = group(groupId + 1)!!
+        val checksumValue = validateChecksum(dataType, data, checksum)
 
-        return data to checksum
+        return data to checksumValue
     }
 
     // https://en.wikipedia.org/wiki/Machine-readable_passport#Checksum_calculation
-    private fun validateChecksum(dataType: String, data: String, expected: Int) {
+    private fun validateChecksum(dataType: String, data: String, expected: String): Int {
+        // Sometimes, 0 is parsed as o or O, as we know we have an int here, map in manually
+        val expectedChecksum = if (expected == "o" || expected == "O") 0 else expected.toInt()
+
         var sum = 0
         data.forEachIndexed { i, c ->
             val value = when {
@@ -126,7 +136,8 @@ object MRZExtractor {
 
         sum %= 10
 
-        if (sum != expected) throw ChecksumException(dataType, data, sum, expected)
+        if (sum != expectedChecksum) throw ChecksumException(dataType, data, sum, expectedChecksum)
+        return sum
     }
 
     // 2^(3-index % 3) - 1 (Basically, 0->7, 1->3, 2->1, 3->7, ...)
