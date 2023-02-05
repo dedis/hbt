@@ -1,4 +1,4 @@
-package com.epfl.dedis.hbt.data.model
+package com.epfl.dedis.hbt.data.transaction
 
 /**
  * Data class that captures an incomplete transaction of tokens created by the receiver

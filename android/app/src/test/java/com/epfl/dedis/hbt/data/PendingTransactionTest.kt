@@ -1,11 +1,11 @@
 package com.epfl.dedis.hbt.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.dedis.hbt.data.model.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.PendingTransaction
 import com.epfl.dedis.hbt.di.JsonModule
-import com.epfl.dedis.hbt.utility.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType
 import com.epfl.dedis.hbt.utility.json.JsonServiceTest.Companion.jsonEq
-import com.epfl.dedis.hbt.utility.json.JsonType
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -6,8 +6,8 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
-import com.epfl.dedis.hbt.data.UserRepository
-import com.epfl.dedis.hbt.data.model.User
+import com.epfl.dedis.hbt.data.user.User
+import com.epfl.dedis.hbt.data.user.UserRepository
 import com.epfl.dedis.hbt.test.ToastUtils
 import com.epfl.dedis.hbt.test.fragment.FragmentScenarioRule
 import com.epfl.dedis.hbt.test.typeNumbers

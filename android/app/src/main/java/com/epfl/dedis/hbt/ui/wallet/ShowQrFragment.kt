@@ -13,12 +13,12 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.TransactionState.*
+import com.epfl.dedis.hbt.data.transaction.TransactionStateManager
 import com.epfl.dedis.hbt.databinding.FragmentWalletShowqrBinding
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType
 import com.epfl.dedis.hbt.ui.MainActivity
-import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
-import com.epfl.dedis.hbt.utility.json.JsonService
-import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +35,9 @@ class ShowQrFragment : Fragment() {
 
     @Inject
     lateinit var jsonService: JsonService
+
+    @Inject
+    lateinit var trxStateManager: TransactionStateManager
 
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletShowqrBinding? = null
@@ -61,7 +64,7 @@ class ShowQrFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    walletViewModel.transitionTo(None)
+                    trxStateManager.cancelTransaction()
                 }
             }
         )
@@ -74,20 +77,9 @@ class ShowQrFragment : Fragment() {
         val okButton = binding.walletButtonOk
 
         okButton.setOnClickListener {
-            when (val state = walletViewModel.transactionState.value) {
-                is ReceiverShow -> walletViewModel.transitionTo(
-                    ReceiverRead(
-                        PendingTransaction(
-                            walletViewModel.user.name,
-                            state.amount,
-                            state.datetime
-                        )
-                    )
-                )
-                is SenderShow -> {
-                    walletViewModel.send(state.transaction)
-                    walletViewModel.transitionTo(None)
-                }
+            when (val state = trxStateManager.currentState.value) {
+                is ReceiverShow -> trxStateManager.readCompleteTransaction(state.transaction)
+                is SenderShow -> trxStateManager.completeSending(state.transaction)
                 else -> {
                     Log.e(TAG, "Unhandled state in the ShowQrFragment : $state")
                     Toast.makeText(context, "Invalid transaction state", Toast.LENGTH_SHORT).show()
@@ -95,7 +87,7 @@ class ShowQrFragment : Fragment() {
             }
         }
 
-        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+        trxStateManager.currentState.observe(viewLifecycleOwner) {
             when (it) {
                 is SenderRead, is ReceiverRead ->
                     MainActivity.setCurrentFragment(
@@ -107,16 +99,7 @@ class ShowQrFragment : Fragment() {
                         parentFragmentManager,
                         WalletFragment()
                     )
-                is ReceiverShow -> {
-                    generateQrCode(
-                        JsonType.PENDING_TRANSACTION,
-                        PendingTransaction(
-                            walletViewModel.user.name,
-                            it.amount,
-                            it.datetime
-                        )
-                    )
-                }
+                is ReceiverShow -> generateQrCode(JsonType.PENDING_TRANSACTION, it.transaction)
                 is SenderShow -> generateQrCode(JsonType.COMPLETE_TRANSACTION, it.transaction)
             }
         }

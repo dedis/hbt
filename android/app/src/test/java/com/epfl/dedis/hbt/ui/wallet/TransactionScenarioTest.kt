@@ -8,24 +8,26 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import com.epfl.dedis.hbt.data.UserRepository
-import com.epfl.dedis.hbt.data.model.CompleteTransaction
-import com.epfl.dedis.hbt.data.model.PendingTransaction
-import com.epfl.dedis.hbt.data.model.User
-import com.epfl.dedis.hbt.data.model.Wallet
+import com.epfl.dedis.hbt.data.transaction.CompleteTransaction
+import com.epfl.dedis.hbt.data.transaction.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.TransactionState
+import com.epfl.dedis.hbt.data.transaction.TransactionStateManager
+import com.epfl.dedis.hbt.data.user.User
+import com.epfl.dedis.hbt.data.user.UserRepository
+import com.epfl.dedis.hbt.data.user.Wallet
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType
 import com.epfl.dedis.hbt.test.fragment.FragmentScenarioRule
 import com.epfl.dedis.hbt.test.ui.page.MainActivityPage.currentFragment
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmount
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.RxAmountFragmentPage.rxAmountOk
 import com.epfl.dedis.hbt.test.ui.page.wallet.ScanQrFragmentPage.scanQrFragmentId
-import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showQrFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showOk
+import com.epfl.dedis.hbt.test.ui.page.wallet.ShowQrFragmentPage.showQrFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.receive
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.send
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentId
-import com.epfl.dedis.hbt.utility.json.JsonService
-import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -53,6 +55,9 @@ class TransactionScenarioTest {
     @Inject
     lateinit var jsonService: JsonService
 
+    @Inject
+    lateinit var transactionStateManager: TransactionStateManager
+
     @get:Rule(order = 0)
     val hiltRule = HiltAndroidRule(this)
 
@@ -68,7 +73,7 @@ class TransactionScenarioTest {
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    private val user = User("Jon Smith", 12345, "passport")
+    private val user = User("Jon Smith", 12345, "Jon's passport")
     private val wallet = Wallet()
 
     fun setup() {
@@ -111,21 +116,24 @@ class TransactionScenarioTest {
         rxAmountOk().check(matches(isEnabled())).perform(click())
 
         currentFragment().check(matches(withId(showQrFragmentId())))
+        // TODO It is probably a good idea to actually check the shown qrcode value
+        val dateTime = getTrxDatetime()
 
         // Act as if the sender scanned the QRCode and click on Ok
         showOk().perform(click())
 
         currentFragment().check(matches(withId(scanQrFragmentId())))
 
+
         // Provide a fake qrcode result that is a valid complete transaction
         resultConsumer(
             createBarcode(
                 jsonService.toJson(
                     JsonType.COMPLETE_TRANSACTION, CompleteTransaction(
-                        "ben",
-                        user.name,
+                        "Ben's passport",
+                        user.passport,
                         115.5F,
-                        33917321
+                        dateTime
                     )
                 )
             )
@@ -134,6 +142,12 @@ class TransactionScenarioTest {
         // the transaction is complete, we should be back to the wallet fragment
         currentFragment().check(matches(withId(walletFragmentId())))
     }
+
+    private fun getTrxDatetime(): Long =
+        when (val state = transactionStateManager.currentState.value) {
+            is TransactionState.ReceiverShow -> state.transaction.datetime
+            else -> throw IllegalStateException("Wrong transaction state")
+        }
 
 
     @Test
@@ -148,7 +162,7 @@ class TransactionScenarioTest {
             createBarcode(
                 jsonService.toJson(
                     JsonType.PENDING_TRANSACTION, PendingTransaction(
-                        "ben",
+                        "Ben's passport",
                         115.5F,
                         33917321
                     )

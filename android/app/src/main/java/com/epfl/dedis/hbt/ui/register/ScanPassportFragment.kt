@@ -16,11 +16,11 @@ import androidx.fragment.app.Fragment
 import com.epfl.dedis.hbt.data.Result.Error
 import com.epfl.dedis.hbt.data.Result.Success
 import com.epfl.dedis.hbt.databinding.FragmentPassportScanBinding
+import com.epfl.dedis.hbt.service.json.JsonService
 import com.epfl.dedis.hbt.service.passport.mrz.MRZExtractor
 import com.epfl.dedis.hbt.service.passport.mrz.ValidationException
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.ImageAnalyzerProvider
-import com.epfl.dedis.hbt.utility.json.JsonService
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions

@@ -4,9 +4,9 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.dedis.hbt.data.UserRepository
-import com.epfl.dedis.hbt.data.model.User
-import com.epfl.dedis.hbt.data.model.Wallet
+import com.epfl.dedis.hbt.data.user.User
+import com.epfl.dedis.hbt.data.user.UserRepository
+import com.epfl.dedis.hbt.data.user.Wallet
 import com.epfl.dedis.hbt.test.fragment.FragmentScenarioRule
 import com.epfl.dedis.hbt.test.ui.page.MainActivityPage.currentFragment
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.loginFragmentId

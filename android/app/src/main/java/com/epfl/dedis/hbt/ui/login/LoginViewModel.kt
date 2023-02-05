@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
-import com.epfl.dedis.hbt.data.UserRepository
+import com.epfl.dedis.hbt.data.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

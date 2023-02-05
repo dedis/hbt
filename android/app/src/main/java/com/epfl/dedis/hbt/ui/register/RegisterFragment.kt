@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.Role
+import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.wallet.WalletFragment

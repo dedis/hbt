@@ -17,13 +17,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
-import com.epfl.dedis.hbt.data.model.CompleteTransaction
-import com.epfl.dedis.hbt.data.model.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.CompleteTransaction
+import com.epfl.dedis.hbt.data.transaction.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.TransactionState.*
+import com.epfl.dedis.hbt.data.transaction.TransactionStateManager
 import com.epfl.dedis.hbt.databinding.FragmentWalletScanBinding
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType
 import com.epfl.dedis.hbt.ui.MainActivity
-import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
-import com.epfl.dedis.hbt.utility.json.JsonService
-import com.epfl.dedis.hbt.utility.json.JsonType
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -40,6 +41,9 @@ class ScanQrFragment : Fragment() {
 
     @Inject
     lateinit var jsonService: JsonService
+
+    @Inject
+    lateinit var trxStateManager: TransactionStateManager
 
     @Inject
     lateinit var imageAnalyzerProvider: ImageAnalyzerProvider
@@ -84,7 +88,7 @@ class ScanQrFragment : Fragment() {
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    walletViewModel.transitionTo(None)
+                    trxStateManager.cancelTransaction()
                 }
             }
         )
@@ -103,7 +107,7 @@ class ScanQrFragment : Fragment() {
                 }
             })
 
-        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+        trxStateManager.currentState.observe(viewLifecycleOwner) {
             when (it) {
                 None ->
                     MainActivity.setCurrentFragment(
@@ -159,21 +163,20 @@ class ScanQrFragment : Fragment() {
     }
 
     private fun onResult(value: String) {
-        when (walletViewModel.transactionState.value) {
+        when (trxStateManager.currentState.value) {
             is ReceiverRead -> {
                 val trx = jsonService.fromJson<CompleteTransaction>(
                     JsonType.COMPLETE_TRANSACTION,
                     value
                 )
-                walletViewModel.receive(trx)
-                walletViewModel.transitionTo(None)
+                trxStateManager.completeReceiving(trx)
             }
             SenderRead -> {
                 val trx = jsonService.fromJson<PendingTransaction>(
                     JsonType.PENDING_TRANSACTION,
                     value
                 )
-                walletViewModel.transitionTo(SenderShow(trx.withSource(walletViewModel.user.name)))
+                trxStateManager.showCompleteTransaction(trx.withSource(walletViewModel.user.passport))
             }
             else -> {
                 // Might occur if the fragment switch is too slow

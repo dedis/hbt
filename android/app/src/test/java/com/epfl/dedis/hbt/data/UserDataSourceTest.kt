@@ -2,11 +2,12 @@ package com.epfl.dedis.hbt.data
 
 import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.dedis.hbt.data.model.Role
-import com.epfl.dedis.hbt.data.model.User
+import com.epfl.dedis.hbt.data.user.Role
+import com.epfl.dedis.hbt.data.user.User
+import com.epfl.dedis.hbt.data.user.UserDataSource
 import com.epfl.dedis.hbt.di.JsonModule.provideObjectMapper
+import com.epfl.dedis.hbt.service.json.JsonService
 import com.epfl.dedis.hbt.test.MockSharedPreferences
-import com.epfl.dedis.hbt.utility.json.JsonService
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Before
 import org.junit.Test

@@ -1,4 +1,6 @@
-package com.epfl.dedis.hbt.data.model
+package com.epfl.dedis.hbt.data.user
+
+import com.epfl.dedis.hbt.data.transaction.CompleteTransaction
 
 class Wallet {
     var pk: String? = null

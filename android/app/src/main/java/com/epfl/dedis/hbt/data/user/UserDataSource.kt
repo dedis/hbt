@@ -1,11 +1,9 @@
-package com.epfl.dedis.hbt.data
+package com.epfl.dedis.hbt.data.user
 
 import android.content.SharedPreferences
-import com.epfl.dedis.hbt.data.model.Role
-import com.epfl.dedis.hbt.data.model.User
-import com.epfl.dedis.hbt.data.model.Wallet
-import com.epfl.dedis.hbt.utility.json.JsonService
-import com.epfl.dedis.hbt.utility.json.JsonType.USER_DATA
+import com.epfl.dedis.hbt.data.Result
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType.USER_DATA
 import javax.inject.Inject
 import javax.inject.Singleton
 
