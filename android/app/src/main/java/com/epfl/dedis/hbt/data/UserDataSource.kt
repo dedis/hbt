@@ -29,6 +29,7 @@ class UserDataSource @Inject constructor(
         usernames.forEach {
             val user = getUserData(it, sharedPref, jsonService)
             users[it] = user
+            // TODO : Wallet is currently not stored
             wallets[user] = Wallet.newInstance()
         }
     }
@@ -58,7 +59,7 @@ class UserDataSource @Inject constructor(
         //create wallet
         wallets[user] = Wallet.newInstance()
 
-        updateUser(user, true)
+        createUserInStore(user)
 
         return Result.Success(user)
     }
@@ -78,10 +79,10 @@ class UserDataSource @Inject constructor(
         return Result.Success(wallet)
     }
 
-    fun updateUser(user: User, newUser: Boolean = false) {
+    private fun createUserInStore(user: User) {
         with(sharedPref.edit()) {
             putString(user.name, jsonService.toJson(USER_DATA, user))
-            if (newUser) putStringSet(usernamesKey, users.keys)
+            putStringSet(usernamesKey, users.keys)
             apply()
         }
     }
