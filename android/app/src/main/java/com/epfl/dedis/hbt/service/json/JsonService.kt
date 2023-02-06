@@ -1,4 +1,4 @@
-package com.epfl.dedis.hbt.utility.json
+package com.epfl.dedis.hbt.service.json
 
 import android.util.Log
 import com.fasterxml.jackson.databind.JsonNode

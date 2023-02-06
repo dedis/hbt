@@ -1,8 +1,10 @@
 package com.epfl.dedis.hbt.utility.json
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.epfl.dedis.hbt.data.model.CompleteTransaction
+import com.epfl.dedis.hbt.data.transaction.CompleteTransaction
 import com.epfl.dedis.hbt.di.JsonModule
+import com.epfl.dedis.hbt.service.json.JsonService
+import com.epfl.dedis.hbt.service.json.JsonType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.networknt.schema.JsonSchemaException

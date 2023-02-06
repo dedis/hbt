@@ -8,13 +8,20 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.transaction.PendingTransaction
+import com.epfl.dedis.hbt.data.transaction.TransactionState
+import com.epfl.dedis.hbt.data.transaction.TransactionState.ReceiverShow
+import com.epfl.dedis.hbt.data.transaction.TransactionStateManager
 import com.epfl.dedis.hbt.databinding.FragmentWalletRxAmountBinding
 import com.epfl.dedis.hbt.ui.MainActivity
-import com.epfl.dedis.hbt.ui.wallet.TransactionState.ReceiverShow
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class RxAmountFragment : Fragment() {
+
+    @Inject
+    lateinit var trxStateManager: TransactionStateManager
 
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletRxAmountBinding? = null
@@ -50,10 +57,16 @@ class RxAmountFragment : Fragment() {
 
         okButton.setOnClickListener {
             val datetime = System.currentTimeMillis()
-            walletViewModel.transitionTo(ReceiverShow(amount, datetime))
+            trxStateManager.startReceivingTransaction(
+                PendingTransaction(
+                    walletViewModel.user.passport,
+                    amount.text.toString().toFloat(),
+                    datetime
+                )
+            )
         }
 
-        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+        trxStateManager.currentState.observe(viewLifecycleOwner) {
             when (it) {
                 is TransactionState.ReceiverRead, is TransactionState.SenderRead ->
                     MainActivity.setCurrentFragment(

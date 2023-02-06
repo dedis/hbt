@@ -1,8 +1,4 @@
-package com.epfl.dedis.hbt.ui.wallet
-
-import android.widget.EditText
-import com.epfl.dedis.hbt.data.model.CompleteTransaction
-import com.epfl.dedis.hbt.data.model.PendingTransaction
+package com.epfl.dedis.hbt.data.transaction
 
 /**
  * Describe the five states of a transaction process :
@@ -14,14 +10,8 @@ import com.epfl.dedis.hbt.data.model.PendingTransaction
  */
 sealed class TransactionState {
     object None : TransactionState()
-    data class ReceiverShow(val amount: Float, val datetime: Long) : TransactionState() {
-        constructor(amount: EditText, datetime: Long) : this(
-            amount.text.toString().toFloat(),
-            datetime
-        )
-    }
-
-    object SenderRead : TransactionState()
     data class SenderShow(val transaction: CompleteTransaction) : TransactionState()
+    object SenderRead : TransactionState()
     data class ReceiverRead(val expected: PendingTransaction) : TransactionState()
+    data class ReceiverShow(val transaction: PendingTransaction) : TransactionState()
 }

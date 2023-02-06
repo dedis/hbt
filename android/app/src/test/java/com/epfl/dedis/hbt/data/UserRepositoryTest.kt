@@ -1,6 +1,8 @@
 package com.epfl.dedis.hbt.data
 
-import com.epfl.dedis.hbt.data.model.User
+import com.epfl.dedis.hbt.data.user.User
+import com.epfl.dedis.hbt.data.user.UserDataSource
+import com.epfl.dedis.hbt.data.user.UserRepository
 import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test

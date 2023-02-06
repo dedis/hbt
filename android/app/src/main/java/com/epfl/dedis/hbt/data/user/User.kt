@@ -1,6 +1,6 @@
-package com.epfl.dedis.hbt.data.model
+package com.epfl.dedis.hbt.data.user
 
-import com.epfl.dedis.hbt.data.model.Role.BENEFICIARY
+import com.epfl.dedis.hbt.data.user.Role.BENEFICIARY
 
 /**
  * Data class that captures user information for logged in users retrieved from LoginRepository

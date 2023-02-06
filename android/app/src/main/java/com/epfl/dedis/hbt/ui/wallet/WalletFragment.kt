@@ -7,14 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.transaction.TransactionState.*
+import com.epfl.dedis.hbt.data.transaction.TransactionStateManager
 import com.epfl.dedis.hbt.databinding.FragmentWalletBinding
 import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.login.LoginFragment
-import com.epfl.dedis.hbt.ui.wallet.TransactionState.*
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class WalletFragment : Fragment() {
+
+    @Inject
+    lateinit var trxStateManager: TransactionStateManager
 
     private val walletViewModel: WalletViewModel by viewModels(ownerProducer = { requireActivity() })
     private var _binding: FragmentWalletBinding? = null
@@ -58,7 +63,7 @@ class WalletFragment : Fragment() {
         }
 
         sendButton.setOnClickListener {
-            walletViewModel.transitionTo(SenderRead)
+            trxStateManager.startSendingTransaction()
         }
 
         logoutButton.setOnClickListener {
@@ -66,7 +71,7 @@ class WalletFragment : Fragment() {
             MainActivity.setCurrentFragment(parentFragmentManager, LoginFragment.newInstance())
         }
 
-        walletViewModel.transactionState.observe(viewLifecycleOwner) {
+        trxStateManager.currentState.observe(viewLifecycleOwner) {
             when (it) {
                 is ReceiverRead, is SenderRead ->
                     MainActivity.setCurrentFragment(
