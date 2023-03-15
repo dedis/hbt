@@ -38,7 +38,7 @@ command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not on your PATH!"; exit 
 
 # Launch tmux session
 s="blockchain"
-tmux list-sessions | rg "^${s}" >/dev/null 2>&1 && { echo -e ${RED}"A session with the same name (${s})already exists and will be destroyed${NC}"; tmux kill-session -t ${s};}
+tmux list-sessions | rg "^${s}" >/dev/null 2>&1 && { echo -e ${RED}"A session with the same name (${s}) already exists and will be destroyed${NC}"; tmux kill-session -t ${s};}
 
 echo -e "Create tmux detached session: ${s}"
 tmux new -s $s -n nodes -d
