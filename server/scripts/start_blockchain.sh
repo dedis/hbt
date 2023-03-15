@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script creates a new blockchain and grant access to the first node.
+# This script creates a new blockchain and grants access to the first node.
 
 # Requirements:
 # from dela/cli/node/memcoin: go install
