@@ -14,6 +14,9 @@ set -e
 GREEN='\033[0;32m'
 RED='\033[1;31;46m'
 NC='\033[0m' # No Color
+# default trace level
+L=info
+
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 N=3
@@ -25,6 +28,8 @@ do
         n) N=${OPTARG};;
       # p : starting port number
         p) P=${OPTARG};;
+      # t : trace level (info, debug, ...)
+        n) L=${OPTARG};;
       # * : handle unknown flags
         *) echo -e "${RED} unknown flag ${flag} ${NC}";;
     esac
@@ -64,7 +69,7 @@ do
     p=$((P + i))
     # session s, window 0, panes 1 to N
     echo -e "${GREEN}creating node #${N} on port ${p}${NC}"
-    tmux send-keys -t ${s}:0.%${i} "LLVL=info memcoin --config /tmp/blockchain${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${s}:0.%${i} "LLVL=${L} memcoin --config /tmp/blockchain${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
@@ -75,7 +80,7 @@ p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${s}:0.%0 "LLVL=info memcoin --config /tmp/blockchain${i} minogrpc join --address //127.0.0.1:${p} $(memcoin --config /tmp/blockchain1 minogrpc token)" C-m
+    tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain${i} minogrpc join --address //127.0.0.1:${p} $(memcoin --config /tmp/blockchain1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -92,7 +97,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${s}:0.%0 "LLVL=info memcoin --config /tmp/blockchain${i} access add \
+    tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain${i} access add \
                                   --identity $(crypto bls signer read --path private.key --format BASE64_PUBKEY)" C-m
     i=$((i + 1));
 done
@@ -110,4 +115,5 @@ tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 pool add\
 
 # select master on pane 0
 tmux select-pane -t 0
+
 tmux a
