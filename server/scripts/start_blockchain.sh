@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script is creating a new chain and setting up the services needed to run
-# an evoting system. It ends by starting the http server needed by the frontend
+# a MSC system. It ends by starting on each node the http server needed
 # to communicate with the blockchain. This operation is blocking.
 
 # Requirements:
@@ -11,11 +11,10 @@
 
 set -e
 
-GREEN='\033[0;32m'
-RED='\033[1;31;46m'
-NC='\033[0m' # No Color
-# default trace level
-L=info
+GREEN='\033[0;32m'    # green color
+RED='\033[1;31;46m'   # red color
+NC='\033[0m'          # no Color
+L=info                # default trace level
 
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
@@ -35,6 +34,7 @@ do
     esac
 done
 
+
 echo -e "${GREEN}[TMUX setup]${NC}"
 set -o errexit
 
@@ -45,8 +45,10 @@ command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not on your PATH!"; exit 
 s="blockchain"
 tmux list-sessions | rg "^${s}" >/dev/null 2>&1 && { echo -e ${RED}"A session with the same name (${s}) already exists and will be destroyed${NC}"; tmux kill-session -t ${s};}
 
+
 echo -e "Create tmux detached session: ${s}"
 tmux new -s $s -n nodes -d
+
 
 echo -e "Split tmux window"
 # Panes used for blockchain nodes
@@ -61,18 +63,20 @@ done
 echo -e "${GREEN}[PK]${NC} create a private key"
 crypto bls signer new --save private.key
 
+
 # Start a node in each pane but the main pane
 echo -e "${GREEN}[CREATE]${NC} ${N} nodes"
 i=1;
 while [ ${i} -le ${N} ]
 do
     p=$((P + i))
-    # session s, window 0, panes 1 to N
     echo -e "${GREEN}creating node #${N} on port ${p}${NC}"
+    # session s, window 0, panes 1 to N
     tmux send-keys -t ${s}:0.%${i} "LLVL=${L} memcoin --config /tmp/blockchain${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
+
 
 echo -e "${GREEN}[CONNECT]${NC} ${N} nodes"
 i=2;
@@ -84,13 +88,18 @@ do
     i=$((i + 1));
 done
 
+
 echo -e "${GREEN}[CHAIN]${NC} ${N} nodes"
+i=1;
+m=""
+while [ ${i} -le ${N} ]
+do
+    m="${m} --member \$(memcoin --config /tmp/blockchain${i} ordering export)"
+    i=$((i + 1));
+done
 # sent to master pane
-# TODO: convert to a N loop
-tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 ordering setup\
-    --member $(memcoin --config /tmp/blockchain1 ordering export)\
-    --member $(memcoin --config /tmp/blockchain2 ordering export)\
-    --member $(memcoin --config /tmp/blockchain3 ordering export)" C-m
+tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 ordering setup ${m}" C-m
+
 
 echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
 i=1;
@@ -101,6 +110,7 @@ do
                                   --identity $(crypto bls signer read --path private.key --format BASE64_PUBKEY)" C-m
     i=$((i + 1));
 done
+
 
 echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
 # sent to master pane
@@ -113,7 +123,9 @@ tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 pool add\
     --args access:identity --args $(crypto bls signer read --path private.key --format BASE64_PUBKEY)\
     --args access:command --args GRANT" C-m
 
+
 # select master on pane 0
 tmux select-pane -t 0
 
+# attach to tmux session
 tmux a
