@@ -18,9 +18,9 @@ L=info                # default trace level
 
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
-N=3
+N=4
 P=10000
-while getopts n:p: flag
+while getopts n:p:t: flag
 do
     case "${flag}" in
       # n : number of nodes
@@ -28,7 +28,7 @@ do
       # p : starting port number
         p) P=${OPTARG};;
       # t : trace level (info, debug, ...)
-        n) L=${OPTARG};;
+        t) L=${OPTARG};;
       # * : handle unknown flags
         *) echo -e "${RED} unknown flag ${flag} ${NC}";;
     esac
