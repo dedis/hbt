@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# This script is creating a new chain and setting up the services needed to run
-# a MSC system. It ends by starting on each node the http server needed
-# to communicate with the blockchain. This operation is blocking.
+# This script creates a new blockchain and grant access to the first node.
 
 # Requirements:
 # from dela/cli/node/memcoin: go install
@@ -70,7 +68,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     p=$((P + i))
-    echo -e "${GREEN}creating node #${N} on port ${p}${NC}"
+    echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
     tmux send-keys -t ${s}:0.%${i} "LLVL=${L} memcoin --config /tmp/blockchain${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
