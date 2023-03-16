@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script stops the blockchain created by the start_blockchain.sh script
+# This script stops the SMC (secret management committee) created by the start_smc.sh script
 
 S=smc                 # session name
 

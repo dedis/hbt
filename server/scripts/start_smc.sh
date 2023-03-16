@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script creates a new SMC with a DKG.
+# This script creates a new SMC (secret management committee) with a DKG.
 
 # Requirements:
 # from dela/dkg/pedersen/dkgcli: go install
