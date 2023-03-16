@@ -12,7 +12,7 @@ GREEN='\033[0;32m'    # green color
 RED='\033[1;31;46m'   # red color
 NC='\033[0m'          # no Color
 L=info                # default trace level
-S=smc
+S=smc                 # session name
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 N=4

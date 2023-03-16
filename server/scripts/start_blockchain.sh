@@ -13,6 +13,7 @@ GREEN='\033[0;32m'    # green color
 RED='\033[1;31;46m'   # red color
 NC='\033[0m'          # no Color
 L=info                # default trace level
+S=blockchain          # session name
 
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
@@ -40,12 +41,11 @@ set -o errexit
 command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not on your PATH!"; exit 1; }
 
 # Launch tmux session
-s="blockchain"
-tmux list-sessions | rg "^${s}" >/dev/null 2>&1 && { echo -e ${RED}"A session with the same name (${s}) already exists and will be destroyed${NC}"; tmux kill-session -t ${s};}
+tmux list-sessions | rg "^${S}" >/dev/null 2>&1 && { echo -e ${RED}"A session with the same name (${S}) already exists and will be destroyed${NC}"; tmux kill-session -t ${S};}
 
 
-echo -e "Create tmux detached session: ${s}"
-tmux new -s $s -n nodes -d
+echo -e "Create tmux detached session: ${S}"
+tmux new -s ${S} -n nodes -d
 
 
 echo -e "Split tmux window"
@@ -70,7 +70,7 @@ do
     p=$((P + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${s}:0.%${i} "LLVL=${L} memcoin --config /tmp/blockchain${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} memcoin --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
@@ -82,7 +82,7 @@ p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain${i} minogrpc join --address //127.0.0.1:${p} $(memcoin --config /tmp/blockchain1 minogrpc token)" C-m
+    tmux send-keys -t ${S}:0.%0 "memcoin --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(memcoin --config /tmp/${S}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -92,11 +92,11 @@ i=1;
 m=""
 while [ ${i} -le ${N} ]
 do
-    m="${m} --member \$(memcoin --config /tmp/blockchain${i} ordering export)"
+    m="${m} --member \$(memcoin --config /tmp/${S}${i} ordering export)"
     i=$((i + 1));
 done
 # sent to master pane
-tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 ordering setup ${m}" C-m
+tmux send-keys -t ${S}:0.%0 "memcoin --config /tmp/${S}1 ordering setup ${m}" C-m
 
 
 echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
@@ -104,7 +104,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain${i} access add \
+    tmux send-keys -t ${S}:0.%0 "memcoin --config /tmp/${S}${i} access add \
                                   --identity $(crypto bls signer read --path private.key --format BASE64_PUBKEY)" C-m
     i=$((i + 1));
 done
@@ -112,7 +112,7 @@ done
 
 echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
 # sent to master pane
-tmux send-keys -t ${s}:0.%0 "memcoin --config /tmp/blockchain1 pool add\
+tmux send-keys -t ${S}:0.%0 "memcoin --config /tmp/${S}1 pool add\
     --key private.key\
     --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Access\
     --args access:grant_id --args 0200000000000000000000000000000000000000000000000000000000000000\
