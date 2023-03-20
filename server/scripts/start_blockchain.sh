@@ -70,7 +70,7 @@ do
     p=$((P + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} memcoin --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} LOGF=./${S}${i}.log memcoin --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
