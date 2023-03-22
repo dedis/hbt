@@ -5,7 +5,7 @@
 S=smc                 # session name
 
 # stop processes
-pkill dkgcli
+pkill smccli
 
 # remove blockchain nodes
 rm -rf /tmp/${S}*

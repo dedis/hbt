@@ -3,7 +3,7 @@
 # This script creates a new SMC (secret management committee) with a DKG.
 
 # Requirements:
-# from dela/dkg/pedersen/dkgcli: go install
+# from dela/dkg/pedersen/smccli: go install
 # sudo apt install tmux ripgrep
 
 set -e
@@ -64,7 +64,7 @@ do
     p=$((P + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} LOGF=./${S}${i}.log dkgcli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} LOGF=./${S}${i}.log smccli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
@@ -76,7 +76,7 @@ p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "dkgcli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(dkgcli --config /tmp/${S}1 minogrpc token)" C-m
+    tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${S}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -86,7 +86,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "dkgcli --config /tmp/${S}${i} dkg listen" C-m
+    tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}${i} dkg listen" C-m
     i=$((i + 1));
 done
 
@@ -100,7 +100,7 @@ do
     i=$((i + 1));
 done
 # sent to master pane
-tmux send-keys -t ${S}:0.%0 "dkgcli --config /tmp/${S}1 dkg setup ${a}" C-m
+tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}1 dkg setup ${a}" C-m
 
 
 # select master on pane 0
