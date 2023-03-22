@@ -9,7 +9,7 @@ import (
 
 	db "go.dedis.ch/dela/core/store/kv/controller"
 	dkg "go.dedis.ch/dela/dkg/pedersen/controller"
-	mino "go.dedis.ch/dela/mino/minogrpc/controller"
+	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
 )
 
 func main() {
@@ -33,8 +33,9 @@ func runWithCfg(args []string, cfg config) error {
 		cfg.Channel,
 		cfg.Writer,
 		db.NewController(),
-		mino.NewController(),
+		minogrpc.NewController(),
 		dkg.NewMinimal(),
+		//		calypso.NewDumb(),
 	)
 
 	app := builder.Build()

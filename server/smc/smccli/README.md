@@ -32,3 +32,5 @@ smccli --config /tmp/node2 dkg encrypt --message deadbeef
 # Decrypt a message
 smccli --config /tmp/node3 dkg decrypt --encrypted <...>
 
+# Send transaction to blockchain 
+smccli --config /tmp/node1 calypso advertise --blockchain tcp://127.0.0.1:10001
