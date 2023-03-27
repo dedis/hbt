@@ -3,7 +3,7 @@
 # This script creates a new SMC (secret management committee) with a DKG.
 
 # Requirements:
-# from dela/dkg/pedersen/smccli: go install
+# from server/smc/smccli: go install
 # sudo apt install tmux ripgrep
 
 set -e

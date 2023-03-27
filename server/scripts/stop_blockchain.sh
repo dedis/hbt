@@ -5,7 +5,7 @@
 S=blockchain          # session name
 
 # stop processes
-pkill memcoin
+pkill chaincli
 
 # remove blockchain nodes
 rm -rf /tmp/${S}*
