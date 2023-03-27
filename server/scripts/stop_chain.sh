@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# This script stops the blockchain created by the start_blockchain.sh script
+# This script stops the blockchain created by the start_chain.sh script
 
-S=blockchain          # session name
+S=chain               # session name
 
 # stop processes
 pkill chaincli

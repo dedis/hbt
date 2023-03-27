@@ -13,6 +13,7 @@ RED='\033[1;31;46m'   # red color
 NC='\033[0m'          # no Color
 L=info                # default trace level
 S=smc                 # session name
+W=smcw                # window name
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 N=4
@@ -43,7 +44,7 @@ tmux list-sessions | rg "^${S}" >/dev/null 2>&1 && { echo -e ${RED}"A session wi
 
 
 echo -e "Create tmux detached session: ${S}"
-tmux new -s ${S} -n nodes -d
+tmux new -s ${S} -n ${W} -d
 
 
 echo -e "Split tmux window"
@@ -56,6 +57,7 @@ do
     i=$((i + 1));
 done
 
+
 # Start a node in each pane but the main pane
 echo -e "${GREEN}[CREATE]${NC} ${N} nodes"
 i=1;
@@ -64,7 +66,7 @@ do
     p=$((P + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} LOGF=./${S}${i}.log smccli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${S}${i}.log smccli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
     sleep 0.5
     i=$((i + 1));
 done
@@ -76,7 +78,7 @@ p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${S}1 minogrpc token)" C-m
+    tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${S}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -86,7 +88,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}${i} dkg listen" C-m
+    tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${S}${i} dkg listen" C-m
     i=$((i + 1));
 done
 
@@ -100,11 +102,11 @@ do
     i=$((i + 1));
 done
 # sent to master pane
-tmux send-keys -t ${S}:0.%0 "smccli --config /tmp/${S}1 dkg setup ${a}" C-m
+tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${S}1 dkg setup ${a} > key.pub" C-m
 
 
 # select master on pane 0
 tmux select-pane -t 0
 
 # attach to tmux session
-tmux a
+tmux a -t ${S}

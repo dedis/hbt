@@ -13,8 +13,8 @@ GREEN='\033[0;32m'    # green color
 RED='\033[1;31;46m'   # red color
 NC='\033[0m'          # no Color
 L=info                # default trace level
-S=blockchain          # session name
-
+S=chain               # session name
+W=chainw              # window name
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 N=4
@@ -45,7 +45,7 @@ tmux list-sessions | rg "^${S}" >/dev/null 2>&1 && { echo -e ${RED}"A session wi
 
 
 echo -e "Create tmux detached session: ${S}"
-tmux new -s ${S} -n nodes -d
+tmux new -s ${S} -n ${W} -d
 
 
 echo -e "Split tmux window"
@@ -70,7 +70,8 @@ do
     p=$((P + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:0.%${i} "LLVL=${L} LOGF=./${S}${i}.log chaincli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${S}${i}.log chaincli --config /tmp/${S}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    echo -e "${GREEN}${S}:${W}.${i} - Done!{NC}"
     sleep 0.5
     i=$((i + 1));
 done
@@ -82,7 +83,7 @@ p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "chaincli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(chaincli --config /tmp/${S}1 minogrpc token)" C-m
+    tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${S}${i} minogrpc join --address //127.0.0.1:${p} $(chaincli --config /tmp/${S}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -96,7 +97,7 @@ do
     i=$((i + 1));
 done
 # sent to master pane
-tmux send-keys -t ${S}:0.%0 "chaincli --config /tmp/${S}1 ordering setup ${m}" C-m
+tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${S}1 ordering setup ${m}" C-m
 
 
 echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
@@ -104,7 +105,7 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     # sent to master pane
-    tmux send-keys -t ${S}:0.%0 "chaincli --config /tmp/${S}${i} access add \
+    tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${S}${i} access add \
                                   --identity $(crypto bls signer read --path private.key --format BASE64_PUBKEY)" C-m
     i=$((i + 1));
 done
@@ -112,7 +113,7 @@ done
 
 echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
 # sent to master pane
-tmux send-keys -t ${S}:0.%0 "chaincli --config /tmp/${S}1 pool add\
+tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${S}1 pool add\
     --key private.key\
     --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Access\
     --args access:grant_id --args 0200000000000000000000000000000000000000000000000000000000000000\
@@ -126,4 +127,4 @@ tmux send-keys -t ${S}:0.%0 "chaincli --config /tmp/${S}1 pool add\
 tmux select-pane -t 0
 
 # attach to tmux session
-tmux a
+tmux a -t ${S}

@@ -10,5 +10,8 @@ pkill smccli
 # remove blockchain nodes
 rm -rf /tmp/${S}*
 
+# remove local public key
+rm key.pub
+
 # kill tmux session
 tmux kill-session -t ${S}
