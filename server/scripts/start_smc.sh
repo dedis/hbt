@@ -102,11 +102,34 @@ do
     i=$((i + 1));
 done
 # sent to master pane
-tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${S}1 dkg setup ${a} > key.pub" C-m
+tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${S}1 dkg setup ${a} | tee smc-key.pub" C-m
 
+
+# Publish the roster
+echo -e "${GREEN}[PUBLISH]${NC} roster on the blockchain"
+i=1;
+p=$((P + i))
+V="127.0.0.1:${p}"
+while [ ${i} -lt ${N} ]
+do
+    i=$((i + 1));
+    p=$((P + i));
+    V="${V},127.0.0.1:${p}";
+done
+# Translate value to base64
+#V=$(echo ${V} | base64)
+K=$(grep 'Pubkey:' smc-key.pub | sed 's/🔑 Pubkey: //')
+
+# sent to master pane
+tmux send-keys -t ${S}:${W}.0 "LLVL=${L} chaincli --config /tmp/chain1 pool add\
+ --key private.key\
+ --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Value\
+ --args value:key --args \"${K}\"\
+ --args value:value --args \"${V}\"\
+ --args value:command --args WRITE" C-m
 
 # select master on pane 0
-tmux select-pane -t 0
+tmux select-pane -t ${S}:${W}.0
 
 # attach to tmux session
 tmux a -t ${S}

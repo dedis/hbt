@@ -124,7 +124,7 @@ tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${S}1 pool add\
 
 
 # select master on pane 0
-tmux select-pane -t 0
+tmux select-pane -t ${S}:${W}.0
 
 # attach to tmux session
 tmux a -t ${S}
