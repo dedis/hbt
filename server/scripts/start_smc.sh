@@ -116,16 +116,15 @@ do
     p=$((P + i));
     V="${V},127.0.0.1:${p}";
 done
-# Translate value to base64
-#V=$(echo ${V} | base64)
+
 K=$(grep 'Pubkey:' smc-key.pub | sed 's/🔑 Pubkey: //')
 
 # sent to master pane
 tmux send-keys -t ${S}:${W}.0 "LLVL=${L} chaincli --config /tmp/chain1 pool add\
  --key private.key\
  --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Value\
- --args value:key --args \"${K}\"\
- --args value:value --args \"${V}\"\
+ --args value:key --args \"${K:0:8}\"\
+ --args value:value --args \"${K}:${V}\"\
  --args value:command --args WRITE" C-m
 
 # select master on pane 0
