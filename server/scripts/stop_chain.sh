@@ -2,16 +2,13 @@
 
 # This script stops the blockchain created by the start_chain.sh script
 
-S=chain               # session name
+W=chain               # window name
 
 # stop processes
 pkill chaincli
 
 # remove blockchain nodes
-rm -rf /tmp/${S}*
+rm -rf /tmp/${W}*
 
 # remove blockchain pk
-rm private.key
-
-# kill tmux session
-tmux kill-session -t ${S}
+rm -f private.key
