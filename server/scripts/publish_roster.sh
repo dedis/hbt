@@ -3,7 +3,7 @@
 # This script publishes the SMC roster on the blockchain.
 
 # Requirements:
-# from server/smc/chaincli: go install
+# from server/blockchain/chaincli: go install
 
 set -e
 
