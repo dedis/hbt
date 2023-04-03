@@ -2,13 +2,14 @@
 
 # This script stops the SMC (secret management committee) created by the start_smc.sh script
 
-S=smc                 # session name
+W=smc                 # window name
 
 # stop processes
-pkill dkgcli
+pkill smccli
 
-# remove blockchain nodes
-rm -rf /tmp/${S}*
+# cleanup temporary SMC files
+rm -rf /tmp/${W}*
 
-# kill tmux session
-tmux kill-session -t ${S}
+# remove local public key
+rm -f smckey.pub
+
