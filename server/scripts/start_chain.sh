@@ -37,6 +37,9 @@ do
     esac
 done
 
+# master pane
+MASTERPANE="${S}:${W}.0"
+
 
 echo -e "Split ${W} window"
 tmux select-window -t ${S}:${W}
@@ -72,7 +75,8 @@ i=2;
 p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
-    tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(chaincli --config /tmp/${W}1 minogrpc token)" C-m
+    echo -e "joining node ${i} on master pane ${MASTERPANE}"
+    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(chaincli --config /tmp/${W}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -85,14 +89,14 @@ do
     m="${m} --member \$(chaincli --config /tmp/${W}${i} ordering export)"
     i=$((i + 1));
 done
-tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${W}1 ordering setup ${m}" C-m
+tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 ordering setup ${m}" C-m
 
 
 echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
 i=1;
 while [ ${i} -le ${N} ]
 do
-    tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${W}${i} access add \
+    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} access add \
                                   --identity $(crypto bls signer read --path private.key --format BASE64_PUBKEY)" C-m
     i=$((i + 1));
 done
@@ -100,7 +104,7 @@ done
 
 echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
 # sent to master pane
-tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${W}1 pool add\
+tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 pool add\
     --key private.key\
     --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Access\
     --args access:grant_id --args 0200000000000000000000000000000000000000000000000000000000000000\
@@ -109,4 +113,4 @@ tmux send-keys -t ${S}:${W}.0 "chaincli --config /tmp/${W}1 pool add\
     --args access:identity --args $(crypto bls signer read --path private.key --format BASE64_PUBKEY)\
     --args access:command --args GRANT" C-m
 
-tmux select-pane -t ${S}:${W}.0
+tmux select-pane -t "${MASTERPANE}"

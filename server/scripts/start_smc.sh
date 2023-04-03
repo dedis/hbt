@@ -36,6 +36,9 @@ do
     esac
 done
 
+# master pane
+MASTERPANE=${S}:${W}.0
+
 
 echo -e "Split ${W} window"
 tmux select-window -t ${S}:${W}
@@ -67,7 +70,7 @@ i=2;
 p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
-    tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${W}1 minogrpc token)" C-m
+    tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${W}1 minogrpc token)" C-m
     i=$((i + 1));
 done
 
@@ -76,7 +79,7 @@ echo -e "${GREEN}[INITIALIZE DKG]${NC} on each node"
 i=1;
 while [ ${i} -le ${N} ]
 do
-    tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${W}${i} dkg listen" C-m
+    tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} dkg listen" C-m
     i=$((i + 1));
 done
 
@@ -89,7 +92,7 @@ do
     a="${a} --authority \$(cat /tmp/${W}${i}/dkgauthority)"
     i=$((i + 1));
 done
-tmux send-keys -t ${S}:${W}.0 "smccli --config /tmp/${W}1 dkg setup ${a} | tee smckey.pub" C-m
+tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} | tee smckey.pub" C-m
 
 
 # Publish the roster
@@ -103,6 +106,6 @@ do
     p=$((P + i));
     V="${V},127.0.0.1:${p}";
 done
-tmux send-keys -t ${S}:${W}.0 "echo ${V} > roster.txt" C-m
+tmux send-keys -t "${MASTERPANE}" "echo ${V} > roster.txt" C-m
 
-tmux select-pane -t ${S}:${W}.0
+tmux select-pane -t "${MASTERPANE}"

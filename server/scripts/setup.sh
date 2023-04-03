@@ -20,14 +20,19 @@ command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not on your PATH!"; exit 
 tmux list-sessions 2>/dev/null | rg "^${S}" && { echo -e ${RED}"A session with the same name (${S}) already exists and will be destroyed${NC}"; tmux kill-session -t ${S};}
 
 echo -e "Create a tmux detached session: ${S} with a window 'chain'"
-tmux new -s ${S} -n chain -d
+tmux new-session -s ${S} -n chain -d
 echo -e "Create a tmux window 'smc' in the session ${S}"
-tmux neww -t ${S} -n smc
+tmux new-window -t ${S} -n smc
 
-./start_chain.sh -s ${S}
-./start_smc.sh -s ${S}
-tmux send-keys -t ${S}:smc.0 "./publish_roster.sh -s ${S} -w smc" C-m
+./start_chain.sh -t ${L} -s ${S} -w chain
+./start_smc.sh -t ${L} -s ${S} -w smc
+tmux send-keys -t ${S}:smc.0 "./publish_roster.sh" C-m
 
 # attach to session
 tmux select-pane -t ${S}:smc.0
-tmux a -t ${S}
+tmux send-keys -t ${S}:smc.0 "# TMUX MINI CHEAT SHEET" C-m
+tmux send-keys -t ${S}:smc.0 "# Use 'tmux lscm' to list tmux commands" C-m
+tmux send-keys -t ${S}:smc.0 "# Use 'Ctrl+B N (or P)' for next (previous) window" C-m
+tmux send-keys -t ${S}:smc.0 "# Use 'Ctrl+B <arrow>' to select pane" C-m
+tmux send-keys -t ${S}:smc.0 "# './teardown.sh' to clean this tmux session" C-m
+tmux attach -t ${S}

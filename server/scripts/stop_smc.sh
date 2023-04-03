@@ -7,7 +7,7 @@ W=smc                 # window name
 # stop processes
 pkill smccli
 
-# remove blockchain nodes
+# cleanup temporary SMC files
 rm -rf /tmp/${W}*
 
 # remove local public key

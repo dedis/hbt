@@ -7,7 +7,7 @@ W=chain               # window name
 # stop processes
 pkill chaincli
 
-# remove blockchain nodes
+# cleanup blockchain temporary files
 rm -rf /tmp/${W}*
 
 # remove blockchain pk
