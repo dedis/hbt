@@ -2,14 +2,13 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"os"
-
 	"go.dedis.ch/dela/cli/node"
-
 	db "go.dedis.ch/dela/core/store/kv/controller"
 	dkg "go.dedis.ch/dela/dkg/pedersen/controller"
 	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
+	smcctl "go.dedis.ch/hbt/smc/smccli/controller"
+	"io"
+	"os"
 )
 
 func main() {
@@ -35,7 +34,7 @@ func runWithCfg(args []string, cfg config) error {
 		db.NewController(),
 		minogrpc.NewController(),
 		dkg.NewMinimal(),
-		//		calypso.NewController(),
+		smcctl.NewSmcController(),
 	)
 
 	app := builder.Build()

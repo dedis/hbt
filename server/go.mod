@@ -2,7 +2,13 @@ module go.dedis.ch/hbt
 
 go 1.19
 
-require go.dedis.ch/dela v0.0.0-20230323102759-6cd3d6290380
+require (
+	go.dedis.ch/dela v0.0.0-20230323102759-6cd3d6290380
+	go.dedis.ch/kyber/v3 v3.0.14
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+)
+
+replace go.dedis.ch/dela => ../../dela
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -28,7 +34,6 @@ require (
 	github.com/uber/jaeger-lib v2.4.0+incompatible // indirect
 	github.com/urfave/cli/v2 v2.2.0 // indirect
 	go.dedis.ch/fixbuf v1.0.3 // indirect
-	go.dedis.ch/kyber/v3 v3.0.14 // indirect
 	go.dedis.ch/protobuf v1.0.11 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
@@ -36,7 +41,6 @@ require (
 	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
 	google.golang.org/grpc v1.53.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
