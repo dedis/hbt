@@ -7,15 +7,15 @@ import (
 )
 
 // reveal decrypts a reencrypted message.
-func reveal(Cs []kyber.Point, XhatEnc kyber.Point, dkgPk kyber.Point, Sk kyber.Scalar) ([]byte, error) {
+func reveal(XhatEnc kyber.Point, dkgPk kyber.Point, userPrivateKey kyber.Scalar, Cs []kyber.Point) ([]byte, error) {
 	dela.Logger.Debug().Msgf("DKG pubK:%v", dkgPk)
 	dela.Logger.Debug().Msgf("XhatEnc:%v", XhatEnc)
-	dela.Logger.Debug().Msgf("xc:%v", Sk)
+	dela.Logger.Debug().Msgf("xc:%v", userPrivateKey)
 
-	xcInv := suite.Scalar().Neg(Sk)
+	xcInv := suite.Scalar().Neg(userPrivateKey)
 	dela.Logger.Debug().Msgf("xcInv:%v", xcInv)
 
-	sum := suite.Scalar().Add(Sk, xcInv)
+	sum := suite.Scalar().Add(userPrivateKey, xcInv)
 	dela.Logger.Debug().Msgf("xc + xcInv: %v", sum)
 
 	XhatDec := suite.Point().Mul(xcInv, dkgPk)

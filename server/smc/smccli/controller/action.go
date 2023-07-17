@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"go.dedis.ch/kyber/v3/util/key"
+	"os"
 	"strings"
 
 	"go.dedis.ch/dela/cli/node"
@@ -23,17 +24,27 @@ type createKpAction struct{}
 func (a createKpAction) Execute(ctx node.Context) error {
 	kp := key.NewKeyPair(suites.MustFind("Ed25519"))
 
-	sk, err := kp.Private.MarshalBinary()
+	privk, err := kp.Private.MarshalBinary()
 	if err != nil {
-		return xerrors.Errorf("failed to marshal secret key: %v", err)
+		return xerrors.Errorf("failed to marshal private key: %v", err)
 	}
 
-	pk, err := kp.Public.MarshalBinary()
+	pubk, err := kp.Public.MarshalBinary()
 	if err != nil {
 		return xerrors.Errorf("failed to marshal public key: %v", err)
 	}
 
-	fmt.Fprintf(ctx.Out, "%v:%v", string(sk), string(pk))
+	keyFile, err := os.Create("key.pair")
+	if err != nil {
+		return xerrors.Errorf("failed to create key file: %v", err)
+	}
+	defer func() {
+		if err := keyFile.Close(); err != nil {
+			panic(err)
+		}
+	}()
+
+	fmt.Fprintf(keyFile, "%v:%v\n", hex.EncodeToString(privk), hex.EncodeToString(pubk))
 
 	return nil
 }
@@ -41,20 +52,14 @@ func (a createKpAction) Execute(ctx node.Context) error {
 type revealAction struct{}
 
 func (a revealAction) Execute(ctx node.Context) error {
-	encrypted := ctx.Flags.String("encrypted")
-	_, cs, err := decodeEncrypted(encrypted)
-	if err != nil {
-		return xerrors.Errorf("failed to decode encrypted str: %v", err)
-	}
-
-	xpk := ctx.Flags.String("xpk")
-	xhatenc, err := decodePublicKey(xpk)
+	xhatString := ctx.Flags.String("xhatenc")
+	xhatenc, err := decodePublicKey(xhatString)
 	if err != nil {
 		return xerrors.Errorf("failed to reencrypt: %v", err)
 	}
 
-	dpk := ctx.Flags.String("dpk")
-	dpubk, err := decodePublicKey(dpk)
+	dkgpubString := ctx.Flags.String("dkgpub")
+	dpubk, err := decodePublicKey(dkgpubString)
 	if err != nil {
 		return xerrors.Errorf("failed to decode public key str: %v", err)
 	}
@@ -65,7 +70,13 @@ func (a revealAction) Execute(ctx node.Context) error {
 		return xerrors.Errorf("failed to reencrypt: %v", err)
 	}
 
-	msg, err := reveal(cs, xhatenc, dpubk, usersk)
+	encrypted := ctx.Flags.String("encrypted")
+	_, cs, err := decodeEncrypted(encrypted)
+	if err != nil {
+		return xerrors.Errorf("failed to decode encrypted str: %v", err)
+	}
+
+	msg, err := reveal(xhatenc, dpubk, usersk, cs)
 	if err != nil {
 		fmt.Fprintf(ctx.Out, "couldn't reveal message. %v", err)
 		return err
