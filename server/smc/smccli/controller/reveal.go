@@ -8,9 +8,9 @@ import (
 
 // reveal decrypts a reencrypted message.
 func reveal(XhatEnc kyber.Point, dkgPk kyber.Point, userPrivateKey kyber.Scalar, Cs []kyber.Point) ([]byte, error) {
-	dela.Logger.Debug().Msgf("DKG pubK:%v", dkgPk)
-	dela.Logger.Debug().Msgf("XhatEnc:%v", XhatEnc)
-	dela.Logger.Debug().Msgf("xc:%v", userPrivateKey)
+	dela.Logger.Info().Msgf("XhatEnc:%v", XhatEnc)
+	dela.Logger.Info().Msgf("dkgPk:%v", dkgPk)
+	dela.Logger.Info().Msgf("Cs:%v", Cs)
 
 	xcInv := suite.Scalar().Neg(userPrivateKey)
 	dela.Logger.Debug().Msgf("xcInv:%v", xcInv)

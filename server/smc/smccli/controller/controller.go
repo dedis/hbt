@@ -46,6 +46,10 @@ func (s smcctl) SetCommands(builder node.Builder) {
 			Name:  "encrypted",
 			Usage: "the encrypted string, as <hex(K)>:<hex(C1):<hex(C2):...>",
 		},
+		cli.StringFlag{
+			Name:  "privk",
+			Usage: "drop me if you can",
+		},
 	)
 	sub.SetAction(builder.MakeAction(revealAction{}))
 }
