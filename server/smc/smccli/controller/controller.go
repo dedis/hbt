@@ -3,23 +3,17 @@ package controller
 import (
 	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/dela/cli/node"
-	"go.dedis.ch/kyber/v3/suites"
-	"go.dedis.ch/kyber/v3/util/key"
 )
 
 // smcctl is an initializer with a set of commands for the SMC. It only
 // creates and injects a new SMC instance.
 //
 // - implements node.Initializer
-type smcctl struct {
-	kp *key.Pair
-}
+type smcctl struct{}
 
 // NewSmcController returns a new SMC initializer
 func NewSmcController() node.Initializer {
-	return smcctl{
-		kp: key.NewKeyPair(suites.MustFind("Ed25519")),
-	}
+	return smcctl{}
 }
 
 // Build implements node.Initializer. In this case we don't need any command.

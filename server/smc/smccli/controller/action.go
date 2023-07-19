@@ -20,7 +20,6 @@ var suite = suites.MustFind("Ed25519")
 const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 const keyFileName = "key.pair"
-const keySeparator = ":"
 
 type createKpAction struct{}
 
@@ -49,7 +48,7 @@ func (a createKpAction) Execute(ctx node.Context) error {
 
 	fmt.Fprintf(keyFile, "%v%v%v\n",
 		hex.EncodeToString(privk),
-		keySeparator,
+		separator,
 		hex.EncodeToString(pubk))
 
 	return nil
