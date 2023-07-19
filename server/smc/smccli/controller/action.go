@@ -4,11 +4,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	"go.dedis.ch/dela"
+	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/kyber/v3/util/key"
 	"os"
 	"strings"
 
-	"go.dedis.ch/dela/cli/node"
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"
 	"golang.org/x/xerrors"
@@ -21,9 +21,7 @@ const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 const keyFileName = "key.pair"
 
-type createKpAction struct{}
-
-func (a createKpAction) Execute(ctx node.Context) error {
+func createKeyPairAction(flags cli.Flags) error {
 	kp := key.NewKeyPair(suites.MustFind("Ed25519"))
 
 	privk, err := kp.Private.MarshalBinary()
@@ -54,25 +52,23 @@ func (a createKpAction) Execute(ctx node.Context) error {
 	return nil
 }
 
-type revealAction struct{}
-
-func (a revealAction) Execute(ctx node.Context) error {
-	xhatString := ctx.Flags.String("xhatenc")
+func revealAction(flags cli.Flags) error {
+	xhatString := flags.String("xhatenc")
 	xhatenc, err := decodePublicKey(xhatString)
 	if err != nil {
 		return xerrors.Errorf("failed to reencrypt: %v", err)
 	}
 
-	dkgpubString := ctx.Flags.String("dkgpub")
+	dkgpubString := flags.String("dkgpub")
 	dkgpubk, err := decodePublicKey(dkgpubString)
 	if err != nil {
 		return xerrors.Errorf("failed to decode public key str: %v", err)
 	}
 
-	privkString := ctx.Flags.String("privk")
+	privkString := flags.String("privk")
 	privateKey, err := decodePrivateKey(privkString)
 
-	encrypted := ctx.Flags.String("encrypted")
+	encrypted := flags.String("encrypted")
 	_, cs, err := decodeEncrypted(encrypted)
 	if err != nil {
 		return xerrors.Errorf("failed to decode encrypted str: %v", err)
@@ -80,10 +76,10 @@ func (a revealAction) Execute(ctx node.Context) error {
 
 	msg, err := reveal(xhatenc, dkgpubk, privateKey, cs)
 	if err != nil {
-		fmt.Fprintf(ctx.Out, "couldn't reveal message. %v", err)
+		fmt.Printf("couldn't reveal message. %v", err)
 		return err
 	}
-	fmt.Fprint(ctx.Out, hex.EncodeToString(msg))
+	fmt.Print(hex.EncodeToString(msg))
 
 	return nil
 }

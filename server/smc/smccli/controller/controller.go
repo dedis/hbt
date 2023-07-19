@@ -5,10 +5,7 @@ import (
 	"go.dedis.ch/dela/cli/node"
 )
 
-// smcctl is an initializer with a set of commands for the SMC. It only
-// creates and injects a new SMC instance.
-//
-// - implements node.Initializer
+// smcctl implements node.Initializer
 type smcctl struct{}
 
 // NewSmcController returns a new SMC initializer
@@ -16,14 +13,14 @@ func NewSmcController() node.Initializer {
 	return smcctl{}
 }
 
-// Build implements node.Initializer. In this case we don't need any command.
+// SetCommands creates the CLI commands for the SMC part
 func (s smcctl) SetCommands(builder node.Builder) {
 	cmd := builder.SetCommand("smc")
 	cmd.SetDescription("SMC service administration")
 
 	sub := cmd.SetSubCommand("createkeys")
 	sub.SetDescription("create key pair for reencryption")
-	sub.SetAction(builder.MakeAction(createKpAction{}))
+	sub.SetAction(createKeyPairAction)
 
 	sub = cmd.SetSubCommand("reveal")
 	sub.SetDescription("reveal a reencrypted message")
@@ -45,7 +42,7 @@ func (s smcctl) SetCommands(builder node.Builder) {
 			Usage: "drop me if you can",
 		},
 	)
-	sub.SetAction(builder.MakeAction(revealAction{}))
+	sub.SetAction(revealAction)
 }
 
 // OnStart implements node.Initializer. It creates and registers a pedersen DKG.

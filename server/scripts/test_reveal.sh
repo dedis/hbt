@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
 # This script tests the encrypt, reencrypt, reveal functionality
-smccli --config /tmp/smc1 smc createkeys
+
+# assert that the DKG key is passed to script
+if [[ -z "$1" ]]; then
+   echo -e "Please provide the DKG public key as parameter"
+   exit 1
+fi
+
+smccli smc createkeys
 
 CIPHER=$(smccli --config /tmp/smc1 dkg encrypt --message "deadbeef")
 echo -e "Ciphertext \t${CIPHER}\n"
@@ -20,4 +27,4 @@ echo -e "XhatEnc: \t${XHATENC}\n"
 
 echo -e "DKG key: \t$1\n"
 
-smccli --config /tmp/smc1 smc reveal --xhatenc ${XHATENC} --encrypted ${CIPHER} --dkgpub $1 --privk ${PRIVK}
+smccli smc reveal --xhatenc ${XHATENC} --encrypted ${CIPHER} --dkgpub $1 --privk ${PRIVK}

@@ -13,35 +13,19 @@ func reveal(XhatEnc kyber.Point, dkgPk kyber.Point, userPrivateKey kyber.Scalar,
 	dela.Logger.Info().Msgf("Cs:%v", Cs)
 
 	xcInv := suite.Scalar().Neg(userPrivateKey)
-	dela.Logger.Debug().Msgf("xcInv:%v", xcInv)
-
-	sum := suite.Scalar().Add(userPrivateKey, xcInv)
-	dela.Logger.Debug().Msgf("xc + xcInv: %v", sum)
-
 	XhatDec := suite.Point().Mul(xcInv, dkgPk)
-	dela.Logger.Debug().Msgf("XhatDec:%v", XhatDec)
-
 	Xhat := suite.Point().Add(XhatEnc, XhatDec)
-	dela.Logger.Debug().Msgf("Xhat:%v", Xhat)
-
 	XhatInv := suite.Point().Neg(Xhat)
-	dela.Logger.Debug().Msgf("XhatInv:%v", XhatInv)
 
 	msg := make([]byte, 0, 128*len(Cs))
 
 	// Decrypt Cs to keyPointHat
 	for _, C := range Cs {
-		dela.Logger.Debug().Msgf("C:%v", C)
-
 		keyPointHat := suite.Point().Add(C, XhatInv)
-		dela.Logger.Debug().Msgf("keyPointHat:%v", keyPointHat)
-
 		keyPart, err := keyPointHat.Data()
-		dela.Logger.Debug().Msgf("keyPart:%v", keyPart)
-
 		if err != nil {
 			e := xerrors.Errorf("Error while decrypting Cs: %v", err)
-			dela.Logger.Error().Msg(e.Error())
+			dela.Logger.Error().Err(e).Msg("Failed revealing message")
 			return nil, e
 		}
 		msg = append(msg, keyPart...)
