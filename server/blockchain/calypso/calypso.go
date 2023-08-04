@@ -1,14 +1,14 @@
 // Package calypso implements a Calypso contract that can advertise Secret
-// Management Committees and deal with secrets.
+// Management Committees, deal with secrets and audit their access.
 //
-// TODO: its information will be represented in the store as follows :
-// SMC:C:{SMC public key} -> smc_roster (list of comma-separated host:port addresses)
-// SMC:S:{secret name} -> secret value (encrypted with the SMC public key)
-// SMC:R:{secret name} -> H(SMC public key, secret, client's public key)
+// Its information will be represented in the KV store as follows :
+// SMCR{SMC pub key} -> smc_roster (list of comma-separated host:port addresses)
+// SMCS{secret name} -> secret value (encrypted with the SMC public key)
+// SMCL{secret name} -> H(SMC public key, secret, client's public key)
+// SMCA{H(SMC public key, secret, client's public key)} -> client's public key
 package calypso
 
 import (
-	"crypto/sha256"
 	"fmt"
 	"io"
 	"net"
@@ -20,6 +20,7 @@ import (
 	"go.dedis.ch/dela/core/execution"
 	"go.dedis.ch/dela/core/execution/native"
 	"go.dedis.ch/dela/core/store"
+	"go.dedis.ch/dela/crypto"
 	"golang.org/x/xerrors"
 )
 
@@ -33,15 +34,17 @@ type commands interface {
 	createSecret(snap store.Snapshot, step execution.Step) error
 	listSecrets(snap store.Snapshot, step execution.Step) error
 	revealSecret(snap store.Snapshot, step execution.Step) error
+
+	listAuditLogs(snap store.Snapshot, step execution.Step) error
 }
 
 const (
 	// ContractName is the name of the contract.
 	ContractName = "go.dedis.ch/calypso.SMC"
 
-	// KeyArg is the argument's name in the transaction that contains the
-	// public key of the SMC to update.
-	KeyArg = "calypso:smc_key"
+	// SmcPublicKeyArg is the argument's name in the transaction that contains
+	// the public key of the SMC to update.
+	SmcPublicKeyArg = "calypso:smc_key"
 
 	// RosterArg is the argument's name in the transaction that contains the
 	// roster to associate with a given public key.
@@ -66,6 +69,24 @@ const (
 	// credentialAllCommand defines the credential command that is allowed to
 	// perform all commands.
 	credentialAllCommand = "all"
+
+	// contractKeyPrefix is used to prefix keys in the K/V store.
+	contractKeyPrefix = "SMC"
+
+	// smcKeyPrefix prefixed store keys contain the roster of the SMC.
+	smcRosterKeyPrefix = contractKeyPrefix + "R"
+
+	// smcSecretKeyPrefix prefixed store keys contain the secret.
+	smcSecretKeyPrefix = contractKeyPrefix + "S"
+
+	// secretTrailKeyPrefix prefixed store keys contain the list of audit keys
+	// that had access to the secret.
+	// e.g. [SMCT|Secret] => [SMCA1, SMCA2, SMCA3, ...]
+	secretLogKeyPrefix = contractKeyPrefix + "L"
+
+	// secretAccessKeyPrefix prefixed store keys contain the public key of the secret reader
+	// e.g. [SMCA|Hash(...)] => PubKey
+	secretAccessKeyPrefix = contractKeyPrefix + "A"
 )
 
 // Command defines a type of command for the value contract
@@ -89,6 +110,9 @@ const (
 
 	// CmdRevealSecret defines a command to reveal a secret.
 	CmdRevealSecret Command = "REVEAL_SECRET"
+
+	// CmdListAuditLog defines a command to list audit logs.
+	CmdListAuditLog Command = "LIST_AUDIT_LOG"
 )
 
 // Common error messages
@@ -115,7 +139,7 @@ type Contract struct {
 	// index contains all the keys set (and not deleteSmc) by this contract so far
 	index map[string]struct{}
 
-	// secrets contains a mapping between the keys and their associated secrets
+	// secrets contains a mapping between the SMC and their associated secrets
 	secrets map[string][]string
 
 	// access is the access control service managing this smart contract
@@ -131,7 +155,7 @@ type Contract struct {
 	printer io.Writer
 }
 
-// NewContract creates a new Value contract
+// NewContract creates a new Calypso contract
 func NewContract(aKey []byte, srvc access.Service) Contract {
 	contract := Contract{
 		index:     map[string]struct{}{},
@@ -209,9 +233,9 @@ type calypsoCommand struct {
 // advertiseSmc implements commands. It performs the ADVERTISE_SMC command.
 // It can advertise a new SMC or update the roster of an existing one.
 func (c calypsoCommand) advertiseSmc(snap store.Snapshot, step execution.Step) error {
-	key := step.Current.GetArg(KeyArg)
+	key := step.Current.GetArg(SmcPublicKeyArg)
 	if len(key) == 0 {
-		return xerrors.Errorf(notFoundInTxArg, KeyArg)
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
 	roster := step.Current.GetArg(RosterArg)
@@ -227,7 +251,7 @@ func (c calypsoCommand) advertiseSmc(snap store.Snapshot, step execution.Step) e
 		}
 	}
 
-	currentRoster, err := snap.Get(key)
+	currentRoster, err := getSmcRoster(snap, key)
 	if err == nil && len(currentRoster) > 0 {
 		// the SMC already exists, we need to verify the intersection between
 		// the new roster and the old one. There must be at least a threshold
@@ -239,15 +263,13 @@ func (c calypsoCommand) advertiseSmc(snap store.Snapshot, step execution.Step) e
 		}
 	}
 
-	err = snap.Set(key, roster) // DKG public key => roster
+	err = setSmcRoster(snap, key, roster) // DKG public key => roster
 	if err != nil {
 		return xerrors.Errorf("failed to set roster: %v", err)
 	}
 
 	c.index[string(key)] = struct{}{}
 	c.secrets[string(key)] = []string{}
-
-	dela.Logger.Info().Str("contract", ContractName).Msgf("setting %x=%s", key, roster)
 
 	return nil
 }
@@ -302,14 +324,16 @@ func intersectSortedRosters(oldRoster []string, newRoster []string) int {
 
 // deleteSmc implements commands. It performs the DELETE_SMC command
 func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) error {
-	key := step.Current.GetArg(KeyArg)
+	key := step.Current.GetArg(SmcPublicKeyArg)
 	if len(key) == 0 {
-		return xerrors.Errorf(notFoundInTxArg, KeyArg)
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
-	err := snap.Delete(key)
+	snapKey := append([]byte(smcRosterKeyPrefix), key...)
+
+	err := snap.Delete(snapKey)
 	if err != nil {
-		return xerrors.Errorf("failed to deleteSmc key '%x': %v", key, err)
+		return xerrors.Errorf("failed to deleteSmc key '%x': %v", snapKey, err)
 	}
 
 	// DKG => roster
@@ -319,7 +343,7 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 		dela.Logger.Info().
 			Msgf("Deleting secret '%s' that depended on deleted SMC '%s'", secret, key)
 
-		err = snap.Delete([]byte(secret))
+		err = deleteSecret(snap, []byte(secret))
 		if err != nil {
 			dela.Logger.Warn().
 				Msgf("Could not delete secret '%s', "+
@@ -338,7 +362,7 @@ func (c calypsoCommand) listSmc(snap store.Snapshot) error {
 	res := []string{}
 
 	for k := range c.index {
-		v, err := snap.Get([]byte(k))
+		v, err := getSmcRoster(snap, []byte(k))
 		if err != nil {
 			return xerrors.Errorf("failed to get key '%s': %v", k, err)
 		}
@@ -355,14 +379,17 @@ func (c calypsoCommand) listSmc(snap store.Snapshot) error {
 // createSecret implements commands. It performs the CREATE_SECRET command
 func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) error {
 
-	key := step.Current.GetArg(KeyArg)
-	if len(key) == 0 {
-		return xerrors.Errorf(notFoundInTxArg, KeyArg)
+	smcKey := step.Current.GetArg(SmcPublicKeyArg)
+	if len(smcKey) == 0 {
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
 	name := step.Current.GetArg(SecretNameArg)
 	if len(name) == 0 {
 		return xerrors.Errorf(notFoundInTxArg, SecretNameArg)
+	}
+	if len(name) > 30 {
+		return xerrors.Errorf("secret name '%s' is too long (max 30 bytes)", name)
 	}
 
 	secret := step.Current.GetArg(SecretArg)
@@ -370,21 +397,22 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf(notFoundInTxArg, SecretArg)
 	}
 
-	_, ok := c.index[string(key)]
+	_, ok := c.index[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf("'%s' was not found among the SMCs", key)
+		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
 	}
 
-	err := snap.Set(name, secret)
+	_, err := getSecret(snap, name)
+	if err == nil {
+		return xerrors.Errorf("a secret named '%s' already exists", name)
+	}
+
+	err = setSecret(snap, name, secret)
 	if err != nil {
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
 
-	c.secrets[string(key)] = append(c.secrets[string(key)], string(name))
-
-	dela.Logger.Info().
-		Str("contract", ContractName).
-		Msgf("setting secret %x=%s", name, secret)
+	c.secrets[string(smcKey)] = append(c.secrets[string(smcKey)], string(name))
 
 	return nil
 }
@@ -393,9 +421,9 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 func (c calypsoCommand) listSecrets(snap store.Snapshot, step execution.Step) error {
 	res := []string{}
 
-	key := step.Current.GetArg(KeyArg)
+	key := step.Current.GetArg(SmcPublicKeyArg)
 	if len(key) == 0 {
-		return xerrors.Errorf(notFoundInTxArg, KeyArg)
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
 	_, found := c.secrets[string(key)]
@@ -404,7 +432,7 @@ func (c calypsoCommand) listSecrets(snap store.Snapshot, step execution.Step) er
 	}
 
 	for _, k := range c.secrets[string(key)] {
-		v, err := snap.Get([]byte(k))
+		v, err := getSecret(snap, []byte(k))
 		if err != nil {
 			return xerrors.Errorf("failed to get key '%s': %v", k, err)
 		}
@@ -421,9 +449,9 @@ func (c calypsoCommand) listSecrets(snap store.Snapshot, step execution.Step) er
 // revealSecret implements commands. It performs the REVEAL_SECRET command
 func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) error {
 
-	smcKey := step.Current.GetArg(KeyArg)
+	smcKey := step.Current.GetArg(SmcPublicKeyArg)
 	if len(smcKey) == 0 {
-		return xerrors.Errorf(notFoundInTxArg, KeyArg)
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
 	name := step.Current.GetArg(SecretNameArg)
@@ -455,23 +483,25 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 			name, smcKey)
 	}
 
-	secret, err := snap.Get(name)
+	secret, err := getSecret(snap, name)
 	if err != nil {
 		return xerrors.Errorf("failed to get secret '%s': %v", name, err)
 	}
 
-	// Generate authorization hash
-	h := sha256.New()
-	h.Write(smcKey)
-	h.Write(secret)
-	h.Write(clientPubKey)
-	hash := h.Sum(nil)
+	accessToken := computeAccessToken(smcKey, secret, clientPubKey)
 
-	// TODO: this should be done according to the store specification at the
-	// top of this file, but the prefixing logic has not yet been implemented.
-	err = snap.Set(hash, hash)
+	if hasSecretAccess(snap, accessToken) {
+		return xerrors.Errorf("secret '%s' was already revealed", name)
+	}
+
+	err = setSecretAccess(snap, accessToken, clientPubKey)
 	if err != nil {
 		return xerrors.Errorf("failed to persist secret reveal: %v", err)
+	}
+
+	err = insertAuditLog(snap, name, accessToken)
+	if err != nil {
+		return xerrors.Errorf("failed to persist secret audit log: %v", err)
 	}
 
 	dela.Logger.Info().
@@ -480,6 +510,59 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 
 	return nil
 }
+
+// listAuditLogs implements commands. It performs the LIST_AUDIT_LOGS command
+func (c calypsoCommand) listAuditLogs(snap store.Snapshot, step execution.Step) error {
+	smcKey := step.Current.GetArg(SmcPublicKeyArg)
+	if len(smcKey) == 0 {
+		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
+	}
+
+	name := step.Current.GetArg(SecretNameArg)
+	if len(name) == 0 {
+		return xerrors.Errorf(notFoundInTxArg, SecretNameArg)
+	}
+
+	smcSecrets, ok := c.secrets[string(smcKey)]
+	if !ok {
+		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
+	}
+
+	found := false
+	for _, s := range smcSecrets {
+		if s == string(name) {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return xerrors.Errorf(
+			"'%s' was not found among the secrets of the smc (%v)",
+			name, smcKey)
+	}
+
+	logs, err := getAuditLogs(snap, name)
+	if err != nil {
+		return xerrors.Errorf("failed to get audit logs for '%s': %v", name, err)
+	}
+
+	fmt.Fprintf(c.printer, "Audit logs for secret '%s':\n", name)
+
+	for _, log := range logs {
+		pubKey, err := getSecretAccess(snap, log)
+		if err != nil {
+			return xerrors.Errorf("failed to get public key for access token '%s': %v", log, err)
+		}
+		fmt.Fprintf(c.printer, "%x\n", pubKey)
+	}
+
+	return nil
+}
+
+//
+// Utility functions
+//
 
 // infoLog defines an output using zerolog
 //
@@ -490,4 +573,153 @@ func (h infoLog) Write(p []byte) (int, error) {
 	dela.Logger.Info().Msg(string(p))
 
 	return len(p), nil
+}
+
+func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
+	snapKey := append([]byte(smcRosterKeyPrefix), key...)
+	roster, err := snap.Get(snapKey)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get roster: %v", err)
+	}
+
+	return roster, nil
+}
+
+func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
+	snapKey := append([]byte(smcRosterKeyPrefix), key...)
+	err := snap.Set(snapKey, roster)
+	if err != nil {
+		return xerrors.Errorf("failed to set roster: %v", err)
+	}
+
+	dela.Logger.Info().Str("contract", ContractName).
+		Msgf("setting %x=%s", snapKey, roster)
+
+	return nil
+}
+
+func getSecret(snap store.Snapshot, key []byte) ([]byte, error) {
+	snapKey := append([]byte(smcSecretKeyPrefix), key...)
+	secret, err := snap.Get(snapKey)
+	if err != nil {
+		return nil, xerrors.Errorf("failed to get secret: %v", err)
+	}
+
+	return secret, nil
+}
+
+func setSecret(snap store.Snapshot, key []byte, secret []byte) error {
+	snapKey := append([]byte(smcSecretKeyPrefix), key...)
+	err := snap.Set(snapKey, secret)
+	if err != nil {
+		return xerrors.Errorf("failed to set secret: %v", err)
+	}
+
+	dela.Logger.Info().
+		Str("contract", ContractName).
+		Msgf("setting secret %x=%s", snapKey, secret)
+
+	return nil
+}
+
+func deleteSecret(snap store.Snapshot, key []byte) error {
+	snapKey := append([]byte(smcSecretKeyPrefix), key...)
+	err := snap.Delete(snapKey)
+	if err != nil {
+		return xerrors.Errorf("failed to delete secret: %v", err)
+	}
+
+	dela.Logger.Info().
+		Str("contract", ContractName).
+		Msgf("deleting secret %x", snapKey)
+
+	return nil
+}
+
+func computeAccessToken(smcKey []byte, secret []byte, clientPubKey []byte) []byte {
+	h := crypto.NewHashFactory(crypto.Sha3_224).New()
+	h.Write(smcKey)
+	h.Write(secret)
+	h.Write(clientPubKey)
+	return h.Sum(nil)
+}
+
+func hasSecretAccess(snap store.Snapshot, hash []byte) bool {
+	_, err := getSecret(snap, hash)
+	return err == nil
+}
+
+func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {
+	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
+	pubKey, err := snap.Get(snapKey)
+	if err != nil {
+		return nil, xerrors.Errorf(
+			"failed to get access token '%v': %v", accessToken, err)
+	}
+
+	return pubKey, nil
+}
+
+func setSecretAccess(snap store.Snapshot, accessToken []byte, pubKey []byte) error {
+	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
+	err := snap.Set(snapKey, pubKey)
+	if err != nil {
+		return xerrors.Errorf(
+			"failed to give secret '%v' access to '%v': %v", accessToken, pubKey, err)
+	}
+
+	dela.Logger.Info().
+		Str("contract", ContractName).
+		Msgf("setting secret access %x=%s", snapKey, pubKey)
+
+	return nil
+}
+
+func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error {
+	snapKey := append([]byte(secretLogKeyPrefix), name...)
+
+	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
+	log, err := snap.Get(snapKey)
+	if err != nil {
+		log = make([]byte, 0, 28)
+	}
+
+	log = append(log, accessToken...)
+
+	err = snap.Set(snapKey, log)
+	if err != nil {
+		return xerrors.Errorf(
+			"failed to insert audit log for secret '%v': %v", name, err)
+	}
+
+	dela.Logger.Info().
+		Str("contract", ContractName).
+		Msgf("appending audit log %x=[%s]", snapKey, accessToken)
+
+	return nil
+}
+
+func getAuditLogs(snap store.Snapshot, name []byte) ([][]byte, error) {
+	snapKey := append([]byte(secretLogKeyPrefix), name...)
+	log, err := snap.Get(snapKey)
+	if err != nil {
+		return [][]byte{}, nil
+	}
+
+	return decodeAuditLog(log)
+}
+
+func decodeAuditLog(log []byte) ([][]byte, error) {
+	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
+	// we need to split it in chunks of 28 bytes
+	if len(log)%28 != 0 {
+		return nil, xerrors.Errorf("invalid audit log length: %v", len(log))
+	}
+
+	res := make([][]byte, 0, len(log)/28)
+	for i := 0; i < len(log); i += 28 {
+		res = append(res, log[i:i+28])
+	}
+
+	return res, nil
 }
