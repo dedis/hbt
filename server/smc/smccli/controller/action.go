@@ -3,11 +3,12 @@ package controller
 import (
 	"encoding/hex"
 	"fmt"
+	"os"
+	"strings"
+
 	"go.dedis.ch/dela"
 	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/kyber/v3/util/key"
-	"os"
-	"strings"
 
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"
