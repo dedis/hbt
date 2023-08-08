@@ -18,13 +18,13 @@ import (
 )
 
 func TestExecute(t *testing.T) {
-	contract := NewContract([]byte{}, fakeAccess{err: fake.GetError()})
+	contract := NewContract(fakeAccess{err: fake.GetError()})
 
 	err := contract.Execute(fakeStore{}, makeStep(t))
 	require.EqualError(t, err,
 		"identity not authorized: fake.PublicKey ("+fake.GetError().Error()+")")
 
-	contract = NewContract([]byte{}, fakeAccess{})
+	contract = NewContract(fakeAccess{})
 	err = contract.Execute(fakeStore{}, makeStep(t))
 	require.EqualError(t, err, "'calypso:command' not found in tx arg")
 
@@ -48,7 +48,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestCommand_AdvertiseSmc(t *testing.T) {
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -95,7 +95,7 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 }
 
 func TestCommand_DeleteSmc(t *testing.T) {
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -109,7 +109,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
 	err = cmd.deleteSmc(fake.NewBadSnapshot(), makeStep(t, SmcPublicKeyArg, keyStr))
-	require.EqualError(t, err, fake.Err("failed to deleteSmc key '"+keyHex+"'"))
+	require.EqualError(t, err, fake.Err("failed to delete SMC with public key '"+keyHex+"'"))
 
 	snap := fake.NewSnapshot()
 	snap.Set(key, []byte("localhost:12345"))
@@ -127,7 +127,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 }
 
 func TestCommand_ListSmc(t *testing.T) {
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	key1 := "key1"
 	roster1 := "localhost:12345"
@@ -161,7 +161,7 @@ func TestCommand_ListSmc(t *testing.T) {
 
 func TestCommand_CreateSecret_BadSnapshot(t *testing.T) {
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -185,7 +185,7 @@ func TestCommand_CreateSecret_BadSnapshot(t *testing.T) {
 
 func TestCommand_CreateSecret_Succeeds(t *testing.T) {
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -222,7 +222,7 @@ func TestCommand_CreateSecret_Succeeds(t *testing.T) {
 }
 
 func TestCommand_CreateSecret_InvalidInputs(t *testing.T) {
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -260,7 +260,7 @@ func TestCommand_ListSecrets(t *testing.T) {
 
 	// Arrange (2 SMCs, "dummy" has 2 secrets, "other" has 1)
 
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -316,7 +316,7 @@ func TestCommand_ListSecrets(t *testing.T) {
 
 func TestCommand_ListSecrets_InexistentSmc(t *testing.T) {
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -334,7 +334,7 @@ func TestCommand_ListSecrets_InexistentSmc(t *testing.T) {
 
 func TestCommand_ListSecrets_InvalidSnapshot(t *testing.T) {
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -367,7 +367,7 @@ func TestCommand_ListSecrets_InvalidSnapshot(t *testing.T) {
 func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	cmd := calypsoCommand{
 		Contract: &contract,
@@ -426,7 +426,7 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {
 
 	// Arrange
-	contract := NewContract([]byte{}, fakeAccess{})
+	contract := NewContract(fakeAccess{})
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf

@@ -39,6 +39,10 @@ type commands interface {
 }
 
 const (
+	// ContractUID is the unique (4-bytes) identifier of the contract, it is
+	// used to prefix keys in the K/V store and by DARCs for access control.
+	ContractUID = "SMC"
+
 	// ContractName is the name of the contract.
 	ContractName = "go.dedis.ch/calypso.SMC"
 
@@ -70,23 +74,20 @@ const (
 	// perform all commands.
 	credentialAllCommand = "all"
 
-	// contractKeyPrefix is used to prefix keys in the K/V store.
-	contractKeyPrefix = "SMC"
-
 	// smcKeyPrefix prefixed store keys contain the roster of the SMC.
-	smcRosterKeyPrefix = contractKeyPrefix + "R"
+	smcRosterKeyPrefix = ContractUID + "R"
 
 	// smcSecretKeyPrefix prefixed store keys contain the secret.
-	smcSecretKeyPrefix = contractKeyPrefix + "S"
+	smcSecretKeyPrefix = ContractUID + "S"
 
 	// secretTrailKeyPrefix prefixed store keys contain the list of audit keys
 	// that had access to the secret.
 	// e.g. [SMCT|Secret] => [SMCA1, SMCA2, SMCA3, ...]
-	secretLogKeyPrefix = contractKeyPrefix + "L"
+	secretLogKeyPrefix = ContractUID + "L"
 
 	// secretAccessKeyPrefix prefixed store keys contain the public key of the secret reader
 	// e.g. [SMCA|Hash(...)] => PubKey
-	secretAccessKeyPrefix = contractKeyPrefix + "A"
+	secretAccessKeyPrefix = ContractUID + "A"
 )
 
 // Command defines a type of command for the value contract
@@ -122,8 +123,8 @@ const (
 
 // NewCreds creates new credentials for a value contract execution. We might
 // want to use in the future a separate credential for each command.
-func NewCreds(id []byte) access.Credential {
-	return access.NewContractCreds(id, ContractName, credentialAllCommand)
+func NewCreds() access.Credential {
+	return access.NewContractCreds([]byte(ContractUID), ContractName, credentialAllCommand)
 }
 
 // RegisterContract registers the value contract to the given execution service.
@@ -145,9 +146,6 @@ type Contract struct {
 	// access is the access control service managing this smart contract
 	access access.Service
 
-	// accessKey is the access identifier allowed to use this smart contract
-	accessKey []byte
-
 	// cmd provides the commands that can be executed by this smart contract
 	cmd commands
 
@@ -156,13 +154,12 @@ type Contract struct {
 }
 
 // NewContract creates a new Calypso contract
-func NewContract(aKey []byte, srvc access.Service) Contract {
+func NewContract(srvc access.Service) Contract {
 	contract := Contract{
-		index:     map[string]struct{}{},
-		secrets:   map[string][]string{},
-		access:    srvc,
-		accessKey: aKey,
-		printer:   infoLog{},
+		index:   map[string]struct{}{},
+		secrets: map[string][]string{},
+		access:  srvc,
+		printer: infoLog{},
 	}
 
 	contract.cmd = calypsoCommand{Contract: &contract}
@@ -172,7 +169,7 @@ func NewContract(aKey []byte, srvc access.Service) Contract {
 
 // Execute implements native.Contract. It runs the appropriate command.
 func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
-	creds := NewCreds(c.accessKey)
+	creds := NewCreds()
 
 	err := c.access.Match(snap, creds, step.Current.GetIdentity())
 	if err != nil {
@@ -221,6 +218,13 @@ func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 	}
 
 	return nil
+}
+
+// UID returns the unique 4-bytes contract identifier.
+//
+// - implements native.Contract
+func (c Contract) UID() string {
+	return ContractUID
 }
 
 // calypsoCommand implements the commands of the value contract
@@ -333,7 +337,7 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 
 	err := snap.Delete(snapKey)
 	if err != nil {
-		return xerrors.Errorf("failed to deleteSmc key '%x': %v", snapKey, err)
+		return xerrors.Errorf("failed to delete SMC with public key '%x': %v", key, err)
 	}
 
 	// DKG => roster
@@ -579,7 +583,7 @@ func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
 	snapKey := append([]byte(smcRosterKeyPrefix), key...)
 	roster, err := snap.Get(snapKey)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to get roster: %v", err)
+		return nil, err
 	}
 
 	return roster, nil
@@ -589,7 +593,7 @@ func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
 	snapKey := append([]byte(smcRosterKeyPrefix), key...)
 	err := snap.Set(snapKey, roster)
 	if err != nil {
-		return xerrors.Errorf("failed to set roster: %v", err)
+		return err
 	}
 
 	dela.Logger.Info().Str("contract", ContractName).
@@ -626,7 +630,7 @@ func deleteSecret(snap store.Snapshot, key []byte) error {
 	snapKey := append([]byte(smcSecretKeyPrefix), key...)
 	err := snap.Delete(snapKey)
 	if err != nil {
-		return xerrors.Errorf("failed to delete secret: %v", err)
+		return xerrors.Errorf("failed to delete from snapshot: %v", err)
 	}
 
 	dela.Logger.Info().
