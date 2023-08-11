@@ -311,7 +311,7 @@ func TestCommand_ListSecrets(t *testing.T) {
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, fmt.Sprintf("name1=secret1,name2=secret2"), buf.String())
+	require.Equal(t, "name1=secret1,name2=secret2", buf.String())
 }
 
 func TestCommand_ListSecrets_InexistentSmc(t *testing.T) {
@@ -538,11 +538,11 @@ type fakeStore struct {
 	store.Snapshot
 }
 
-func (s fakeStore) Get(key []byte) ([]byte, error) {
+func (s fakeStore) Get(_ []byte) ([]byte, error) {
 	return nil, nil
 }
 
-func (s fakeStore) Set(key, value []byte) error {
+func (s fakeStore) Set(_, _ []byte) error {
 	return nil
 }
 
@@ -550,31 +550,31 @@ type fakeCmd struct {
 	err error
 }
 
-func (c fakeCmd) advertiseSmc(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) advertiseSmc(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
-func (c fakeCmd) deleteSmc(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) deleteSmc(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
-func (c fakeCmd) listSmc(snap store.Snapshot) error {
+func (c fakeCmd) listSmc(_ store.Snapshot) error {
 	return c.err
 }
 
-func (c fakeCmd) createSecret(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) createSecret(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
-func (c fakeCmd) listSecrets(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) listSecrets(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
-func (c fakeCmd) revealSecret(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) revealSecret(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
-func (c fakeCmd) listAuditLogs(snap store.Snapshot, step execution.Step) error {
+func (c fakeCmd) listAuditLogs(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
 
@@ -612,12 +612,6 @@ func (snap *InMemorySnapshot) Set(key, value []byte) error {
 
 // Delete implements store.Snapshot.
 func (snap *InMemorySnapshot) Delete(key []byte) error {
-	_, found := snap.values[string(key)]
-	if !found {
-		// is this behaviour correct or should it be ignored ?
-		return xerrors.Errorf("key not found: %s", key)
-	}
-
 	delete(snap.values, string(key))
 	return nil
 }

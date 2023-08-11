@@ -2,10 +2,10 @@
 // Management Committees, deal with secrets and audit their access.
 //
 // Its information will be represented in the KV store as follows :
-// SMCR{SMC pub key} -> smc_roster (list of comma-separated host:port addresses)
-// SMCS{secret name} -> secret value (encrypted with the SMC public key)
-// SMCL{secret name} -> H(SMC public key, secret, client's public key)
-// SMCA{H(SMC public key, secret, client's public key)} -> client's public key
+// CALYR {SMC pub key} -> {pub key, smc_roster (list of comma-separated host:port addresses)}
+// CALYS {secret name} -> secret value (encrypted with the SMC public key)
+// CALYL {secret name} -> H(SMC public key, secret, client's public key)
+// CALYA {H(SMC public key, secret, client's public key)} -> client's public key
 package calypso
 
 import (
@@ -41,7 +41,7 @@ type commands interface {
 const (
 	// ContractUID is the unique (4-bytes) identifier of the contract, it is
 	// used to prefix keys in the K/V store and by DARCs for access control.
-	ContractUID = "SMC"
+	ContractUID = "CALY"
 
 	// ContractName is the name of the contract.
 	ContractName = "go.dedis.ch/calypso.SMC"
@@ -212,6 +212,11 @@ func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 		err := c.cmd.revealSecret(snap, step)
 		if err != nil {
 			return xerrors.Errorf("failed to REVEAL_SECRET: %v", err)
+		}
+	case CmdListAuditLog:
+		err := c.cmd.listAuditLogs(snap, step)
+		if err != nil {
+			return xerrors.Errorf("failed to LIST_AUDIT_LOG: %v", err)
 		}
 	default:
 		return xerrors.Errorf("unknown command: %s", cmd)
@@ -707,7 +712,7 @@ func getAuditLogs(snap store.Snapshot, name []byte) ([][]byte, error) {
 	snapKey := append([]byte(secretLogKeyPrefix), name...)
 	log, err := snap.Get(snapKey)
 	if err != nil {
-		return [][]byte{}, nil
+		return [][]byte{}, err
 	}
 
 	return decodeAuditLog(log)

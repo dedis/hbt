@@ -68,6 +68,9 @@ func revealAction(flags cli.Flags) error {
 
 	privkString := flags.String("privk")
 	privateKey, err := decodePrivateKey(privkString)
+	if err != nil {
+		return xerrors.Errorf("failed to decode private key str: %v", err)
+	}
 
 	encrypted := flags.String("encrypted")
 	_, cs, err := decodeEncrypted(encrypted)

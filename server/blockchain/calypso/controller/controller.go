@@ -9,9 +9,6 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// aKey is the access key used for the calypso contract
-var aKey = [32]byte{3}
-
 // miniController is a CLI initializer to register the value contract
 //
 // - implements node.Initializer
@@ -42,7 +39,7 @@ func (m miniController) OnStart(flags cli.Flags, inj node.Injector) error {
 		return xerrors.Errorf("failed to resolve native service: %v", err)
 	}
 
-	contract := calypso.NewContract(aKey[:], access)
+	contract := calypso.NewContract(access)
 
 	calypso.RegisterContract(exec, contract)
 
