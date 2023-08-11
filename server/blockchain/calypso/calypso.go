@@ -20,6 +20,7 @@ import (
 	"go.dedis.ch/dela/core/execution"
 	"go.dedis.ch/dela/core/execution/native"
 	"go.dedis.ch/dela/core/store"
+	"go.dedis.ch/dela/core/store/prefixed"
 	"go.dedis.ch/dela/crypto"
 	"golang.org/x/xerrors"
 )
@@ -585,8 +586,9 @@ func (h infoLog) Write(p []byte) (int, error) {
 }
 
 func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
-	snapKey := append([]byte(smcRosterKeyPrefix), key...)
-	roster, err := snap.Get(snapKey)
+	snap = prefixed.NewSnapshot(smcRosterKeyPrefix, snap)
+
+	roster, err := snap.Get(key)
 	if err != nil {
 		return nil, err
 	}
@@ -595,21 +597,23 @@ func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
 }
 
 func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
-	snapKey := append([]byte(smcRosterKeyPrefix), key...)
-	err := snap.Set(snapKey, roster)
+	snap = prefixed.NewSnapshot(smcRosterKeyPrefix, snap)
+
+	err := snap.Set(key, roster)
 	if err != nil {
 		return err
 	}
 
 	dela.Logger.Info().Str("contract", ContractName).
-		Msgf("setting %x=%s", snapKey, roster)
+		Msgf("setting %x=%s", key, roster)
 
 	return nil
 }
 
 func getSecret(snap store.Snapshot, key []byte) ([]byte, error) {
-	snapKey := append([]byte(smcSecretKeyPrefix), key...)
-	secret, err := snap.Get(snapKey)
+	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
+
+	secret, err := snap.Get(key)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to get secret: %v", err)
 	}
@@ -618,29 +622,31 @@ func getSecret(snap store.Snapshot, key []byte) ([]byte, error) {
 }
 
 func setSecret(snap store.Snapshot, key []byte, secret []byte) error {
-	snapKey := append([]byte(smcSecretKeyPrefix), key...)
-	err := snap.Set(snapKey, secret)
+	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
+
+	err := snap.Set(key, secret)
 	if err != nil {
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
 
 	dela.Logger.Info().
 		Str("contract", ContractName).
-		Msgf("setting secret %x=%s", snapKey, secret)
+		Msgf("setting secret %x=%s", key, secret)
 
 	return nil
 }
 
 func deleteSecret(snap store.Snapshot, key []byte) error {
-	snapKey := append([]byte(smcSecretKeyPrefix), key...)
-	err := snap.Delete(snapKey)
+	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
+
+	err := snap.Delete(key)
 	if err != nil {
 		return xerrors.Errorf("failed to delete from snapshot: %v", err)
 	}
 
 	dela.Logger.Info().
 		Str("contract", ContractName).
-		Msgf("deleting secret %x", snapKey)
+		Msgf("deleting secret %x", key)
 
 	return nil
 }
@@ -659,8 +665,10 @@ func hasSecretAccess(snap store.Snapshot, hash []byte) bool {
 }
 
 func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {
-	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
-	pubKey, err := snap.Get(snapKey)
+	snap = prefixed.NewSnapshot(secretAccessKeyPrefix, snap)
+	//	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
+
+	pubKey, err := snap.Get(accessToken)
 	if err != nil {
 		return nil, xerrors.Errorf(
 			"failed to get access token '%v': %v", accessToken, err)
@@ -670,8 +678,10 @@ func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {
 }
 
 func setSecretAccess(snap store.Snapshot, accessToken []byte, pubKey []byte) error {
-	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
-	err := snap.Set(snapKey, pubKey)
+	snap = prefixed.NewSnapshot(secretAccessKeyPrefix, snap)
+	//	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
+
+	err := snap.Set(accessToken, pubKey)
 	if err != nil {
 		return xerrors.Errorf(
 			"failed to give secret '%v' access to '%v': %v", accessToken, pubKey, err)
@@ -679,23 +689,24 @@ func setSecretAccess(snap store.Snapshot, accessToken []byte, pubKey []byte) err
 
 	dela.Logger.Info().
 		Str("contract", ContractName).
-		Msgf("setting secret access %x=%s", snapKey, pubKey)
+		Msgf("setting secret access %x=%s", accessToken, pubKey)
 
 	return nil
 }
 
 func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error {
-	snapKey := append([]byte(secretLogKeyPrefix), name...)
+	snap = prefixed.NewSnapshot(secretLogKeyPrefix, snap)
+	// snapKey := append([]byte(secretLogKeyPrefix), name...)
 
 	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
-	log, err := snap.Get(snapKey)
+	log, err := snap.Get(name)
 	if err != nil {
 		log = make([]byte, 0, 28)
 	}
 
 	log = append(log, accessToken...)
 
-	err = snap.Set(snapKey, log)
+	err = snap.Set(name, log)
 	if err != nil {
 		return xerrors.Errorf(
 			"failed to insert audit log for secret '%v': %v", name, err)
@@ -703,14 +714,15 @@ func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error 
 
 	dela.Logger.Info().
 		Str("contract", ContractName).
-		Msgf("appending audit log %x=[%s]", snapKey, accessToken)
+		Msgf("appending audit log %x=[%s]", name, accessToken)
 
 	return nil
 }
 
 func getAuditLogs(snap store.Snapshot, name []byte) ([][]byte, error) {
-	snapKey := append([]byte(secretLogKeyPrefix), name...)
-	log, err := snap.Get(snapKey)
+	snap = prefixed.NewSnapshot(secretLogKeyPrefix, snap)
+	// snapKey := append([]byte(secretLogKeyPrefix), name...)
+	log, err := snap.Get(name)
 	if err != nil {
 		return [][]byte{}, err
 	}

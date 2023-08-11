@@ -438,7 +438,8 @@ func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {
 		Contract: &contract,
 	}
 
-	snap := NewSnapshot()
+	snap := fake.NewSnapshot()
+
 	const (
 		smcKey      = "my_smc_key"
 		secretName  = "my_secret"
