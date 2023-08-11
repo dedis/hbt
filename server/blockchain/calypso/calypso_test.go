@@ -112,7 +112,8 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	require.EqualError(t, err, fake.Err("failed to delete SMC with public key '"+keyHex+"'"))
 
 	snap := fake.NewSnapshot()
-	snap.Set(key, []byte("localhost:12345"))
+	err = snap.Set(key, []byte("localhost:12345"))
+	require.NoError(t, err)
 	contract.index[keyStr] = struct{}{}
 
 	err = cmd.deleteSmc(snap, makeStep(t, SmcPublicKeyArg, keyStr))
@@ -146,10 +147,12 @@ func TestCommand_ListSmc(t *testing.T) {
 	}
 
 	snap := fake.NewSnapshot()
-	snap.Set([]byte(key1), []byte(roster1))
-	snap.Set([]byte(key2), []byte(roster2))
+	err := snap.Set([]byte(key1), []byte(roster1))
+	require.NoError(t, err)
+	err = snap.Set([]byte(key2), []byte(roster2))
+	require.NoError(t, err)
 
-	err := cmd.listSmc(snap)
+	err = cmd.listSmc(snap)
 	require.NoError(t, err)
 
 	require.Equal(t, fmt.Sprintf("%x=%v,%x=%v", key1, roster1, key2, roster2), buf.String())
