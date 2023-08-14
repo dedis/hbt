@@ -413,7 +413,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 	}
 
 	_, err := getSecret(snap, name)
-	if err == nil {
+	if err != nil {
 		return xerrors.Errorf("a secret named '%s' already exists", name)
 	}
 
@@ -655,9 +655,8 @@ func computeAccessToken(smcKey []byte, secret []byte, clientPubKey []byte) []byt
 }
 
 func hasSecretAccess(snap store.Snapshot, accessToken []byte) bool {
-	k := prefixed.NewPrefixedKey([]byte(PrefixAccessKeys), accessToken)
-	_, err := getSecret(snap, k)
-	return err == nil
+	_, err := getSecret(snap, accessToken)
+	return err != nil
 }
 
 func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {

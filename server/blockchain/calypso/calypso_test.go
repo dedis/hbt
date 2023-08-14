@@ -57,27 +57,27 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 	keyString := "dummy"
 	keyBytes := []byte(keyString)
 
-	store := fake.NewSnapshot()
-	require.NotNil(t, store)
-	err := cmd.advertiseSmc(store, makeStep(t))
+	snapshot := fake.NewSnapshot()
+	require.NotNil(t, snapshot)
+	err := cmd.advertiseSmc(snapshot, makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	require.NotNil(t, store)
-	err = cmd.advertiseSmc(store, makeStep(t, SmcPublicKeyArg, keyString))
+	require.NotNil(t, snapshot)
+	err = cmd.advertiseSmc(snapshot, makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, "'calypso:smc_roster' not found in tx arg")
 
-	badStore := fake.NewBadSnapshot()
-	err = cmd.advertiseSmc(badStore,
+	badSnapshot := fake.NewBadSnapshot()
+	err = cmd.advertiseSmc(badSnapshot,
 		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.EqualError(t, err, fake.Err("failed to set roster"))
 
-	err = cmd.advertiseSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, ","))
+	err = cmd.advertiseSmc(badSnapshot, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, ","))
 	require.ErrorContains(t, err, "invalid node '' in roster")
 
-	err = cmd.advertiseSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "abcd"))
+	err = cmd.advertiseSmc(badSnapshot, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "abcd"))
 	require.ErrorContains(t, err, "invalid node 'abcd' in roster")
 
-	store = fake.NewSnapshot()
+	snapshot = fake.NewSnapshot()
 
 	_, found := contract.index[keyString]
 	require.False(t, found)
@@ -85,7 +85,8 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 	_, found = contract.secrets[keyString]
 	require.False(t, found)
 
-	err = cmd.advertiseSmc(store, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
+	err = cmd.advertiseSmc(snapshot,
+		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.NoError(t, err)
 
 	_, found = contract.index[keyString]
@@ -95,7 +96,7 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 	require.True(t, found)
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
-	res, err := store.Get(k)
+	res, err := snapshot.Get(k)
 	require.NoError(t, err)
 	require.Equal(t, "node:12345", string(res))
 }
@@ -111,25 +112,25 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	keyBytes := []byte(keyString)
 	keyHex := hex.EncodeToString(keyBytes)
 
-	store := fake.NewSnapshot()
-	err := cmd.deleteSmc(store, makeStep(t))
+	snapshot := fake.NewSnapshot()
+	err := cmd.deleteSmc(snapshot, makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	badStore := prefixed.NewSnapshot(ContractUID, fake.NewBadSnapshot())
+	badStore := fake.NewBadSnapshot()
 	err = cmd.deleteSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, fake.Err("failed to delete SMC with public key '"+keyHex+"'"))
 
-	store = fake.NewSnapshot()
-	err = store.Set(keyBytes, []byte("localhost:12345"))
+	snapshot = fake.NewSnapshot()
+	err = snapshot.Set(keyBytes, []byte("localhost:12345"))
 	require.NoError(t, err)
 	contract.index[keyString] = struct{}{}
 
-	err = cmd.deleteSmc(store, makeStep(t, SmcPublicKeyArg, keyString))
+	err = cmd.deleteSmc(snapshot, makeStep(t, SmcPublicKeyArg, keyString))
 	require.NoError(t, err)
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
-	res, err := store.Get(k)
-	require.Error(t, err, fmt.Sprintf("key not found: %v", k))
+	res, err := snapshot.Get(k)
+	require.Nil(t, err) // == key not found
 	require.Nil(t, res)
 
 	_, found := contract.index[keyString]
@@ -157,17 +158,17 @@ func TestCommand_ListSmc(t *testing.T) {
 		Contract: &contract,
 	}
 
-	store := fake.NewSnapshot()
+	snapshot := fake.NewSnapshot()
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key1Bytes)
-	err := store.Set(k, []byte(roster1))
+	err := snapshot.Set(k, []byte(roster1))
 	require.NoError(t, err)
 
 	k = prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key2Bytes)
-	err = store.Set(k, []byte(roster2))
+	err = snapshot.Set(k, []byte(roster2))
 	require.NoError(t, err)
 
-	err = cmd.listSmc(store)
+	err = cmd.listSmc(snapshot)
 	require.NoError(t, err)
 
 	require.Equal(t, fmt.Sprintf("%x=%v,%x=%v", key1String, roster1, key2String, roster2),

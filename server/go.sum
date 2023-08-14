@@ -145,8 +145,8 @@ github.com/uber/jaeger-lib v2.4.0+incompatible h1:fY7QsGQWiCt8pajv4r7JEvmATdCVaW
 github.com/uber/jaeger-lib v2.4.0+incompatible/go.mod h1:ComeNDZlWwrWnDv8aPp0Ba6+uUTzImX/AauajbLI56U=
 github.com/urfave/cli/v2 v2.2.0 h1:JTTnM6wKzdA0Jqodd966MVj4vWbbquZykeX1sKbe2C4=
 github.com/urfave/cli/v2 v2.2.0/go.mod h1:SE9GqnLQmjVa0iPEY0f1w3ygNIYcIJ0OKPMoW2caLfQ=
-go.dedis.ch/dela v0.0.0-20230719095423-94a2e36c20a5 h1:3PWWFNhiPCc4Nhpk/PrGnlJEMQzjobWbgBYKRNosHoI=
-go.dedis.ch/dela v0.0.0-20230719095423-94a2e36c20a5/go.mod h1:d2WsZBE9ESHpMystHBIyuFN6OwWpKaP9tRFO0P/3Sz8=
+go.dedis.ch/dela v0.0.0-20230814162536-4bcfa7981c82 h1:nSPgGOk0izc9hSmUVGe8TT+rSLuePz+AH0VxtIywOBU=
+go.dedis.ch/dela v0.0.0-20230814162536-4bcfa7981c82/go.mod h1:FkatZT04/Bc6cm3ShMMuDc83/zX2OTmqBl5NhuW6W4s=
 go.dedis.ch/fixbuf v1.0.3 h1:hGcV9Cd/znUxlusJ64eAlExS+5cJDIyTyEG+otu5wQs=
 go.dedis.ch/fixbuf v1.0.3/go.mod h1:yzJMt34Wa5xD37V5RTdmp38cz3QhMagdGoem9anUalw=
 go.dedis.ch/kyber/v3 v3.0.4/go.mod h1:OzvaEnPvKlyrWyp3kGXlFdp7ap1VC6RkZDTaPikqhsQ=
