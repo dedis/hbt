@@ -75,20 +75,20 @@ const (
 	// perform all commands.
 	credentialAllCommand = "all"
 
-	// smcKeyPrefix prefixed store keys contain the roster of the SMC.
-	smcRosterKeyPrefix = ContractUID + "R"
+	// PrefixSmcRosterKeys prefixed store keys contain the roster of the SMC.
+	PrefixSmcRosterKeys = ContractUID + "R"
 
-	// smcSecretKeyPrefix prefixed store keys contain the secret.
-	smcSecretKeyPrefix = ContractUID + "S"
+	// PrefixSecretKeys prefixed store keys contain the secret.
+	PrefixSecretKeys = ContractUID + "S"
 
-	// secretTrailKeyPrefix prefixed store keys contain the list of audit keys
+	// PrefixListKeys prefixed store keys contain the list of audit keys
 	// that had access to the secret.
 	// e.g. [SMCT|Secret] => [SMCA1, SMCA2, SMCA3, ...]
-	secretLogKeyPrefix = ContractUID + "L"
+	PrefixListKeys = ContractUID + "L"
 
-	// secretAccessKeyPrefix prefixed store keys contain the public key of the secret reader
+	// PrefixAccessKeys prefixed store keys contain the public key of the secret reader
 	// e.g. [SMCA|Hash(...)] => PubKey
-	secretAccessKeyPrefix = ContractUID + "A"
+	PrefixAccessKeys = ContractUID + "A"
 )
 
 // Command defines a type of command for the value contract
@@ -339,9 +339,9 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
-	snapKey := append([]byte(smcRosterKeyPrefix), key...)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key)
 
-	err := snap.Delete(snapKey)
+	err := snap.Delete(k)
 	if err != nil {
 		return xerrors.Errorf("failed to delete SMC with public key '%x': %v", key, err)
 	}
@@ -586,9 +586,8 @@ func (h infoLog) Write(p []byte) (int, error) {
 }
 
 func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
-	snap = prefixed.NewSnapshot(smcRosterKeyPrefix, snap)
-
-	roster, err := snap.Get(key)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key)
+	roster, err := snap.Get(k)
 	if err != nil {
 		return nil, err
 	}
@@ -597,9 +596,8 @@ func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
 }
 
 func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
-	snap = prefixed.NewSnapshot(smcRosterKeyPrefix, snap)
-
-	err := snap.Set(key, roster)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key)
+	err := snap.Set(k, roster)
 	if err != nil {
 		return err
 	}
@@ -611,22 +609,20 @@ func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
 }
 
 func getSecret(snap store.Snapshot, key []byte) ([]byte, error) {
-	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
-
-	secret, err := snap.Get(key)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), key)
+	secret, err := snap.Get(k)
 	if err != nil {
-		return nil, xerrors.Errorf("failed to get secret: %v", err)
+		return nil, err
 	}
 
 	return secret, nil
 }
 
 func setSecret(snap store.Snapshot, key []byte, secret []byte) error {
-	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
-
-	err := snap.Set(key, secret)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), key)
+	err := snap.Set(k, secret)
 	if err != nil {
-		return xerrors.Errorf("failed to set secret: %v", err)
+		return err
 	}
 
 	dela.Logger.Info().
@@ -637,9 +633,8 @@ func setSecret(snap store.Snapshot, key []byte, secret []byte) error {
 }
 
 func deleteSecret(snap store.Snapshot, key []byte) error {
-	snap = prefixed.NewSnapshot(smcSecretKeyPrefix, snap)
-
-	err := snap.Delete(key)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), key)
+	err := snap.Delete(k)
 	if err != nil {
 		return xerrors.Errorf("failed to delete from snapshot: %v", err)
 	}
@@ -659,16 +654,15 @@ func computeAccessToken(smcKey []byte, secret []byte, clientPubKey []byte) []byt
 	return h.Sum(nil)
 }
 
-func hasSecretAccess(snap store.Snapshot, hash []byte) bool {
-	_, err := getSecret(snap, hash)
+func hasSecretAccess(snap store.Snapshot, accessToken []byte) bool {
+	k := prefixed.NewPrefixedKey([]byte(PrefixAccessKeys), accessToken)
+	_, err := getSecret(snap, k)
 	return err == nil
 }
 
 func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {
-	snap = prefixed.NewSnapshot(secretAccessKeyPrefix, snap)
-	//	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
-
-	pubKey, err := snap.Get(accessToken)
+	k := prefixed.NewPrefixedKey([]byte(PrefixAccessKeys), accessToken)
+	pubKey, err := snap.Get(k)
 	if err != nil {
 		return nil, xerrors.Errorf(
 			"failed to get access token '%v': %v", accessToken, err)
@@ -678,10 +672,8 @@ func getSecretAccess(snap store.Snapshot, accessToken []byte) ([]byte, error) {
 }
 
 func setSecretAccess(snap store.Snapshot, accessToken []byte, pubKey []byte) error {
-	snap = prefixed.NewSnapshot(secretAccessKeyPrefix, snap)
-	//	snapKey := append([]byte(secretAccessKeyPrefix), accessToken...)
-
-	err := snap.Set(accessToken, pubKey)
+	k := prefixed.NewPrefixedKey([]byte(PrefixAccessKeys), accessToken)
+	err := snap.Set(k, pubKey)
 	if err != nil {
 		return xerrors.Errorf(
 			"failed to give secret '%v' access to '%v': %v", accessToken, pubKey, err)
@@ -695,18 +687,16 @@ func setSecretAccess(snap store.Snapshot, accessToken []byte, pubKey []byte) err
 }
 
 func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error {
-	snap = prefixed.NewSnapshot(secretLogKeyPrefix, snap)
-	// snapKey := append([]byte(secretLogKeyPrefix), name...)
-
-	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
-	log, err := snap.Get(name)
+	k := prefixed.NewPrefixedKey([]byte(PrefixListKeys), name)
+	log, err := snap.Get(k)
 	if err != nil {
 		log = make([]byte, 0, 28)
 	}
 
+	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
 	log = append(log, accessToken...)
 
-	err = snap.Set(name, log)
+	err = snap.Set(k, log)
 	if err != nil {
 		return xerrors.Errorf(
 			"failed to insert audit log for secret '%v': %v", name, err)
@@ -720,9 +710,8 @@ func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error 
 }
 
 func getAuditLogs(snap store.Snapshot, name []byte) ([][]byte, error) {
-	snap = prefixed.NewSnapshot(secretLogKeyPrefix, snap)
-	// snapKey := append([]byte(secretLogKeyPrefix), name...)
-	log, err := snap.Get(name)
+	k := prefixed.NewPrefixedKey([]byte(PrefixListKeys), name)
+	log, err := snap.Get(k)
 	if err != nil {
 		return [][]byte{}, err
 	}

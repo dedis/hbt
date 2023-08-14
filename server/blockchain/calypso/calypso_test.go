@@ -11,10 +11,10 @@ import (
 	"go.dedis.ch/dela/core/execution"
 	"go.dedis.ch/dela/core/execution/native"
 	"go.dedis.ch/dela/core/store"
+	"go.dedis.ch/dela/core/store/prefixed"
 	"go.dedis.ch/dela/core/txn"
 	"go.dedis.ch/dela/core/txn/signed"
 	"go.dedis.ch/dela/testing/fake"
-	"golang.org/x/xerrors"
 )
 
 func TestExecute(t *testing.T) {
@@ -54,42 +54,48 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 		Contract: &contract,
 	}
 
-	err := cmd.advertiseSmc(fake.NewSnapshot(), makeStep(t))
+	keyString := "dummy"
+	keyBytes := []byte(keyString)
+
+	store := fake.NewSnapshot()
+	require.NotNil(t, store)
+	err := cmd.advertiseSmc(store, makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	err = cmd.advertiseSmc(fake.NewSnapshot(), makeStep(t, SmcPublicKeyArg, "dummy"))
+	require.NotNil(t, store)
+	err = cmd.advertiseSmc(store, makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, "'calypso:smc_roster' not found in tx arg")
 
-	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
-		makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
+	badStore := fake.NewBadSnapshot()
+	err = cmd.advertiseSmc(badStore,
+		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.EqualError(t, err, fake.Err("failed to set roster"))
 
-	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
-		makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, ","))
+	err = cmd.advertiseSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, ","))
 	require.ErrorContains(t, err, "invalid node '' in roster")
 
-	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
-		makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "abcd"))
+	err = cmd.advertiseSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "abcd"))
 	require.ErrorContains(t, err, "invalid node 'abcd' in roster")
 
-	snap := fake.NewSnapshot()
+	store = fake.NewSnapshot()
 
-	_, found := contract.index["dummy"]
+	_, found := contract.index[keyString]
 	require.False(t, found)
 
-	_, found = contract.secrets["dummy"]
+	_, found = contract.secrets[keyString]
 	require.False(t, found)
 
-	err = cmd.advertiseSmc(snap, makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
+	err = cmd.advertiseSmc(store, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.NoError(t, err)
 
-	_, found = contract.index["dummy"]
+	_, found = contract.index[keyString]
 	require.True(t, found)
 
-	_, found = contract.secrets["dummy"]
+	_, found = contract.secrets[keyString]
 	require.True(t, found)
 
-	res, err := snap.Get([]byte("dummy"))
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
+	res, err := store.Get(k)
 	require.NoError(t, err)
 	require.Equal(t, "node:12345", string(res))
 }
@@ -101,43 +107,48 @@ func TestCommand_DeleteSmc(t *testing.T) {
 		Contract: &contract,
 	}
 
-	key := []byte("dummy")
-	keyHex := hex.EncodeToString(key)
-	keyStr := string(key)
+	keyString := "dummy"
+	keyBytes := []byte(keyString)
+	keyHex := hex.EncodeToString(keyBytes)
 
-	err := cmd.deleteSmc(fake.NewSnapshot(), makeStep(t))
+	store := fake.NewSnapshot()
+	err := cmd.deleteSmc(store, makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	err = cmd.deleteSmc(fake.NewBadSnapshot(), makeStep(t, SmcPublicKeyArg, keyStr))
+	badStore := prefixed.NewSnapshot(ContractUID, fake.NewBadSnapshot())
+	err = cmd.deleteSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, fake.Err("failed to delete SMC with public key '"+keyHex+"'"))
 
-	snap := fake.NewSnapshot()
-	err = snap.Set(key, []byte("localhost:12345"))
+	store = fake.NewSnapshot()
+	err = store.Set(keyBytes, []byte("localhost:12345"))
 	require.NoError(t, err)
-	contract.index[keyStr] = struct{}{}
+	contract.index[keyString] = struct{}{}
 
-	err = cmd.deleteSmc(snap, makeStep(t, SmcPublicKeyArg, keyStr))
+	err = cmd.deleteSmc(store, makeStep(t, SmcPublicKeyArg, keyString))
 	require.NoError(t, err)
 
-	res, err := snap.Get(key)
-	require.Nil(t, err)
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
+	res, err := store.Get(k)
+	require.Error(t, err, fmt.Sprintf("key not found: %v", k))
 	require.Nil(t, res)
 
-	_, found := contract.index[keyStr]
+	_, found := contract.index[keyString]
 	require.False(t, found)
 }
 
 func TestCommand_ListSmc(t *testing.T) {
 	contract := NewContract(fakeAccess{})
 
-	key1 := "key1"
+	key1String := "key1"
+	key1Bytes := []byte(key1String)
 	roster1 := "localhost:12345"
 
-	key2 := "key2"
+	key2String := "key2"
+	key2Bytes := []byte(key2String)
 	roster2 := "localhost:12345,remote:54321"
 
-	contract.index[key1] = struct{}{}
-	contract.index[key2] = struct{}{}
+	contract.index[key1String] = struct{}{}
+	contract.index[key2String] = struct{}{}
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -146,16 +157,21 @@ func TestCommand_ListSmc(t *testing.T) {
 		Contract: &contract,
 	}
 
-	snap := fake.NewSnapshot()
-	err := snap.Set([]byte(key1), []byte(roster1))
-	require.NoError(t, err)
-	err = snap.Set([]byte(key2), []byte(roster2))
+	store := fake.NewSnapshot()
+
+	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key1Bytes)
+	err := store.Set(k, []byte(roster1))
 	require.NoError(t, err)
 
-	err = cmd.listSmc(snap)
+	k = prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key2Bytes)
+	err = store.Set(k, []byte(roster2))
 	require.NoError(t, err)
 
-	require.Equal(t, fmt.Sprintf("%x=%v,%x=%v", key1, roster1, key2, roster2), buf.String())
+	err = cmd.listSmc(store)
+	require.NoError(t, err)
+
+	require.Equal(t, fmt.Sprintf("%x=%v,%x=%v", key1String, roster1, key2String, roster2),
+		buf.String())
 
 	err = cmd.listSmc(fake.NewBadSnapshot())
 	// we can't assume an order from the map
@@ -219,7 +235,8 @@ func TestCommand_CreateSecret_Succeeds(t *testing.T) {
 	require.Equal(t, 1, len(dummy))
 	require.Equal(t, "my_secret", string(dummy[0]))
 
-	res, err := snap.Get([]byte("my_secret"))
+	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), []byte("my_secret"))
+	res, err := snap.Get(k)
 	require.NoError(t, err)
 	require.Equal(t, "my_value", string(res))
 }
@@ -317,7 +334,7 @@ func TestCommand_ListSecrets(t *testing.T) {
 	require.Equal(t, "name1=secret1,name2=secret2", buf.String())
 }
 
-func TestCommand_ListSecrets_InexistentSmc(t *testing.T) {
+func TestCommand_ListSecrets_NonexistentSmc(t *testing.T) {
 	// Arrange
 	contract := NewContract(fakeAccess{})
 
@@ -376,7 +393,7 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 		Contract: &contract,
 	}
 
-	snap := NewSnapshot()
+	snap := fake.NewSnapshot()
 	const (
 		smcKey      = "my_smc_key"
 		secretName  = "my_secret"
@@ -583,7 +600,7 @@ func (c fakeCmd) listAuditLogs(_ store.Snapshot, _ execution.Step) error {
 }
 
 // -----------------------------------------------------------------------------
-
+/*
 // InMemorySnapshot is a fake, but realistic implementation of a store snapshot.
 // TODO: should we update the fake.InMemorySnapshot ?
 // - implements store.Snapshot
@@ -619,3 +636,4 @@ func (snap *InMemorySnapshot) Delete(key []byte) error {
 	delete(snap.values, string(key))
 	return nil
 }
+*/
