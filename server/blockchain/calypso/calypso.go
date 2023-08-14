@@ -412,12 +412,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
 	}
 
-	_, err := getSecret(snap, name)
-	if err != nil {
-		return xerrors.Errorf("a secret named '%s' already exists", name)
-	}
-
-	err = setSecret(snap, name, secret)
+	err := setSecret(snap, name, secret)
 	if err != nil {
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
