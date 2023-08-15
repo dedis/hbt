@@ -482,7 +482,7 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 
 	smcSecrets, ok := c.secrets[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
+		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
 	}
 
 	found := false
@@ -541,7 +541,7 @@ func (c calypsoCommand) listAuditLogs(snap store.Snapshot, step execution.Step) 
 
 	smcSecrets, ok := c.secrets[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
+		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
 	}
 
 	found := false
