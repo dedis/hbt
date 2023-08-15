@@ -11,8 +11,8 @@ tidy:
 # Some packages are excluded from staticcheck due to deprecated warnings: #208.
 lint: tidy
 	# Static checks
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
-	golangci-lint run
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@golangci-lint run
 
 vet: tidy
 	# Go vet

@@ -22,7 +22,7 @@ const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 const keyFileName = "key.pair"
 
-func createKeyPairAction(flags cli.Flags) error {
+func createKeyPairAction(_ cli.Flags) error {
 	kp := key.NewKeyPair(suites.MustFind("Ed25519"))
 
 	privk, err := kp.Private.MarshalBinary()

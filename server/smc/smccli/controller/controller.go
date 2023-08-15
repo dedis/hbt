@@ -46,7 +46,7 @@ func (s smcctl) SetCommands(builder node.Builder) {
 }
 
 // OnStart implements node.Initializer. It creates and registers a pedersen DKG.
-func (s smcctl) OnStart(ctx cli.Flags, inj node.Injector) error {
+func (s smcctl) OnStart(_ cli.Flags, _ node.Injector) error {
 	return nil
 }
 
