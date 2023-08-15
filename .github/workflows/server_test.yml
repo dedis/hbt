@@ -46,19 +46,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Send coverage
-        if: matrix.platform == 'ubuntu-latest'
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: server/profile.cov
-          parallel: true
-        
-  # notifies that all test jobs are finished.
-  finish:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: shogo82148/actions-goveralls@v1
-        with:
-          parallel-finished: true
