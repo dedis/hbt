@@ -39,6 +39,7 @@ jobs:
         run: make coverage
 
       - name: Run code analysis
+        if: matrix.platform == 'ubuntu-latest'
         uses: SonarSource/sonarcloud-github-action@master
         with:
             projectBaseDir: server
