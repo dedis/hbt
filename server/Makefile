@@ -23,8 +23,9 @@ test: tidy
 	@go test ./...
 
 build: tidy
-	@make -C smc/smccli
-	@make -C blockchain/chaincli
+	# Building executable
+	@go build ./smc/smccli
+	@go build ./blockchain/chaincli
 
 coverage: tidy
 	# Test and generate a coverage output usable by sonarcloud

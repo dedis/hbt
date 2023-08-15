@@ -5,8 +5,11 @@
 
 gradle.properties
 
-server/blockchain/chaincli/chaincli
-server/smc/smccli/smccli
+**/chaincli
+**/smccli
+
+profile.cov
+report.json
 
 server/scripts/key.pair
 server/scripts/roster.txt
