@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"server/blockchain/calypso"
+	"hbt-server/blockchain/calypso"
 
 	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/dela/cli/node"

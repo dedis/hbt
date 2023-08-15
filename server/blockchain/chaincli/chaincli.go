@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	calypso "server/blockchain/calypso/controller"
+	calypso "hbt-server/blockchain/calypso/controller"
 
 	"go.dedis.ch/dela/cli/node"
 	access "go.dedis.ch/dela/contracts/access/controller"

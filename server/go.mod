@@ -1,4 +1,4 @@
-module server
+module hbt-server
 
 go 1.21
 
