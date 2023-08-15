@@ -12,8 +12,7 @@ tidy:
 lint: tidy
 	# Static checks
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
-	@go mod tidy
-	@golangci-lint run
+	golangci-lint run
 
 vet: tidy
 	# Go vet
