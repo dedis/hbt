@@ -4,3 +4,9 @@
 *.log
 
 gradle.properties
+
+server/blockchain/chaincli/chaincli
+server/smc/smccli/smccli
+
+server/scripts/key.pair
+server/scripts/roster.txt
