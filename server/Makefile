@@ -29,5 +29,5 @@ build: tidy
 
 coverage: tidy
 	# Test and generate a coverage output usable by sonarcloud
-	@go test -json -covermode=count -coverprofile=profile.cov ./... | tee report.json
+	@go test -json -covermode=count -coverpkg=./... -coverprofile=profile.cov ./... | tee report.json
 

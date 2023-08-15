@@ -1,4 +1,4 @@
-module go.dedis.ch/hbt
+module server
 
 go 1.21
 

@@ -5,6 +5,8 @@ import (
 	"io"
 	"os"
 
+	calypso "server/blockchain/calypso/controller"
+
 	"go.dedis.ch/dela/cli/node"
 	access "go.dedis.ch/dela/contracts/access/controller"
 	cosipbft "go.dedis.ch/dela/core/ordering/cosipbft/controller"
@@ -13,7 +15,6 @@ import (
 	signed "go.dedis.ch/dela/core/txn/signed/controller"
 	mino "go.dedis.ch/dela/mino/minogrpc/controller"
 	proxy "go.dedis.ch/dela/mino/proxy/http/controller"
-	calypso "go.dedis.ch/hbt/blockchain/calypso/controller"
 )
 
 func main() {
