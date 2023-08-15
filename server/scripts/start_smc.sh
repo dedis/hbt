@@ -92,7 +92,7 @@ do
     a="${a} --authority \$(cat /tmp/${W}${i}/dkgauthority)"
     i=$((i + 1));
 done
-tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} | tee smckey.pub" C-m
+tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} --threshold ${N} | tee smckey.pub" C-m
 
 
 # Publish the roster
