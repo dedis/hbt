@@ -1,4 +1,4 @@
-name: Go test
+name: Server test
 
 on:
   push:
@@ -45,15 +45,10 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         run: make coverage
 
-      - name: Sonarcloud scan
-        if: matrix.platform == 'ubuntu-latest'
-        uses: sonarsource/sonarcloud-github-action@master
+      - name: Run code analysis
+        uses: SonarSource/sonarcloud-github-action@master
         with:
-          args: >
-            -Dsonar.organization=dedis
-            -Dsonar.projectKey=dedis_hbt
-            -Dsonar.go.tests.reportPaths=report.json
-            -Dsonar.go.coverage.reportPaths=profile.cov
+            projectBaseDir: server
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

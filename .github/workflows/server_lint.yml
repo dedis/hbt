@@ -1,4 +1,4 @@
-name: Go lint
+name: Server lint
 
 on:
   push:
@@ -17,6 +17,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
 
+    defaults:
+        run:
+            working-directory: ./server
+
     steps:
     - name: Set up Go ^1.19
       uses: actions/setup-go@v3
@@ -31,9 +35,7 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of Sonar analysis
 
     - name: Lint
-      working-directory: ./server
-      run: make lint
+      run: make -C server lint
 
     - name: Vet
-      working-directory: ./server
-      run: make vet
+      run: make -C server vet
