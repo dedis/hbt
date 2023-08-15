@@ -13,6 +13,7 @@ import (
 	signed "go.dedis.ch/dela/core/txn/signed/controller"
 	mino "go.dedis.ch/dela/mino/minogrpc/controller"
 	proxy "go.dedis.ch/dela/mino/proxy/http/controller"
+	calypso "go.dedis.ch/hbt/blockchain/calypso/controller"
 )
 
 func main() {
@@ -42,6 +43,7 @@ func runWithCfg(args []string, cfg config) error {
 		pool.NewController(),
 		access.NewController(),
 		proxy.NewController(),
+		calypso.NewController(),
 	)
 
 	app := builder.Build()
