@@ -188,6 +188,7 @@ func TestCommand_CreateSecret_BadSnapshot(t *testing.T) {
 	}
 
 	badSnap := fake.NewBadSnapshot()
+	badSnap.ErrRead = nil  // temporarily disable errors
 	badSnap.ErrWrite = nil // temporarily disable errors
 
 	err := cmd.advertiseSmc(badSnap, makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
@@ -201,6 +202,31 @@ func TestCommand_CreateSecret_BadSnapshot(t *testing.T) {
 
 	// Assert
 	require.EqualError(t, err, fake.Err("failed to set secret"))
+}
+
+func TestCommand_CreateSecret_AlreadyExists(t *testing.T) {
+	// Arrange
+	contract := NewContract(fakeAccess{})
+
+	cmd := calypsoCommand{
+		Contract: &contract,
+	}
+
+	badSnap := fake.NewSnapshot()
+
+	err := cmd.advertiseSmc(badSnap, makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
+	require.NoError(t, err)
+
+	err = cmd.createSecret(badSnap,
+		makeStep(t, SmcPublicKeyArg, "dummy", SecretNameArg, "name", SecretArg, "value"))
+	require.NoError(t, err)
+
+	// Act
+	err = cmd.createSecret(badSnap,
+		makeStep(t, SmcPublicKeyArg, "dummy", SecretNameArg, "name", SecretArg, "other_value"))
+
+	// Assert
+	require.EqualError(t, err, "a secret named 'name' already exists")
 }
 
 func TestCommand_CreateSecret_Succeeds(t *testing.T) {

@@ -89,6 +89,9 @@ const (
 	// PrefixAccessKeys prefixed store keys contain the public key of the secret reader
 	// e.g. [SMCA|Hash(...)] => PubKey
 	PrefixAccessKeys = ContractUID + "A"
+
+	// Error
+	ErrorKeyNotFoundInSmcs = "'%s' was not found among the SMCs"
 )
 
 // Command defines a type of command for the value contract
@@ -409,10 +412,18 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 
 	_, ok := c.index[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf("'%s' was not found among the SMCs", smcKey)
+		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
 	}
 
-	err := setSecret(snap, name, secret)
+	v, err := getSecret(snap, name)
+	if err != nil {
+		return xerrors.Errorf("failed to verify if named '%s' exists: %v", name, err)
+	}
+	if v != nil {
+		return xerrors.Errorf("a secret named '%s' already exists", name)
+	}
+
+	err = setSecret(snap, name, secret)
 	if err != nil {
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
