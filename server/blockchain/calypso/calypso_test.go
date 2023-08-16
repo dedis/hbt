@@ -55,6 +55,7 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 	}
 
 	keyString := "dummy"
+	keySmc := smcPubKey(keyString)
 	keyBytes := []byte(keyString)
 
 	err := cmd.advertiseSmc(fake.NewSnapshot(), makeStep(t))
@@ -77,20 +78,20 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 
 	snapshot := fake.NewSnapshot()
 
-	_, found := contract.index[keyString]
+	_, found := contract.index[keySmc]
 	require.False(t, found)
 
-	_, found = contract.secrets[keyString]
+	_, found = contract.secrets[keySmc]
 	require.False(t, found)
 
 	err = cmd.advertiseSmc(snapshot,
 		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.NoError(t, err)
 
-	_, found = contract.index[keyString]
+	_, found = contract.index[keySmc]
 	require.True(t, found)
 
-	_, found = contract.secrets[keyString]
+	_, found = contract.secrets[keySmc]
 	require.True(t, found)
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
@@ -107,6 +108,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	}
 
 	keyString := "dummy"
+	keySmc := smcPubKey("dummy")
 	keyBytes := []byte(keyString)
 	keyHex := hex.EncodeToString(keyBytes)
 
@@ -119,7 +121,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	snap := fake.NewSnapshot()
 	err = snap.Set(keyBytes, []byte("localhost:12345"))
 	require.NoError(t, err)
-	contract.index[keyString] = struct{}{}
+	contract.index[keySmc] = struct{}{}
 
 	err = cmd.deleteSmc(snap, makeStep(t, SmcPublicKeyArg, keyString))
 	require.NoError(t, err)
@@ -129,7 +131,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	require.Nil(t, err) // == key not found
 	require.Nil(t, res)
 
-	_, found := contract.index[keyString]
+	_, found := contract.index[keySmc]
 	require.False(t, found)
 }
 
@@ -137,15 +139,17 @@ func TestCommand_ListSmc(t *testing.T) {
 	contract := NewContract(fakeAccess{})
 
 	key1String := "key1"
+	key1Smc := smcPubKey(key1String)
 	key1Bytes := []byte(key1String)
 	roster1 := "localhost:12345"
 
 	key2String := "key2"
+	key2Smc := smcPubKey(key2String)
 	key2Bytes := []byte(key2String)
 	roster2 := "localhost:12345,remote:54321"
 
-	contract.index[key1String] = struct{}{}
-	contract.index[key2String] = struct{}{}
+	contract.index[key1Smc] = struct{}{}
+	contract.index[key2Smc] = struct{}{}
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -254,9 +258,9 @@ func TestCommand_CreateSecret_Succeeds(t *testing.T) {
 	// Assert
 	require.NoError(t, err)
 
-	dummy = contract.secrets["dummy"]
+	dummy = contract.secrets[smcPubKey("dummy")]
 	require.Equal(t, 1, len(dummy))
-	require.Equal(t, "my_secret", string(dummy[0]))
+	require.Equal(t, dummy["my_value"], struct{}{})
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), []byte("my_secret"))
 	res, err := snap.Get(k)
@@ -445,7 +449,8 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 
 	smcSecrets := contract.secrets[smcKey]
 	require.Equal(t, 1, len(smcSecrets))
-	require.Equal(t, secretName, smcSecrets[0])
+	_, found = smcSecrets[secretName]
+	require.True(t, found)
 
 	// Act
 	err = cmd.revealSecret(snap,
@@ -507,7 +512,7 @@ func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {
 
 	smcSecrets := contract.secrets[smcKey]
 	require.Equal(t, 1, len(smcSecrets))
-	require.Equal(t, secretName, smcSecrets[0])
+	require.Equal(t, smcSecrets[secretName], struct{}{})
 
 	err = cmd.revealSecret(snap,
 		makeStep(t,

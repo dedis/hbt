@@ -136,16 +136,49 @@ func RegisterContract(exec *native.Service, c Contract) {
 	exec.Set(ContractName, c)
 }
 
+// smcPubKey contains the SMC public key.
+type smcPubKey string
+
+type secretSet map[string]struct{}
+
+func (s secretSet) hasSecret(name string) bool {
+	_, found := s[name]
+	return found
+}
+
+func (s secretSet) addSecret(name string) {
+	s[name] = struct{}{}
+}
+
 // Contract is a simple smart contract that allows one to handle the storage by
 // performing create / list / update / delete operations on SMCs and secrets.
 //
 // - implements native.Contract
 type Contract struct {
-	// index contains all the keys set (and not deleteSmc) by this contract so far
-	index map[string]struct{}
+	/*
+		// PrefixSmcRosterKeys prefixed store keys contain the roster of the SMC.
+		PrefixSmcRosterKeys = ContractUID + "R"
+
+		// PrefixSecretKeys prefixed store keys contain the secret.
+		PrefixSecretKeys = ContractUID + "S"
+
+		// PrefixListKeys prefixed store keys contain the list of audit keys
+		// that had access to the secret.
+		// e.g. [SMCL|Secret] => [SMCA1, SMCA2, SMCA3, ...]
+		PrefixListKeys = ContractUID + "L"
+
+		// PrefixAccessKeys prefixed store keys contain the public key of the secret reader
+		// e.g. [SMCA|Hash(...)] => PubKey
+		PrefixAccessKeys = ContractUID + "A"
+	*/
+
+	// index contains all the SMC keys set (and not deleteSmc) by this contract so far
+	// k, v: k=SMC pub key , v=empty struct
+	index map[smcPubKey]struct{}
 
 	// secrets contains a mapping between the SMC and their associated secrets
-	secrets map[string][]string
+	// k1,v1: k1=SMC pub key, v1=set of secret names
+	secrets map[smcPubKey]secretSet
 
 	// access is the access control service managing this smart contract
 	access access.Service
@@ -160,8 +193,8 @@ type Contract struct {
 // NewContract creates a new Calypso contract
 func NewContract(srvc access.Service) Contract {
 	contract := Contract{
-		index:   map[string]struct{}{},
-		secrets: map[string][]string{},
+		index:   map[smcPubKey]struct{}{},
+		secrets: map[smcPubKey]secretSet{},
 		access:  srvc,
 		printer: infoLog{},
 	}
@@ -281,8 +314,8 @@ func (c calypsoCommand) advertiseSmc(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf("failed to set roster: %v", err)
 	}
 
-	c.index[string(key)] = struct{}{}
-	c.secrets[string(key)] = []string{}
+	c.index[smcPubKey(key)] = struct{}{}
+	c.secrets[smcPubKey(key)] = secretSet{}
 
 	return nil
 }
@@ -352,7 +385,7 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 	// DKG => roster
 	// DKG => [secret1_key, secret2, secret3, ...]
 	// secret1_key => secret1_encrypted_value
-	for _, secret := range c.secrets[string(key)] {
+	for secret := range c.secrets[smcPubKey(key)] {
 		dela.Logger.Info().
 			Msgf("Deleting secret '%s' that depended on deleted SMC '%s'", secret, key)
 
@@ -364,8 +397,8 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 		}
 	}
 
-	delete(c.index, string(key))
-	delete(c.secrets, string(key))
+	delete(c.index, smcPubKey(key))
+	delete(c.secrets, smcPubKey(key))
 
 	return nil
 }
@@ -406,7 +439,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf(notFoundInTxArg, SecretArg)
 	}
 
-	_, ok := c.index[string(smcKey)]
+	_, ok := c.index[smcPubKey(smcKey)]
 	if !ok {
 		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
@@ -424,7 +457,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
 
-	c.secrets[string(smcKey)] = append(c.secrets[string(smcKey)], string(name))
+	c.secrets[smcPubKey(smcKey)].addSecret(string(name))
 
 	return nil
 }
@@ -438,12 +471,12 @@ func (c calypsoCommand) listSecrets(snap store.Snapshot, step execution.Step) er
 		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
 	}
 
-	_, found := c.secrets[string(key)]
+	_, found := c.secrets[smcPubKey(key)]
 	if !found {
 		return xerrors.Errorf("SMC not found: %s", key)
 	}
 
-	for _, k := range c.secrets[string(key)] {
+	for k := range c.secrets[smcPubKey(key)] {
 		v, err := getSecret(snap, []byte(k))
 		if err != nil {
 			return xerrors.Errorf("failed to get key '%s': %v", k, err)
@@ -476,18 +509,12 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf(notFoundInTxArg, PubKeyArg)
 	}
 
-	smcSecrets, ok := c.secrets[string(smcKey)]
+	smcSecrets, ok := c.secrets[smcPubKey(smcKey)]
 	if !ok {
 		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
-	found := false
-	for _, s := range smcSecrets {
-		if s == string(name) {
-			found = true
-			break
-		}
-	}
+	_, found := smcSecrets[string(name)]
 
 	if !found {
 		return xerrors.Errorf(
@@ -535,18 +562,12 @@ func (c calypsoCommand) listAuditLogs(snap store.Snapshot, step execution.Step) 
 		return xerrors.Errorf(notFoundInTxArg, SecretNameArg)
 	}
 
-	smcSecrets, ok := c.secrets[string(smcKey)]
+	smcSecrets, ok := c.secrets[smcPubKey(smcKey)]
 	if !ok {
 		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
-	found := false
-	for _, s := range smcSecrets {
-		if s == string(name) {
-			found = true
-			break
-		}
-	}
+	_, found := smcSecrets[string(name)]
 
 	if !found {
 		return xerrors.Errorf(
