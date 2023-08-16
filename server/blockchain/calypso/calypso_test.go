@@ -57,27 +57,25 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 	keyString := "dummy"
 	keyBytes := []byte(keyString)
 
-	snapshot := fake.NewSnapshot()
-	require.NotNil(t, snapshot)
-	err := cmd.advertiseSmc(snapshot, makeStep(t))
+	err := cmd.advertiseSmc(fake.NewSnapshot(), makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	require.NotNil(t, snapshot)
-	err = cmd.advertiseSmc(snapshot, makeStep(t, SmcPublicKeyArg, keyString))
+	err = cmd.advertiseSmc(fake.NewSnapshot(), makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, "'calypso:smc_roster' not found in tx arg")
 
-	badSnapshot := fake.NewBadSnapshot()
-	err = cmd.advertiseSmc(badSnapshot,
+	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
 		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.EqualError(t, err, fake.Err("failed to set roster"))
 
-	err = cmd.advertiseSmc(badSnapshot, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, ","))
+	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
+		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, ","))
 	require.ErrorContains(t, err, "invalid node '' in roster")
 
-	err = cmd.advertiseSmc(badSnapshot, makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "abcd"))
+	err = cmd.advertiseSmc(fake.NewBadSnapshot(),
+		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "abcd"))
 	require.ErrorContains(t, err, "invalid node 'abcd' in roster")
 
-	snapshot = fake.NewSnapshot()
+	snapshot := fake.NewSnapshot()
 
 	_, found := contract.index[keyString]
 	require.False(t, found)
@@ -112,24 +110,22 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	keyBytes := []byte(keyString)
 	keyHex := hex.EncodeToString(keyBytes)
 
-	snapshot := fake.NewSnapshot()
-	err := cmd.deleteSmc(snapshot, makeStep(t))
+	err := cmd.deleteSmc(fake.NewSnapshot(), makeStep(t))
 	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
 
-	badStore := fake.NewBadSnapshot()
-	err = cmd.deleteSmc(badStore, makeStep(t, SmcPublicKeyArg, keyString))
+	err = cmd.deleteSmc(fake.NewBadSnapshot(), makeStep(t, SmcPublicKeyArg, keyString))
 	require.EqualError(t, err, fake.Err("failed to delete SMC with public key '"+keyHex+"'"))
 
-	snapshot = fake.NewSnapshot()
-	err = snapshot.Set(keyBytes, []byte("localhost:12345"))
+	snap := fake.NewSnapshot()
+	err = snap.Set(keyBytes, []byte("localhost:12345"))
 	require.NoError(t, err)
 	contract.index[keyString] = struct{}{}
 
-	err = cmd.deleteSmc(snapshot, makeStep(t, SmcPublicKeyArg, keyString))
+	err = cmd.deleteSmc(snap, makeStep(t, SmcPublicKeyArg, keyString))
 	require.NoError(t, err)
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), keyBytes)
-	res, err := snapshot.Get(k)
+	res, err := snap.Get(k)
 	require.Nil(t, err) // == key not found
 	require.Nil(t, res)
 
@@ -158,17 +154,17 @@ func TestCommand_ListSmc(t *testing.T) {
 		Contract: &contract,
 	}
 
-	snapshot := fake.NewSnapshot()
+	snap := fake.NewSnapshot()
 
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key1Bytes)
-	err := snapshot.Set(k, []byte(roster1))
+	err := snap.Set(k, []byte(roster1))
 	require.NoError(t, err)
 
 	k = prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key2Bytes)
-	err = snapshot.Set(k, []byte(roster2))
+	err = snap.Set(k, []byte(roster2))
 	require.NoError(t, err)
 
-	err = cmd.listSmc(snapshot)
+	err = cmd.listSmc(snap)
 	require.NoError(t, err)
 
 	require.Equal(t, fmt.Sprintf("%x=%v,%x=%v", key1String, roster1, key2String, roster2),
@@ -431,7 +427,6 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 		makeStep(t,
 			SmcPublicKeyArg, smcKey,
 			RosterArg, "node:12345"))
-
 	require.NoError(t, err)
 
 	err = cmd.createSecret(snap,
@@ -494,7 +489,6 @@ func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {
 		makeStep(t,
 			SmcPublicKeyArg, smcKey,
 			RosterArg, "node:12345"))
-
 	require.NoError(t, err)
 
 	err = cmd.createSecret(snap,
@@ -625,42 +619,3 @@ func (c fakeCmd) revealSecret(_ store.Snapshot, _ execution.Step) error {
 func (c fakeCmd) listAuditLogs(_ store.Snapshot, _ execution.Step) error {
 	return c.err
 }
-
-// -----------------------------------------------------------------------------
-/*
-// InMemorySnapshot is a fake, but realistic implementation of a store snapshot.
-// TODO: should we update the fake.InMemorySnapshot ?
-// - implements store.Snapshot
-type InMemorySnapshot struct {
-	store.Snapshot
-	values map[string][]byte
-}
-
-// NewSnapshot creates a new empty snapshot.
-func NewSnapshot() *InMemorySnapshot {
-	return &InMemorySnapshot{
-		values: make(map[string][]byte),
-	}
-}
-
-// Get implements store.Snapshot.
-func (snap *InMemorySnapshot) Get(key []byte) ([]byte, error) {
-	value, found := snap.values[string(key)]
-	if found {
-		return value, nil
-	}
-	return nil, xerrors.Errorf("key not found: %s", key)
-}
-
-// Set implements store.Snapshot.
-func (snap *InMemorySnapshot) Set(key, value []byte) error {
-	snap.values[string(key)] = value
-	return nil
-}
-
-// Delete implements store.Snapshot.
-func (snap *InMemorySnapshot) Delete(key []byte) error {
-	delete(snap.values, string(key))
-	return nil
-}
-*/

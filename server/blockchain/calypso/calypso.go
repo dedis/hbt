@@ -83,15 +83,15 @@ const (
 
 	// PrefixListKeys prefixed store keys contain the list of audit keys
 	// that had access to the secret.
-	// e.g. [SMCT|Secret] => [SMCA1, SMCA2, SMCA3, ...]
+	// e.g. [SMCL|Secret] => [SMCA1, SMCA2, SMCA3, ...]
 	PrefixListKeys = ContractUID + "L"
 
 	// PrefixAccessKeys prefixed store keys contain the public key of the secret reader
 	// e.g. [SMCA|Hash(...)] => PubKey
 	PrefixAccessKeys = ContractUID + "A"
 
-	// Error
-	ErrorKeyNotFoundInSmcs = "'%s' was not found among the SMCs"
+	// errorKeyNotFoundInSmcs is used in error messages of this module
+	errorKeyNotFoundInSmcs = "'%s' was not found among the SMCs"
 )
 
 // Command defines a type of command for the value contract
@@ -391,7 +391,6 @@ func (c calypsoCommand) listSmc(snap store.Snapshot) error {
 
 // createSecret implements commands. It performs the CREATE_SECRET command
 func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) error {
-
 	smcKey := step.Current.GetArg(SmcPublicKeyArg)
 	if len(smcKey) == 0 {
 		return xerrors.Errorf(notFoundInTxArg, SmcPublicKeyArg)
@@ -401,9 +400,6 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 	if len(name) == 0 {
 		return xerrors.Errorf(notFoundInTxArg, SecretNameArg)
 	}
-	if len(name) > 30 {
-		return xerrors.Errorf("secret name '%s' is too long (max 30 bytes)", name)
-	}
 
 	secret := step.Current.GetArg(SecretArg)
 	if len(secret) == 0 {
@@ -412,7 +408,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 
 	_, ok := c.index[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
+		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
 	v, err := getSecret(snap, name)
@@ -482,7 +478,7 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 
 	smcSecrets, ok := c.secrets[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
+		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
 	found := false
@@ -507,7 +503,7 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 	accessToken := computeAccessToken(smcKey, secret, clientPubKey)
 
 	if hasSecretAccess(snap, accessToken) {
-		return xerrors.Errorf("secret '%s' was already revealed", name)
+		return nil
 	}
 
 	err = setSecretAccess(snap, accessToken, clientPubKey)
@@ -541,7 +537,7 @@ func (c calypsoCommand) listAuditLogs(snap store.Snapshot, step execution.Step) 
 
 	smcSecrets, ok := c.secrets[string(smcKey)]
 	if !ok {
-		return xerrors.Errorf(ErrorKeyNotFoundInSmcs, smcKey)
+		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
 	found := false
