@@ -125,6 +125,15 @@ const (
 	notFoundInTxArg = "'%s' not found in tx arg"
 )
 
+// smcPubKey contains the SMC public key.
+type smcPubKey string
+
+type secretSet map[string]struct{}
+
+func (s secretSet) addSecret(name string) {
+	s[name] = struct{}{}
+}
+
 // NewCreds creates new credentials for a value contract execution. We might
 // want to use in the future a separate credential for each command.
 func NewCreds() access.Credential {
@@ -136,48 +145,13 @@ func RegisterContract(exec *native.Service, c Contract) {
 	exec.Set(ContractName, c)
 }
 
-// smcPubKey contains the SMC public key.
-type smcPubKey string
-
-type secretSet map[string]struct{}
-
-func (s secretSet) hasSecret(name string) bool {
-	_, found := s[name]
-	return found
-}
-
-func (s secretSet) addSecret(name string) {
-	s[name] = struct{}{}
-}
-
 // Contract is a simple smart contract that allows one to handle the storage by
 // performing create / list / update / delete operations on SMCs and secrets.
 //
 // - implements native.Contract
 type Contract struct {
-	/*
-		// PrefixSmcRosterKeys prefixed store keys contain the roster of the SMC.
-		PrefixSmcRosterKeys = ContractUID + "R"
-
-		// PrefixSecretKeys prefixed store keys contain the secret.
-		PrefixSecretKeys = ContractUID + "S"
-
-		// PrefixListKeys prefixed store keys contain the list of audit keys
-		// that had access to the secret.
-		// e.g. [SMCL|Secret] => [SMCA1, SMCA2, SMCA3, ...]
-		PrefixListKeys = ContractUID + "L"
-
-		// PrefixAccessKeys prefixed store keys contain the public key of the secret reader
-		// e.g. [SMCA|Hash(...)] => PubKey
-		PrefixAccessKeys = ContractUID + "A"
-	*/
-
-	// index contains all the SMC keys set (and not deleteSmc) by this contract so far
-	// k, v: k=SMC pub key , v=empty struct
-	index map[smcPubKey]struct{}
-
 	// secrets contains a mapping between the SMC and their associated secrets
-	// k1,v1: k1=SMC pub key, v1=set of secret names
+	// k=SMC pub key, v=set of secret names
 	secrets map[smcPubKey]secretSet
 
 	// access is the access control service managing this smart contract
@@ -193,7 +167,6 @@ type Contract struct {
 // NewContract creates a new Calypso contract
 func NewContract(srvc access.Service) Contract {
 	contract := Contract{
-		index:   map[smcPubKey]struct{}{},
 		secrets: map[smcPubKey]secretSet{},
 		access:  srvc,
 		printer: infoLog{},
@@ -314,7 +287,6 @@ func (c calypsoCommand) advertiseSmc(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf("failed to set roster: %v", err)
 	}
 
-	c.index[smcPubKey(key)] = struct{}{}
 	c.secrets[smcPubKey(key)] = secretSet{}
 
 	return nil
@@ -397,7 +369,6 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 		}
 	}
 
-	delete(c.index, smcPubKey(key))
 	delete(c.secrets, smcPubKey(key))
 
 	return nil
@@ -407,7 +378,7 @@ func (c calypsoCommand) deleteSmc(snap store.Snapshot, step execution.Step) erro
 func (c calypsoCommand) listSmc(snap store.Snapshot) error {
 	res := []string{}
 
-	for k := range c.index {
+	for k := range c.secrets {
 		v, err := getSmcRoster(snap, []byte(k))
 		if err != nil {
 			return xerrors.Errorf("failed to get key '%s': %v", k, err)
@@ -439,7 +410,7 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf(notFoundInTxArg, SecretArg)
 	}
 
-	_, ok := c.index[smcPubKey(smcKey)]
+	_, ok := c.secrets[smcPubKey(smcKey)]
 	if !ok {
 		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}

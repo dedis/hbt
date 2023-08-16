@@ -78,18 +78,12 @@ func TestCommand_AdvertiseSmc(t *testing.T) {
 
 	snapshot := fake.NewSnapshot()
 
-	_, found := contract.index[keySmc]
-	require.False(t, found)
-
-	_, found = contract.secrets[keySmc]
+	_, found := contract.secrets[keySmc]
 	require.False(t, found)
 
 	err = cmd.advertiseSmc(snapshot,
 		makeStep(t, SmcPublicKeyArg, keyString, RosterArg, "node:12345"))
 	require.NoError(t, err)
-
-	_, found = contract.index[keySmc]
-	require.True(t, found)
 
 	_, found = contract.secrets[keySmc]
 	require.True(t, found)
@@ -121,7 +115,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	snap := fake.NewSnapshot()
 	err = snap.Set(keyBytes, []byte("localhost:12345"))
 	require.NoError(t, err)
-	contract.index[keySmc] = struct{}{}
+	contract.secrets[keySmc] = secretSet{}
 
 	err = cmd.deleteSmc(snap, makeStep(t, SmcPublicKeyArg, keyString))
 	require.NoError(t, err)
@@ -131,7 +125,7 @@ func TestCommand_DeleteSmc(t *testing.T) {
 	require.Nil(t, err) // == key not found
 	require.Nil(t, res)
 
-	_, found := contract.index[keySmc]
+	_, found := contract.secrets[keySmc]
 	require.False(t, found)
 }
 
@@ -148,8 +142,8 @@ func TestCommand_ListSmc(t *testing.T) {
 	key2Bytes := []byte(key2String)
 	roster2 := "localhost:12345,remote:54321"
 
-	contract.index[key1Smc] = struct{}{}
-	contract.index[key2Smc] = struct{}{}
+	contract.secrets[key1Smc] = secretSet{}
+	contract.secrets[key2Smc] = secretSet{}
 
 	buf := &bytes.Buffer{}
 	contract.printer = buf
@@ -242,13 +236,8 @@ func TestCommand_CreateSecret_Succeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify pre-conditions
-	_, found := contract.index["dummy"]
+	dummy, found := contract.secrets["dummy"]
 	require.True(t, found)
-
-	_, found = contract.secrets["dummy"]
-	require.True(t, found)
-
-	dummy := contract.secrets["dummy"]
 	require.Equal(t, 0, len(dummy))
 
 	// Act
@@ -337,16 +326,10 @@ func TestCommand_ListSecrets(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify pre-conditions
-	_, found := contract.index["dummy"]
-	require.True(t, found)
-
-	_, found = contract.secrets["dummy"]
+	_, found := contract.secrets["dummy"]
 	require.True(t, found)
 
 	require.Equal(t, 2, len(contract.secrets["dummy"]))
-
-	_, found = contract.index["other"]
-	require.True(t, found)
 
 	_, found = contract.secrets["other"]
 	require.True(t, found)
@@ -441,14 +424,10 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify pre-conditions
-	_, found := contract.index[smcKey]
+	smcSecrets, found := contract.secrets[smcKey]
 	require.True(t, found)
-
-	_, found = contract.secrets[smcKey]
-	require.True(t, found)
-
-	smcSecrets := contract.secrets[smcKey]
 	require.Equal(t, 1, len(smcSecrets))
+
 	_, found = smcSecrets[secretName]
 	require.True(t, found)
 
@@ -504,10 +483,7 @@ func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify pre-conditions
-	_, found := contract.index[smcKey]
-	require.True(t, found)
-
-	_, found = contract.secrets[smcKey]
+	_, found := contract.secrets[smcKey]
 	require.True(t, found)
 
 	smcSecrets := contract.secrets[smcKey]
