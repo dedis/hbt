@@ -92,6 +92,9 @@ const (
 
 	// errorKeyNotFoundInSmcs is used in error messages of this module
 	errorKeyNotFoundInSmcs = "'%s' was not found among the SMCs"
+
+	// the length of the access token (depending on the sha used)
+	accessTokenNbBytes = 32
 )
 
 // Command defines a type of command for the value contract
@@ -564,10 +567,6 @@ func (c calypsoCommand) listAuditLogs(snap store.Snapshot, step execution.Step) 
 	return nil
 }
 
-//
-// Utility functions
-//
-
 // infoLog defines an output using zerolog
 //
 // - implements io.writer
@@ -578,6 +577,10 @@ func (h infoLog) Write(p []byte) (int, error) {
 
 	return len(p), nil
 }
+
+//
+// Utility functions
+//
 
 func getSmcRoster(snap store.Snapshot, key []byte) ([]byte, error) {
 	k := prefixed.NewPrefixedKey([]byte(PrefixSmcRosterKeys), key)
@@ -641,7 +644,7 @@ func deleteSecret(snap store.Snapshot, key []byte) error {
 }
 
 func computeAccessToken(smcKey []byte, secret []byte, clientPubKey []byte) []byte {
-	h := crypto.NewHashFactory(crypto.Sha3_224).New()
+	h := crypto.NewHashFactory(crypto.Sha256).New()
 	h.Write(smcKey)
 	h.Write(secret)
 	h.Write(clientPubKey)
@@ -683,7 +686,7 @@ func insertAuditLog(snap store.Snapshot, name []byte, accessToken []byte) error 
 	k := prefixed.NewPrefixedKey([]byte(PrefixListKeys), name)
 	log, err := snap.Get(k)
 	if err != nil {
-		log = make([]byte, 0, 28)
+		log = make([]byte, 0, accessTokenNbBytes)
 	}
 
 	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
@@ -714,14 +717,15 @@ func getAuditLogs(snap store.Snapshot, name []byte) ([][]byte, error) {
 
 func decodeAuditLog(log []byte) ([][]byte, error) {
 	// log contains: [<accessToken1>, <accessToken2>, ...] , [][]byte
-	// we need to split it in chunks of 28 bytes
-	if len(log)%28 != 0 {
+	// we need to split it in chunks of accessTokenNbBytes bytes (sha256)
+	// see computeAccessToken() above
+	if len(log)%accessTokenNbBytes != 0 {
 		return nil, xerrors.Errorf("invalid audit log length: %v", len(log))
 	}
 
-	res := make([][]byte, 0, len(log)/28)
-	for i := 0; i < len(log); i += 28 {
-		res = append(res, log[i:i+28])
+	res := make([][]byte, 0, len(log)/accessTokenNbBytes)
+	for i := 0; i < len(log); i += accessTokenNbBytes {
+		res = append(res, log[i:i+accessTokenNbBytes])
 	}
 
 	return res, nil
