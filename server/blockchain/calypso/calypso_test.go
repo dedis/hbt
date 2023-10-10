@@ -17,7 +17,44 @@ import (
 	"go.dedis.ch/dela/testing/fake"
 )
 
-func TestExecute(t *testing.T) {
+func Test_secretSet_addSecret(t *testing.T) {
+	s := secretSet{}
+	secret := "some secret"
+
+	s.addSecret(secret)
+
+	require.Equal(t, 1, len(s))
+	require.Equal(t, struct{}{}, s[secret])
+}
+
+func Test_NewCreds(t *testing.T) {
+	creds := NewCreds()
+
+	require.NotNilf(t, creds, "creds should not be nil")
+}
+
+func Test_RegisterContract(_ *testing.T) {
+	RegisterContract(native.NewExecution(), Contract{})
+}
+
+func Test_NewContract(t *testing.T) {
+	contract := NewContract(fakeAccess{})
+
+	require.NotNilf(t, contract, "contract should not be nil")
+	require.NotNilf(t, contract.secrets, "secrets should not be nil")
+	require.NotNilf(t, contract.printer, "printer should not be nil")
+	require.NotNilf(t, contract.cmd, "cmd should not be nil")
+	require.NotNilf(t, contract.access, "access should not be nil")
+}
+
+func TestContract_UID(t *testing.T) {
+	contract := NewContract(fakeAccess{})
+
+	require.NotNilf(t, contract, "contract should not be nil")
+	require.Equal(t, ContractUID, contract.UID())
+}
+
+func TestExecuteFailing(t *testing.T) {
 	contract := NewContract(fakeAccess{err: fake.GetError()})
 
 	err := contract.Execute(fakeStore{}, makeStep(t))
@@ -39,12 +76,49 @@ func TestExecute(t *testing.T) {
 	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_SMC"))
 	require.EqualError(t, err, fake.Err("failed to LIST_SMC"))
 
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "CREATE_SECRET"))
+	require.EqualError(t, err, fake.Err("failed to CREATE_SECRET"))
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_SECRETS"))
+	require.EqualError(t, err, fake.Err("failed to LIST_SECRETS"))
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "REVEAL_SECRET"))
+	require.EqualError(t, err, fake.Err("failed to REVEAL_SECRET"))
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_AUDIT_LOG"))
+	require.EqualError(t, err, fake.Err("failed to LIST_AUDIT_LOG"))
+
 	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "fake"))
 	require.EqualError(t, err, "unknown command: fake")
+}
 
+func TestExecutePassing(t *testing.T) {
+	contract := NewContract(fakeAccess{})
 	contract.cmd = fakeCmd{}
-	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "ADVERTISE_SMC"))
+
+	err := contract.Execute(fakeStore{}, makeStep(t, CmdArg, "ADVERTISE_SMC"))
 	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "DELETE_SMC"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_SMC"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "CREATE_SECRET"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_SECRETS"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "REVEAL_SECRET"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "LIST_AUDIT_LOG"))
+	require.NoError(t, err)
+
+	err = contract.Execute(fakeStore{}, makeStep(t, CmdArg, "fake"))
+	require.EqualError(t, err, "unknown command: fake")
 }
 
 func TestCommand_AdvertiseSmc(t *testing.T) {
@@ -522,6 +596,68 @@ func TestInfoLog(t *testing.T) {
 
 func TestRegisterContract(_ *testing.T) {
 	RegisterContract(native.NewExecution(), Contract{})
+}
+
+func Test_validateRosterUpdate(t *testing.T) {
+	type args struct {
+		oldRoster []byte
+		newRoster []byte
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name: "validateNew",
+			args: args{
+				oldRoster: []byte(""),
+				newRoster: []byte("node:12345"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "validateAdd",
+			args: args{
+				oldRoster: []byte("node:12345"),
+				newRoster: []byte("node:12345,other:54321"),
+			},
+			wantErr: false,
+		},
+		{
+			name: "validateNoChange",
+			args: args{
+				oldRoster: []byte("node:12345"),
+				newRoster: []byte("node:12345"),
+			},
+			wantErr: false,
+		},
+		{
+			name: "validateRemove",
+			args: args{
+				oldRoster: []byte("node:12345,other:54321"),
+				newRoster: []byte("node:12345"),
+			},
+			wantErr: true,
+		},
+		{
+			name: "validateNoOverlap",
+			args: args{
+				oldRoster: []byte("node:12345"),
+				newRoster: []byte("other:54321"),
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := validateRosterUpdate(tt.args.oldRoster,
+				tt.args.newRoster); (err != nil) != tt.wantErr {
+				t.Errorf("validateRosterUpdate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
 
 // -----------------------------------------------------------------------------

@@ -2,7 +2,6 @@ name: Server test
 
 on:
   push:
-    branches: [ main ]
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -27,8 +26,7 @@ jobs:
       - name: Set up Go 1.21
         uses: actions/setup-go@v4
         with:
-          go-version: "1.21"
-          cache: false
+          go-version: "=1.21"
 
       - name: Test without coverage
         if: matrix.platform == 'macos-latest' || matrix.platform == 'windows-latest'
@@ -38,7 +36,7 @@ jobs:
         if: matrix.platform == 'ubuntu-latest'
         run: make coverage
 
-      - name: Run code analysis
+      - name: Sonarcloud scan
         if: matrix.platform == 'ubuntu-latest'
         uses: SonarSource/sonarcloud-github-action@master
         with:
