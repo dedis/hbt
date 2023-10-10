@@ -180,7 +180,7 @@ func NewContract(srvc access.Service) Contract {
 	return contract
 }
 
-// Execute implements native.Contract. It checks t the appropriate command.
+// Execute implements native.Contract. It checks that command is formed correctly before running it.
 func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 	creds := NewCreds()
 
@@ -198,6 +198,7 @@ func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 	return c.ExecuteCommand(snap, step, cmd)
 }
 
+// ExecuteCommand executes the appropriate command.
 func (c Contract) ExecuteCommand(snap store.Snapshot, step execution.Step, cmd []byte) error {
 	switch Command(cmd) {
 	case CmdAdvertiseSmc:
