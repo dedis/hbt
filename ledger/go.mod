@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/btcsuite/btcd v0.21.0-beta // indirect
+	github.com/btcsuite/btcd v0.23.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/pebbe/zmq4 v1.2.5 // indirect
