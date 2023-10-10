@@ -659,7 +659,7 @@ func computeAccessToken(smcKey []byte, secret []byte, clientPubKey []byte) []byt
 }
 
 func hasSecretAccess(snap store.Snapshot, accessToken []byte) bool {
-	_, err := getSecret(snap, accessToken)
+	_, err := getSecretAccess(snap, accessToken)
 	return err != nil
 }
 
