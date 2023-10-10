@@ -180,7 +180,7 @@ func NewContract(srvc access.Service) Contract {
 	return contract
 }
 
-// Execute implements native.Contract. It runs the appropriate command.
+// Execute implements native.Contract. It checks t the appropriate command.
 func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 	creds := NewCreds()
 
@@ -195,6 +195,10 @@ func (c Contract) Execute(snap store.Snapshot, step execution.Step) error {
 		return xerrors.Errorf(notFoundInTxArg, CmdArg)
 	}
 
+	return c.ExecuteCommand(snap, step, cmd)
+}
+
+func (c Contract) ExecuteCommand(snap store.Snapshot, step execution.Step, cmd []byte) error {
 	switch Command(cmd) {
 	case CmdAdvertiseSmc:
 		err := c.cmd.advertiseSmc(snap, step)
@@ -418,15 +422,12 @@ func (c calypsoCommand) createSecret(snap store.Snapshot, step execution.Step) e
 		return xerrors.Errorf(errorKeyNotFoundInSmcs, smcKey)
 	}
 
-	v, err := getSecret(snap, name)
-	if err != nil {
-		return xerrors.Errorf("failed to verify if named '%s' exists: %v", name, err)
-	}
+	v, _ := getSecret(snap, name)
 	if v != nil {
 		return xerrors.Errorf("a secret named '%s' already exists", name)
 	}
 
-	err = setSecret(snap, name, secret)
+	err := setSecret(snap, name, secret)
 	if err != nil {
 		return xerrors.Errorf("failed to set secret: %v", err)
 	}
@@ -608,8 +609,14 @@ func setSmcRoster(snap store.Snapshot, key []byte, roster []byte) error {
 func getSecret(snap store.Snapshot, key []byte) ([]byte, error) {
 	k := prefixed.NewPrefixedKey([]byte(PrefixSecretKeys), key)
 	secret, err := snap.Get(k)
-	if err != nil {
-		return nil, err
+	if secret == nil {
+		if err != nil {
+			// InMemorySnapshot version
+			return nil, err
+		}
+
+		// BBolt store version
+		return nil, xerrors.Errorf("couldn't find key")
 	}
 
 	return secret, nil
