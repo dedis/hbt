@@ -418,6 +418,24 @@ func TestCommand_ListSecrets(t *testing.T) {
 	require.Equal(t, "name1=secret1,name2=secret2", buf.String())
 }
 
+func TestCommand_ListSecrets_EmptySmcKey(t *testing.T) {
+	// Arrange
+	contract := NewContract(fakeAccess{})
+
+	buf := &bytes.Buffer{}
+	contract.printer = buf
+
+	cmd := calypsoCommand{
+		Contract: &contract,
+	}
+
+	// Act
+	err := cmd.listSecrets(fake.NewSnapshot(), makeStep(t, SmcPublicKeyArg, ""))
+
+	// Assert
+	require.Error(t, err, "'calypso:smc_key' not found in tx arg")
+}
+
 func TestCommand_ListSecrets_NonexistentSmc(t *testing.T) {
 	// Arrange
 	contract := NewContract(fakeAccess{})
