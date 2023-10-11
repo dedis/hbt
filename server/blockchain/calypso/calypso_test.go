@@ -381,10 +381,12 @@ func TestCommand_ListSecrets(t *testing.T) {
 
 	snap := fake.NewSnapshot()
 
-	err := cmd.advertiseSmc(snap, makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
+	err := cmd.advertiseSmc(snap,
+		makeStep(t, SmcPublicKeyArg, "dummy", RosterArg, "node:12345"))
 	require.NoError(t, err)
 
-	err = cmd.advertiseSmc(snap, makeStep(t, SmcPublicKeyArg, "other", RosterArg, "node:32145"))
+	err = cmd.advertiseSmc(snap,
+		makeStep(t, SmcPublicKeyArg, "other", RosterArg, "node:32145"))
 	require.NoError(t, err)
 
 	err = cmd.createSecret(snap,
@@ -411,7 +413,8 @@ func TestCommand_ListSecrets(t *testing.T) {
 	require.Equal(t, 1, len(contract.secrets["other"]))
 
 	// Act
-	err = cmd.listSecrets(snap, makeStep(t, SmcPublicKeyArg, "dummy"))
+	err = cmd.listSecrets(snap,
+		makeStep(t, SmcPublicKeyArg, "dummy"))
 
 	// Assert
 	require.NoError(t, err)
@@ -539,6 +542,74 @@ func TestCommand_RevealSecret_Succeeds(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, logs, 1)
 	require.Equal(t, logs[0], token)
+}
+
+func TestCommand_RevealSecretFails(t *testing.T) {
+	contract := NewContract(fakeAccess{})
+	cmd := calypsoCommand{
+		Contract: &contract,
+	}
+
+	snap := fake.NewSnapshot()
+
+	const (
+		smcKey      = "my_smc_key"
+		secretName  = "my_secret"
+		secretValue = "my_value"
+		pubKey      = "my_pubkey"
+	)
+
+	err := cmd.advertiseSmc(snap,
+		makeStep(t,
+			SmcPublicKeyArg, smcKey,
+			RosterArg, "node:12345"))
+	require.NoError(t, err)
+
+	err = cmd.createSecret(snap,
+		makeStep(t,
+			SmcPublicKeyArg, smcKey,
+			SecretNameArg, secretName,
+			SecretArg, secretValue))
+	require.NoError(t, err)
+
+	// Verify pre-conditions
+	smcSecrets, found := contract.secrets[smcKey]
+	require.True(t, found)
+	require.Equal(t, 1, len(smcSecrets))
+
+	_, found = smcSecrets[secretName]
+	require.True(t, found)
+
+	err = cmd.revealSecret(snap, makeStep(t,
+		SmcPublicKeyArg, "",
+		SecretNameArg, secretName,
+		PubKeyArg, pubKey))
+	require.EqualError(t, err, "'calypso:smc_key' not found in tx arg")
+
+	err = cmd.revealSecret(snap, makeStep(t,
+		SmcPublicKeyArg, smcKey,
+		SecretNameArg, "",
+		PubKeyArg, pubKey))
+	require.EqualError(t, err, "'calypso:secret_name' not found in tx arg")
+
+	err = cmd.revealSecret(snap, makeStep(t,
+		SmcPublicKeyArg, smcKey,
+		SecretNameArg, secretName,
+		PubKeyArg, ""))
+	require.EqualError(t, err, "'calypso:pub_key' not found in tx arg")
+
+	err = cmd.revealSecret(snap, makeStep(t,
+		SmcPublicKeyArg, "another_smc_key",
+		SecretNameArg, secretName,
+		PubKeyArg, pubKey))
+	require.EqualError(t, err, "'another_smc_key' was not found among the SMCs")
+
+	err = cmd.revealSecret(snap, makeStep(t,
+		SmcPublicKeyArg, smcKey,
+		SecretNameArg, "another_name",
+		PubKeyArg, pubKey))
+	require.EqualError(t, err,
+		"'another_name' was not found among the secrets of the smc (my_smc_key)")
 }
 
 func TestCommand_ListAuditLogs_Succeeds(t *testing.T) {

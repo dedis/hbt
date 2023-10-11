@@ -495,7 +495,7 @@ func (c calypsoCommand) revealSecret(snap store.Snapshot, step execution.Step) e
 	if !found {
 		return xerrors.Errorf(
 			"'%s' was not found among the secrets of the smc (%v)",
-			name, smcKey)
+			name, string(smcKey))
 	}
 
 	secret, err := getSecret(snap, name)
