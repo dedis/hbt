@@ -1,16 +1,14 @@
 package controller
 
 import (
+	"go.dedis.ch/hbt/server/blockchain/calypso"
+
 	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/dela/cli/node"
 	"go.dedis.ch/dela/core/access"
 	"go.dedis.ch/dela/core/execution/native"
-	"go.dedis.ch/hbt/blockchain/calypso"
 	"golang.org/x/xerrors"
 )
-
-// aKey is the access key used for the calypso contract
-var aKey = [32]byte{3}
 
 // miniController is a CLI initializer to register the value contract
 //
@@ -24,12 +22,12 @@ func NewController() node.Initializer {
 }
 
 // SetCommands implements node.Initializer.
-func (miniController) SetCommands(builder node.Builder) {
+func (miniController) SetCommands(_ node.Builder) {
 	// For now, no need to do anything here.
 }
 
 // OnStart implements node.Initializer. It registers the value contract.
-func (m miniController) OnStart(flags cli.Flags, inj node.Injector) error {
+func (m miniController) OnStart(_ cli.Flags, inj node.Injector) error {
 	var access access.Service
 	err := inj.Resolve(&access)
 	if err != nil {
@@ -42,7 +40,7 @@ func (m miniController) OnStart(flags cli.Flags, inj node.Injector) error {
 		return xerrors.Errorf("failed to resolve native service: %v", err)
 	}
 
-	contract := calypso.NewContract(aKey[:], access)
+	contract := calypso.NewContract(access)
 
 	calypso.RegisterContract(exec, contract)
 
@@ -50,6 +48,6 @@ func (m miniController) OnStart(flags cli.Flags, inj node.Injector) error {
 }
 
 // OnStop implements node.Initializer.
-func (miniController) OnStop(inj node.Injector) error {
+func (miniController) OnStop(_ node.Injector) error {
 	return nil
 }

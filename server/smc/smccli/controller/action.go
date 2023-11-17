@@ -3,11 +3,12 @@ package controller
 import (
 	"encoding/hex"
 	"fmt"
+	"os"
+	"strings"
+
 	"go.dedis.ch/dela"
 	"go.dedis.ch/dela/cli"
 	"go.dedis.ch/kyber/v3/util/key"
-	"os"
-	"strings"
 
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"
@@ -21,7 +22,7 @@ const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 const keyFileName = "key.pair"
 
-func createKeyPairAction(flags cli.Flags) error {
+func createKeyPairAction(_ cli.Flags) error {
 	kp := key.NewKeyPair(suites.MustFind("Ed25519"))
 
 	privk, err := kp.Private.MarshalBinary()
@@ -67,6 +68,9 @@ func revealAction(flags cli.Flags) error {
 
 	privkString := flags.String("privk")
 	privateKey, err := decodePrivateKey(privkString)
+	if err != nil {
+		return xerrors.Errorf("failed to decode private key str: %v", err)
+	}
 
 	encrypted := flags.String("encrypted")
 	_, cs, err := decodeEncrypted(encrypted)

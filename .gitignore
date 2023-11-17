@@ -4,3 +4,12 @@
 *.log
 
 gradle.properties
+
+**/chaincli
+**/smccli
+
+profile.cov
+report.json
+
+server/scripts/key.pair
+server/scripts/roster.txt

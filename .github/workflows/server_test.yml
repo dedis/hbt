@@ -1,0 +1,46 @@
+name: Server test
+
+on:
+  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{matrix.platform}}
+    defaults:
+      run:
+        working-directory: ./server
+    env:
+      LLVL: trace
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of Sonar analysis
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v4
+        with:
+          go-version: "=1.21"
+
+      - name: Test without coverage
+        if: matrix.platform == 'macos-latest' || matrix.platform == 'windows-latest'
+        run: make test
+
+      - name: Test with coverage
+        if: matrix.platform == 'ubuntu-latest'
+        run: make coverage
+
+      - name: Sonarcloud scan
+        if: matrix.platform == 'ubuntu-latest'
+        uses: SonarSource/sonarcloud-github-action@master
+        with:
+            projectBaseDir: server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
