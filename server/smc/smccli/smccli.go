@@ -5,12 +5,12 @@ import (
 	"io"
 	"os"
 
-	smcctl "go.dedis.ch/hbt/server/smc/smccli/controller"
-
 	"go.dedis.ch/dela/cli/node"
-	db "go.dedis.ch/dela/core/store/kv/controller"
+
 	dkg "go.dedis.ch/dela/dkg/pedersen/controller"
 	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
+	smcctl "go.dedis.ch/hbt/server/smc/smccli/controller"
+	db "go.dedis.ch/purb-db/store/kv/controller"
 )
 
 func main() {
