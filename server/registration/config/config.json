@@ -1,0 +1,9 @@
+{
+    "mongodb_uri": "mongodb://localhost:27017",
+    "user_name": "user",
+    "user_password": "user",
+    "admin_name": "admin",
+    "admin_password": "admin",
+    "user_port": 3000,
+    "admin_port": 4000
+}

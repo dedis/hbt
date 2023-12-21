@@ -1,0 +1,37 @@
+@host = localhost:3000
+
+// Create document
+POST http://{{host}}/document HTTP/1.1
+content-type: application/json
+
+{
+    "name": "charles-henry",
+    "passport": "AB12CDEFGH",
+    "role": 1,
+    "picture": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+    "registered": false,
+}
+
+###
+
+// Get Product By ID
+GET http://{{host}}/register/document/1 HTTP/1.1
+content-type: application/json
+
+###
+
+// Update Product
+PUT http://{{host}}/register/document/1 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "updated-product",
+    "description": "random-description-updated",
+    "price": 100.00
+}
+
+###
+
+// Delete Product
+DELETE http://{{host}}/register/document/1 HTTP/1.1
+content-type: application/json

@@ -10,7 +10,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// miniController is a CLI initializer to register the value contract
+// miniController is a CLI initializer to registration the value contract
 //
 // - implements node.Initializer
 type miniController struct {
