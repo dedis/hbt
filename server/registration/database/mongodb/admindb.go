@@ -34,22 +34,29 @@ func NewAdminDbAccess() *AdminDbAccess {
 }
 
 // Create creates a new document in the DB
-func (a AdminDbAccess) Create(doc registry.RegistrationData) (registry.DocId, error) {
+func (a AdminDbAccess) Create(doc registry.RegistrationData) (*registry.RegistrationId, error) {
 	return nil, errors.New("admin cannot create user documents")
 }
 
 // Read reads a document from the DB
-func (a AdminDbAccess) Read(docId registry.DocId) (*registry.RegistrationData, error) {
+func (a AdminDbAccess) Read(docId registry.RegistrationId, hash []byte) (
+	*registry.RegistrationData,
+	error,
+) {
 	return nil, nil
 }
 
 // Update updates a document in the DB
-func (a AdminDbAccess) Update(docId registry.DocId, reg *registry.RegistrationData) error {
+func (a AdminDbAccess) Update(
+	docId registry.RegistrationId,
+	hash []byte,
+	reg *registry.RegistrationData,
+) error {
 	return nil
 }
 
 // Delete updates a document in the DB
-func (a AdminDbAccess) Delete(docId registry.DocId) error {
+func (a AdminDbAccess) Delete(docId registry.RegistrationId, hash []byte) error {
 	return nil
 }
 

@@ -44,13 +44,44 @@ type application struct {
 	AdminRouter *mux.Router
 }
 
+// newApp creates a new application instance
+// it creates the user and admin router
+// and registers the handlers
+// the routes used are pretty simple:
+// - /document for the user
+// - /admin/document for the admin
+// to create a new document, the user sends a POST request to /document
+// with the following form data:
+// - name: string
+// - passport: string
+// - role: uint
+// - image: file
+// the response is a json string containing the document id
+// to get a document, the user sends a GET request to /document
+// with the following query parameter:
+// - id: string
+// to delete a document, the user sends a DELETE request to /document
+// with the following query parameter:
+// - id: string
+// to get a document, the admin sends a GET request to /admin/document
+// with the following query parameter:
+// - id: string
+// to update a document, the admin sends a PUT request to /admin/document
+// with the following query parameter:
+// - id: string
+// and the following form data:
+// - name: string
+// - passport: string
+// - role: uint
+// - registered: bool
 func newApp() *application {
 	userRouter := mux.NewRouter()
 	userRouter.HandleFunc("/document", user.CreateDocument).Methods("POST")
-	userRouter.HandleFunc("/document/{id}", user.GetDocument).Methods("GET")
+	userRouter.HandleFunc("/document", user.GetDocument).Methods("GET")
+	userRouter.HandleFunc("/document", user.DeleteDocument).Methods("DELETE")
 
 	adminRouter := mux.NewRouter()
-	adminRouter.HandleFunc("/admin/document/{id}", admin.GetDocument).Methods("GET")
+	adminRouter.HandleFunc("/admin/document", admin.GetDocument).Methods("GET")
 	adminRouter.HandleFunc("/admin/document/{id}", admin.UpdateDocument).Methods("PUT")
 	adminRouter.HandleFunc("/admin/document/{id}", admin.DeleteDocument).Methods("DELETE")
 

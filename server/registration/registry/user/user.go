@@ -34,17 +34,26 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	picture, fileHeader, err := r.FormFile("image")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
 	fmt.Println(fileHeader)
 
 	picData := make([]byte, fileHeader.Size)
 	picture.Read(picData)
 
+	hash := r.FormValue("hash")
+
 	regData := registry.RegistrationData{
 		Name:     name,
 		Passport: passport,
 		Role:     uint(role),
 		Picture:  picData,
+		Hash:     []byte(hash),
 	}
 
 	docId, err := userDb.Create(regData)
@@ -52,12 +61,58 @@ func CreateDocument(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		return
 	}
 
-	response := registry.RegistrationId{Id: docId}
-
-	json.NewEncoder(w).Encode(response)
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(docId)
+	fmt.Println(docId)
 }
 
+// GetDocument translates the http request to get a document from the database
 func GetDocument(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing id"))
+	}
+
+	hash := r.FormValue("hash")
+
+	regId := registry.RegistrationId{
+		Id: []byte(id),
+	}
+
+	data, err := userDb.Read(regId, []byte(hash))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	json.NewEncoder(w).Encode(data)
+}
+
+// DeleteDocument translates the http request to delete a document in the database
+func DeleteDocument(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("missing id"))
+	}
+
+	hash := r.FormValue("hash")
+
+	regId := registry.RegistrationId{
+		Id: []byte(id),
+	}
+
+	err := userDb.Delete(regId, []byte(hash))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
