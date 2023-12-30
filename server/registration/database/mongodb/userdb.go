@@ -37,7 +37,7 @@ func NewUserDbAccess() database.Database {
 }
 
 // Create creates a new document in the DB
-func (u UserDbAccess) Create(data registry.RegistrationData) (*registry.RegistrationId, error) {
+func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.RegistrationId, error) {
 	doc := Document{
 		Name:       data.Name,
 		Passport:   data.Passport,
@@ -105,7 +105,6 @@ func (u UserDbAccess) Read(docId registry.RegistrationId, hash []byte) (
 // Update updates a document in the DB
 func (u UserDbAccess) Update(
 	docId registry.RegistrationId,
-	hash []byte,
 	reg *registry.RegistrationData,
 ) error {
 	var doc Document
@@ -116,7 +115,7 @@ func (u UserDbAccess) Update(
 		return err
 	}
 
-	if !bytes.Equal(hash, doc.Hash) {
+	if !bytes.Equal(reg.Hash, doc.Hash) {
 		return errors.New("hashes do not match")
 	}
 

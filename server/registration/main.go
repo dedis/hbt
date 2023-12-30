@@ -78,12 +78,13 @@ func newApp() *application {
 	userRouter := mux.NewRouter()
 	userRouter.HandleFunc("/document", user.CreateDocument).Methods("POST")
 	userRouter.HandleFunc("/document", user.GetDocument).Methods("GET")
+	userRouter.HandleFunc("/document", user.UpdateDocument).Methods("PUT")
 	userRouter.HandleFunc("/document", user.DeleteDocument).Methods("DELETE")
 
 	adminRouter := mux.NewRouter()
 	adminRouter.HandleFunc("/admin/document", admin.GetDocument).Methods("GET")
-	adminRouter.HandleFunc("/admin/document/{id}", admin.UpdateDocument).Methods("PUT")
-	adminRouter.HandleFunc("/admin/document/{id}", admin.DeleteDocument).Methods("DELETE")
+	adminRouter.HandleFunc("/admin/document", admin.UpdateDocument).Methods("PUT")
+	adminRouter.HandleFunc("/admin/document", admin.DeleteDocument).Methods("DELETE")
 
 	userDb := mongodb.NewUserDbAccess()
 	user.RegisterDb(userDb)
