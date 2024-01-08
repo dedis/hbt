@@ -12,7 +12,7 @@ import (
 	"go.dedis.ch/hbt/server/registration/registry/user"
 )
 
-// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@./picture.png" -F "registered=false" localhost:80/document
+// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg" -F "registered=false" localhost:3000/document
 
 // POST /document HTTP/1.1
 // Host: localhost:3000
@@ -86,7 +86,10 @@ func newApp() *application {
 	adminRouter.HandleFunc("/admin/document", admin.UpdateDocument).Methods("PUT")
 	adminRouter.HandleFunc("/admin/document", admin.DeleteDocument).Methods("DELETE")
 
-	userDb := mongodb.NewUserDbAccess()
+	userDb, err := mongodb.NewUserDbAccess()
+	if err != nil {
+		log.Fatal(err)
+	}
 	user.RegisterDb(userDb)
 
 	adminDb := mongodb.NewAdminDbAccess()

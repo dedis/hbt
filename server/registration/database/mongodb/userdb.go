@@ -18,22 +18,21 @@ type UserDbAccess struct {
 }
 
 // NewUserDbAccess creates a new user access to the DB
-func NewUserDbAccess() database.Database {
+func NewUserDbAccess() (database.Database, error) {
 	// Initialize userDb DB access
-	userCredentials := options.Credential{
-		Username: config.AppConfig.UserName,
-		Password: config.AppConfig.UserPassword,
+	credentials := options.Credential{
+		AuthSource:    "admin",
+		AuthMechanism: "SCRAM-SHA-1",
+		Username:      config.AppConfig.UserName,
+		Password:      config.AppConfig.UserPassword,
 	}
-	userOpts := options.Client().ApplyURI(config.AppConfig.MongoDbUri).SetAuth(userCredentials)
-	userDb, err := mongo.Connect(context.TODO(), userOpts)
+	userOpts := options.Client().ApplyURI(config.AppConfig.MongoDbUri).SetAuth(credentials)
+	client, err := mongo.Connect(context.TODO(), userOpts)
 	if err != nil {
-
-		return nil
+		return UserDbAccess{nil}, err
 	}
 
-	return UserDbAccess{
-		client: userDb,
-	}
+	return UserDbAccess{client}, nil
 }
 
 // Create creates a new document in the DB
@@ -47,8 +46,11 @@ func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.Registr
 		Registered: false,
 	}
 
-	result, err := u.client.Database("registration").Collection("documents").InsertOne(context.Background(),
-		doc)
+	db := u.client.Database("registry")
+	c := db.Collection("documents")
+	result, err := c.InsertOne(context.Background(), doc)
+
+	//	result, err := u.client.Database("registry").Collection("documents").InsertOne(context.Background(), doc)
 
 	if err != nil {
 		return nil, err
