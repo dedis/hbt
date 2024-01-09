@@ -13,12 +13,12 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type UserDbAccess struct {
+type dbAccess struct {
 	client *mongo.Client
 }
 
-// NewUserDbAccess creates a new user access to the DB
-func NewUserDbAccess() (database.Database, error) {
+// NewDBAccess creates a new user access to the DB
+func NewDBAccess() (database.Database, error) {
 	// Initialize userDb DB access
 	credentials := options.Credential{
 		AuthSource:    "admin",
@@ -26,17 +26,17 @@ func NewUserDbAccess() (database.Database, error) {
 		Username:      config.AppConfig.UserName,
 		Password:      config.AppConfig.UserPassword,
 	}
-	userOpts := options.Client().ApplyURI(config.AppConfig.MongoDbUri).SetAuth(credentials)
+	userOpts := options.Client().ApplyURI(config.AppConfig.MongodbURI).SetAuth(credentials)
 	client, err := mongo.Connect(context.TODO(), userOpts)
 	if err != nil {
-		return UserDbAccess{nil}, err
+		return dbAccess{nil}, err
 	}
 
-	return UserDbAccess{client}, nil
+	return dbAccess{client}, nil
 }
 
 // Create creates a new document in the DB
-func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.RegistrationId, error) {
+func (d dbAccess) Create(data *registry.RegistrationData) (*registry.RegistrationID, error) {
 	doc := Document{
 		Name:       data.Name,
 		Passport:   data.Passport,
@@ -46,11 +46,9 @@ func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.Registr
 		Registered: false,
 	}
 
-	db := u.client.Database("registry")
+	db := d.client.Database("registry")
 	c := db.Collection("documents")
 	result, err := c.InsertOne(context.Background(), doc)
-
-	//	result, err := u.client.Database("registry").Collection("documents").InsertOne(context.Background(), doc)
 
 	if err != nil {
 		return nil, err
@@ -62,11 +60,11 @@ func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.Registr
 			return nil, err
 		}
 
-		registrationId := registry.RegistrationId{
-			Id: id,
+		regID := registry.RegistrationID{
+			ID: id,
 		}
 
-		return &registrationId, nil
+		return &regID, nil
 
 	}
 
@@ -75,14 +73,14 @@ func (u UserDbAccess) Create(data *registry.RegistrationData) (*registry.Registr
 
 // Read reads a document from the DB
 // it is used to get the registered value of a document
-func (u UserDbAccess) Read(docId registry.RegistrationId, hash []byte) (
+func (d dbAccess) Read(id registry.RegistrationID, hash []byte) (
 	*registry.RegistrationData,
 	error,
 ) {
 	var doc Document
 
-	err := u.client.Database("registration").Collection("documents").FindOne(context.Background(),
-		docId).Decode(&doc)
+	err := d.client.Database("registration").Collection("documents").FindOne(context.Background(),
+		id).Decode(&doc)
 
 	if err != nil {
 		return nil, err
@@ -105,14 +103,14 @@ func (u UserDbAccess) Read(docId registry.RegistrationId, hash []byte) (
 }
 
 // Update updates a document in the DB
-func (u UserDbAccess) Update(
-	docId registry.RegistrationId,
+func (d dbAccess) Update(
+	id registry.RegistrationID,
 	reg *registry.RegistrationData,
 ) error {
 	var doc Document
 
-	err := u.client.Database("registration").Collection("documents").FindOne(context.Background(),
-		docId).Decode(&doc)
+	err := d.client.Database("registration").Collection("documents").FindOne(context.Background(),
+		id).Decode(&doc)
 	if err != nil {
 		return err
 	}
@@ -121,14 +119,8 @@ func (u UserDbAccess) Update(
 		return errors.New("hashes do not match")
 	}
 
-	reg.Name = doc.Name
-	reg.Passport = doc.Passport
-	reg.Role = doc.Role
-	reg.Picture = doc.Picture
-	reg.Registered = false
-
-	result, err := u.client.Database("registration").Collection("documents").UpdateOne(context.Background(),
-		docId, reg)
+	result, err := d.client.Database("registration").Collection("documents").UpdateOne(context.Background(),
+		id, reg)
 	if err != nil {
 		return err
 	}
@@ -141,11 +133,11 @@ func (u UserDbAccess) Update(
 }
 
 // Delete updates a document in the DB
-func (u UserDbAccess) Delete(docId registry.RegistrationId, hash []byte) error {
+func (d dbAccess) Delete(id registry.RegistrationID, hash []byte) error {
 	var doc Document
 
-	err := u.client.Database("registration").Collection("documents").FindOne(context.Background(),
-		docId).Decode(&doc)
+	err := d.client.Database("registration").Collection("documents").FindOne(context.Background(),
+		id).Decode(&doc)
 	if err != nil {
 		return err
 	}
@@ -154,8 +146,8 @@ func (u UserDbAccess) Delete(docId registry.RegistrationId, hash []byte) error {
 		return errors.New("hashes do not match")
 	}
 
-	result, err := u.client.Database("registration").Collection("documents").DeleteOne(context.Background(),
-		docId)
+	result, err := d.client.Database("registration").Collection("documents").DeleteOne(context.Background(),
+		id)
 	if err != nil {
 		return err
 	}
@@ -167,8 +159,8 @@ func (u UserDbAccess) Delete(docId registry.RegistrationId, hash []byte) error {
 }
 
 // Disconnect disconnects the user from the DB
-func (u UserDbAccess) Disconnect() error {
-	err := u.client.Disconnect(context.Background())
+func (d dbAccess) Disconnect() error {
+	err := d.client.Disconnect(context.Background())
 	if err != nil {
 		panic(err)
 	}

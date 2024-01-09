@@ -235,3 +235,5 @@ issues:
         - linters:
               - govet
           text: "shadow: declaration of \"err\" shadows declaration"
+        - path: "registration/registration.go"
+          linters: [lll]

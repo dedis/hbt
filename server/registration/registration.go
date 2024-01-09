@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"go.dedis.ch/hbt/server/registration/config"
@@ -14,31 +15,7 @@ import (
 
 // curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg" -F "registered=false" localhost:3000/document
 
-// POST /document HTTP/1.1
-// Host: localhost:3000
-// User-Agent: curl/7.81.0
-// Accept: */*
-// Content-Length: 8722
-// Content-Type: multipart/form-data; boundary=------------------------a7b1b827961ef70e
-//
-// --------------------------a7b1b827961ef70e
-// Content-Disposition: form-data; name="name"
-//
-// 'John Doe'
-// --------------------------a7b1b827961ef70e
-// Content-Disposition: form-data; name="passport"
-//
-// 12XY456789
-// --------------------------a7b1b827961ef70e
-// Content-Disposition: form-data; name="role"
-//
-// 0
-// --------------------------a7b1b827961ef70e
-// Content-Disposition: form-data; name="image"; filename="picture.png"
-// Content-Type: image/png
-//
-// �PNG
-
+// application defines the application instance
 type application struct {
 	UserRouter  *mux.Router
 	AdminRouter *mux.Router
@@ -79,33 +56,43 @@ func newApp() *application {
 	userRouter.HandleFunc("/document", user.CreateDocument).Methods("POST")
 	userRouter.HandleFunc("/document", user.GetDocument).Methods("GET")
 	userRouter.HandleFunc("/document", user.UpdateDocument).Methods("PUT")
-	userRouter.HandleFunc("/document", user.DeleteDocument).Methods("DELETE")
 
 	adminRouter := mux.NewRouter()
 	adminRouter.HandleFunc("/admin/document", admin.GetDocument).Methods("GET")
 	adminRouter.HandleFunc("/admin/document", admin.UpdateDocument).Methods("PUT")
 	adminRouter.HandleFunc("/admin/document", admin.DeleteDocument).Methods("DELETE")
 
-	userDb, err := mongodb.NewUserDbAccess()
+	db, err := mongodb.NewDBAccess()
 	if err != nil {
 		log.Fatal(err)
 	}
-	user.RegisterDb(userDb)
+	user.RegisterDB(db)
 
-	adminDb := mongodb.NewAdminDbAccess()
-	admin.RegisterDb(adminDb)
+	db, err = mongodb.NewDBAccess()
+	if err != nil {
+		log.Fatal(err)
+	}
+	admin.RegisterDB(db)
 
 	return &application{AdminRouter: adminRouter, UserRouter: userRouter}
 }
 
 func (a *application) start() {
-	log.Println(fmt.Sprintf("Starting user server on port %s", config.AppConfig.UserServerPort))
-	go log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", config.AppConfig.UserServerPort),
-		a.UserRouter))
+	log.Printf("Starting user server on port %s", config.AppConfig.UserServerPort)
+	s := &http.Server{
+		Addr:              fmt.Sprintf(":%v", config.AppConfig.UserServerPort),
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           a.UserRouter,
+	}
+	go log.Fatal(s.ListenAndServe())
 
-	log.Println(fmt.Sprintf("Starting admin server on port %s", config.AppConfig.AdminServerPort))
-	go log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", config.AppConfig.AdminServerPort),
-		a.AdminRouter))
+	log.Printf("Starting admin server on port %s", config.AppConfig.AdminServerPort)
+	s = &http.Server{
+		Addr:              fmt.Sprintf(":%v", config.AppConfig.AdminServerPort),
+		ReadHeaderTimeout: 3 * time.Second,
+		Handler:           a.AdminRouter,
+	}
+	go log.Fatal(s.ListenAndServe())
 }
 
 func main() {
