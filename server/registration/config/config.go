@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	MongoDbUri      string `mapstructure:"mongodb_uri"`
+	MongodbURI      string `mapstructure:"mongodb_uri"`
 	UserName        string `mapstructure:"user_name"`
 	UserPassword    string `mapstructure:"user_password"`
 	AdminName       string `mapstructure:"admin_name"`
