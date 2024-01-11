@@ -9,12 +9,12 @@ plugins {
 
 android {
     namespace 'com.epfl.dedis.hbt'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.epfl.dedis.hbt"
         minSdk 26
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -181,19 +181,22 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['check']) {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
-    implementation 'androidx.annotation:annotation:1.5.0'
-    implementation 'androidx.fragment:fragment-ktx:1.5.4'
+    implementation 'androidx.annotation:annotation:1.7.1'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
     implementation 'com.google.zxing:core:3.5.0'
     implementation 'com.networknt:json-schema-validator:1.0.73'
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.13.4'
-    implementation 'com.google.mlkit:barcode-scanning:17.0.2'
-    implementation 'com.google.mlkit:text-recognition:16.0.0-beta6'
+    implementation 'com.google.mlkit:barcode-scanning:17.2.0'
+    implementation 'com.google.mlkit:text-recognition:16.0.0'
+    // ReactiveX
+    implementation 'io.reactivex.rxjava3:rxjava:3.1.8'
+    implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
 
     implementation "androidx.camera:camera-core:${camerax_version}"
     implementation "androidx.camera:camera-camera2:${camerax_version}"
@@ -208,8 +211,11 @@ dependencies {
     implementation 'net.sf.scuba:scuba-sc-android:0.0.20'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
 
+    // HTTP Library
+    implementation 'com.google.android.gms:play-services-cronet:18.0.1'
+
     debugImplementation 'junit:junit:4.13.2'
-    debugImplementation 'androidx.test.ext:junit-ktx:1.1.4'
+    debugImplementation 'androidx.test.ext:junit-ktx:1.1.5'
     debugImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     debugImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     // We don't want to add multiple version of mockito in the classpath,
