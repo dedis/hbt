@@ -1,6 +1,6 @@
 package com.epfl.dedis.hbt.service.document
 
-import com.epfl.dedis.hbt.data.Document
+import com.epfl.dedis.hbt.data.document.Document
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Multipart

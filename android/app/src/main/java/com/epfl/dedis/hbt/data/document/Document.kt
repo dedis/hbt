@@ -1,4 +1,4 @@
-package com.epfl.dedis.hbt.data
+package com.epfl.dedis.hbt.data.document
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
