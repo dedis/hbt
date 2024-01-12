@@ -64,7 +64,8 @@ class NFCPassportFragment : Fragment() {
                                 parentFragmentManager,
                                 RegisterFragment.newInstance(
                                     passport.mrzInfo.number,
-                                    personalData
+                                    personalData,
+                                    passport.portrait
                                 )
                             )
                         }

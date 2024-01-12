@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result.Success
+import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.data.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,11 +25,12 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
         username: String,
         pincode: String,
         passport: String,
+        portrait: Portrait,
         checksum: ByteArray,
         role: Role
     ) {
         // can be launched in a separate asynchronous job
-        val result = userRepository.register(username, pincode, passport, role)
+        val result = userRepository.register(username, pincode, passport, role, portrait)
 
         if (result is Success) {
             _registerResult.value = RegisterResult(error = null)

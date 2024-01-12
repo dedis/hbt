@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.databinding.FragmentRegisterBinding
 import com.epfl.dedis.hbt.ui.MainActivity
@@ -26,13 +27,18 @@ class RegisterFragment : Fragment() {
 
         private const val PASSPORT = "PASSPORT"
         private const val CHECKSUM = "CHECKSUM"
+        private const val PORTRAIT_TYPE = "PORTRAIT_TYPE"
+        private const val PORTRAIT_DATA = "PORTRAIT_DATA"
 
-        fun newInstance(passport: String, checksum: String) = RegisterFragment().apply {
-            val bundle = Bundle()
-            bundle.putString(PASSPORT, passport)
-            bundle.putString(CHECKSUM, checksum)
-            arguments = bundle
-        }
+        fun newInstance(passport: String, checksum: String, portrait: Portrait) =
+            RegisterFragment().apply {
+                val bundle = Bundle()
+                bundle.putString(PASSPORT, passport)
+                bundle.putString(CHECKSUM, checksum)
+                bundle.putString(PORTRAIT_TYPE, portrait.type)
+                bundle.putByteArray(PORTRAIT_DATA, portrait.data)
+                arguments = bundle
+            }
     }
 
     private val registerViewModel: RegisterViewModel by viewModels(ownerProducer = { requireActivity() })
@@ -44,6 +50,7 @@ class RegisterFragment : Fragment() {
 
     private lateinit var passport: String
     private lateinit var checksum: ByteArray
+    private lateinit var portrait: Portrait
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,6 +68,10 @@ class RegisterFragment : Fragment() {
                 checksum = it.toByteArray()
                 passportChecksum.text = it
             }
+
+            val portraitType = requireArguments().getString(PORTRAIT_TYPE)!!
+            val portraitData = requireArguments().getByteArray(PORTRAIT_DATA)!!
+            portrait = Portrait(portraitType, portraitData)
         }
 
         return binding.root
@@ -135,6 +146,7 @@ class RegisterFragment : Fragment() {
                 usernameEditText.text.toString(),
                 pincodeEditText.text.toString(),
                 passport,
+                portrait,
                 checksum,
                 role
             )
