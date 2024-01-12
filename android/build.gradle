@@ -3,9 +3,9 @@ buildscript {
     ext {
         // Write shared dependency versions here, they will be available in the whole project
         hilt_version = '2.42'
-        lifecycle_version = '2.5.1'
-        espresso_version = '3.5.0'
-        camerax_version = "1.3.0-alpha01"
+        lifecycle_version = '2.7.0'
+        espresso_version = '3.5.1'
+        camerax_version = "1.3.0-beta02"
     }
 
     dependencies {
