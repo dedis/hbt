@@ -14,5 +14,5 @@ object JsonModule {
 
     @Provides
     @Singleton
-    fun provideObjectMapper() = ObjectMapper().registerKotlinModule()
+    fun provideObjectMapper(): ObjectMapper = ObjectMapper().registerKotlinModule()
 }
