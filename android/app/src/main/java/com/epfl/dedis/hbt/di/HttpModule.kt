@@ -18,7 +18,7 @@ object HttpModule {
     @BaseURL
     @Provides
     @Singleton
-    fun provideBaseURL() = "http://localhost:80"
+    fun provideBaseURL() = "http://localhost:3000"
 
     @Provides
     @Singleton
