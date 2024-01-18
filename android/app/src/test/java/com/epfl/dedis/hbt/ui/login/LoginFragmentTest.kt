@@ -16,7 +16,7 @@ import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.loginButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.pincodeInput
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.registerButton
 import com.epfl.dedis.hbt.test.ui.page.login.LoginFragmentPage.usernameInput
-import com.epfl.dedis.hbt.test.ui.page.register.ScanPassportFragmentPage.scanPassportFragmentId
+import com.epfl.dedis.hbt.test.ui.page.register.PassportScanFragmentPage.scanPassportFragmentId
 import com.epfl.dedis.hbt.test.ui.page.wallet.WalletFragmentPage.walletFragmentId
 import dagger.hilt.android.testing.BindValue
 import dagger.hilt.android.testing.HiltAndroidRule

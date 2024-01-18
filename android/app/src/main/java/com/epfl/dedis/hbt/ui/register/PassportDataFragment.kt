@@ -23,14 +23,14 @@ class PassportDataFragment : Fragment() {
             automaticScan.setOnClickListener {
                 MainActivity.setCurrentFragment(
                     parentFragmentManager,
-                    ScanPassportFragment()
+                    PassportScanFragment()
                 )
             }
 
             validate.setOnClickListener {
                 MainActivity.setCurrentFragment(
                     parentFragmentManager,
-                    NFCPassportFragment.newInstance(
+                    PassportNfcFragment.newInstance(
                         BACData.create(
                             passportNumber.text.toString(),
                             editBirthDate.text.toString(),

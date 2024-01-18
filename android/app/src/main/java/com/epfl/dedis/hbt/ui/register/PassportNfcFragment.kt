@@ -11,7 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
-import com.epfl.dedis.hbt.databinding.FragmentNfcPassportBinding
+import com.epfl.dedis.hbt.databinding.FragmentPassportNfcBinding
 import com.epfl.dedis.hbt.service.passport.Passport
 import com.epfl.dedis.hbt.service.passport.mrz.BACData
 import com.epfl.dedis.hbt.service.passport.ncf.NFCReader
@@ -26,10 +26,10 @@ private const val BAC_DATA = "bac_data"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [NFCPassportFragment.newInstance] factory method to
+ * Use the [PassportNfcFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NFCPassportFragment : Fragment() {
+class PassportNfcFragment : Fragment() {
 
     private val nfcViewModel: NFCViewModel by viewModels(ownerProducer = { requireActivity() })
 
@@ -83,7 +83,7 @@ class NFCPassportFragment : Fragment() {
             }
         }
 
-        return FragmentNfcPassportBinding.inflate(inflater, container, false).root
+        return FragmentPassportNfcBinding.inflate(inflater, container, false).root
     }
 
     private fun extractPersonalData(passport: Passport): String? {
@@ -109,7 +109,7 @@ class NFCPassportFragment : Fragment() {
          */
         @JvmStatic
         fun newInstance(bacData: BACData) =
-            NFCPassportFragment().apply {
+            PassportNfcFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(BAC_DATA, bacData)
                 }

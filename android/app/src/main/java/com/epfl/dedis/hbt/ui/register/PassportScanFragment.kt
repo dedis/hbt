@@ -28,10 +28,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ScanPassportFragment : Fragment() {
+class PassportScanFragment : Fragment() {
 
     companion object {
-        private val TAG = ScanPassportFragment::class.java.simpleName
+        private val TAG = PassportScanFragment::class.java.simpleName
     }
 
     private var _binding: FragmentPassportScanBinding? = null
@@ -112,7 +112,7 @@ class ScanPassportFragment : Fragment() {
                     is Success ->
                         MainActivity.setCurrentFragment(
                             parentFragmentManager,
-                            NFCPassportFragment.newInstance(result.data)
+                            PassportNfcFragment.newInstance(result.data)
                         )
                     is Error -> when (result.exception) {
                         is ValidationException ->
