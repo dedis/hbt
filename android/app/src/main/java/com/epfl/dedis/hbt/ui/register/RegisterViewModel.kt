@@ -1,19 +1,19 @@
 package com.epfl.dedis.hbt.ui.register
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.epfl.dedis.hbt.R
+import com.epfl.dedis.hbt.data.Result.Error
 import com.epfl.dedis.hbt.data.Result.Success
 import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.data.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.runInterruptible
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,13 +34,17 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
         checksum: ByteArray,
         role: Role
     ) {
-        // can be launched in a separate asynchronous job
-        runBlocking {
-            userRepository.register(username, pincode, passport, role, portrait).collect {
-                if (it is Success) {
-                    _registerResult.value = RegisterResult(success = it.data)
-                } else {
-                    _registerResult.value = RegisterResult(error = R.string.login_failed)
+        CoroutineScope(Dispatchers.IO).launch {
+            // can be launched in a separate asynchronous job
+            val result = userRepository.register(username, pincode, passport, role, portrait)
+
+            CoroutineScope(Dispatchers.Main).launch {
+                when (result) {
+                    is Success -> _registerResult.value = RegisterResult(error = null)
+                    is Error -> {
+                        Log.e("Register", "Failed to register", result.exception)
+                        _registerResult.value = RegisterResult(error = R.string.login_failed)
+                    }
                 }
             }
         }

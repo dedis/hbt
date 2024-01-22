@@ -6,7 +6,6 @@ import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.service.document.DocumentService
 import com.epfl.dedis.hbt.service.json.JsonService
 import com.epfl.dedis.hbt.service.json.JsonType.USER_DATA
-import retrofit2.awaitResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -62,10 +61,9 @@ class UserDataSource @Inject constructor(
 
         // create user
         val user = User(username, pincode, passport, role)
-        val call = documentService.create(user, portrait, false)
-        val response = call.awaitResponse()
-        if (response.errorBody() != null) {
-            return Result.Error(Exception("Failed to register : " + response.message()))
+        val result = documentService.create(user, portrait, false)
+        if (result is Result.Error) {
+            return result
         }
 
         users[username] = user

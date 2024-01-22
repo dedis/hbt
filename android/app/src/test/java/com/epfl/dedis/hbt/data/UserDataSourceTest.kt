@@ -7,7 +7,6 @@ import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.data.user.User
 import com.epfl.dedis.hbt.data.user.UserDataSource
 import com.epfl.dedis.hbt.di.JsonModule.provideObjectMapper
-import com.epfl.dedis.hbt.service.document.DocumentEndpoint
 import com.epfl.dedis.hbt.service.document.DocumentService
 import com.epfl.dedis.hbt.service.document.DocumentServiceTest
 import com.epfl.dedis.hbt.service.json.JsonService
@@ -31,8 +30,8 @@ import org.hamcrest.CoreMatchers.`is` as eq
 class UserDataSourceTest {
 
     private val jsonService = JsonService(provideObjectMapper())
-    private val docService = mock<DocumentEndpoint> {
-        on { create(any(), any(), any(), any(), any()) } doReturn mockCall(Document("ID"))
+    private val docService = mock<DocumentService> {
+        on { runBlocking { create(any(), any(), any()) } } doReturn Result.Success(Document("ID"))
     }
 
     private fun <T> mockCall(body: T): Call<T> = mock {
