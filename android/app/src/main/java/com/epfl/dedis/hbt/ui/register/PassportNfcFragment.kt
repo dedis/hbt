@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.coroutineScope
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.data.Result
+import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.databinding.FragmentPassportNfcBinding
 import com.epfl.dedis.hbt.service.passport.Passport
 import com.epfl.dedis.hbt.service.passport.mrz.BACData
@@ -19,6 +20,7 @@ import com.epfl.dedis.hbt.ui.MainActivity
 import com.epfl.dedis.hbt.ui.MainActivity.Companion.getSafeSerializable
 import com.epfl.dedis.hbt.ui.NFCViewModel
 import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
 
 private const val USE_PERSONAL_DATA = true
 
@@ -83,7 +85,28 @@ class PassportNfcFragment : Fragment() {
             }
         }
 
-        return FragmentPassportNfcBinding.inflate(inflater, container, false).root
+        return FragmentPassportNfcBinding.inflate(inflater, container, false).apply {
+            skipNfc.setOnClickListener {
+                MainActivity.setCurrentFragment(
+                    parentFragmentManager,
+                    RegisterFragment.newInstance(
+                        "10AZ000001",
+                        "some checksum",
+                        getMockPortrait()
+                    )
+                )
+            }
+
+        }.root
+    }
+
+    fun getMockPortrait(): Portrait {
+        val stream = PassportNfcFragment::class.java.getResourceAsStream("/utopia.png")
+            ?: throw FileNotFoundException()
+
+        stream.use {
+            return Portrait("image/png", it.readBytes())
+        }
     }
 
     private fun extractPersonalData(passport: Passport): String? {

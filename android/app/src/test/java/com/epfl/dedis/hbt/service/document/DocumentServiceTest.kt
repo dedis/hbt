@@ -38,7 +38,7 @@ class DocumentServiceTest {
     @Test
     @Ignore("This is merely a PoC")
     fun createSimpleDocumentSucceed() {
-        val service = HttpModule.provideDocumentService(retrofit)
+        val service = DocumentService(HttpModule.provideDocumentService(retrofit))
 
         val user = User(
             name = "Jon Smith",

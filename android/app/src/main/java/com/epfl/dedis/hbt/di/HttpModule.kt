@@ -1,5 +1,6 @@
 package com.epfl.dedis.hbt.di
 
+import com.epfl.dedis.hbt.service.document.DocumentEndpoint
 import com.epfl.dedis.hbt.service.document.DocumentService
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
@@ -30,8 +31,8 @@ object HttpModule {
 
     @Provides
     @Singleton
-    fun provideDocumentService(retrofit: Retrofit): DocumentService =
-        retrofit.create(DocumentService::class.java)
+    fun provideDocumentService(retrofit: Retrofit): DocumentEndpoint =
+        retrofit.create(DocumentEndpoint::class.java)
 
     @Qualifier
     @Retention(AnnotationRetention.BINARY)

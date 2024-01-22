@@ -6,24 +6,14 @@ import com.epfl.dedis.hbt.data.user.User
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface DocumentService {
-
-    @Multipart
-    @POST("document")
-    fun create(
-        @Part("name") name: String,
-        @Part("passport") passport: String,
-        @Part("role") role: Int,
-        @Part("image") image: RequestBody,
-        @Part("registered") registered: Boolean
-    ): Call<Document>
+@Singleton
+class DocumentService @Inject constructor(val endpoint: DocumentEndpoint) {
 
     fun create(user: User, portrait: Portrait, registered: Boolean): Call<Document> =
-        create(
+        endpoint.create(
             user.name,
             user.passport,
             user.role.ordinal,

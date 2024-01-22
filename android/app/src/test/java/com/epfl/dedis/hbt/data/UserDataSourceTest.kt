@@ -7,10 +7,12 @@ import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.data.user.User
 import com.epfl.dedis.hbt.data.user.UserDataSource
 import com.epfl.dedis.hbt.di.JsonModule.provideObjectMapper
+import com.epfl.dedis.hbt.service.document.DocumentEndpoint
 import com.epfl.dedis.hbt.service.document.DocumentService
 import com.epfl.dedis.hbt.service.document.DocumentServiceTest
 import com.epfl.dedis.hbt.service.json.JsonService
 import com.epfl.dedis.hbt.test.MockSharedPreferences
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Before
 import org.junit.Test
@@ -29,7 +31,7 @@ import org.hamcrest.CoreMatchers.`is` as eq
 class UserDataSourceTest {
 
     private val jsonService = JsonService(provideObjectMapper())
-    private val docService = mock<DocumentService> {
+    private val docService = mock<DocumentEndpoint> {
         on { create(any(), any(), any(), any(), any()) } doReturn mockCall(Document("ID"))
     }
 
@@ -59,8 +61,10 @@ class UserDataSourceTest {
         )
         assertThat(dataSource.login(bob.name, bob.pincode), instanceOf(Result.Error::class.java))
 
-        dataSource.register(alice.name, alice.pincode, alice.passport, alice.role, mockPortrait)
-        dataSource.register(bob.name, bob.pincode, bob.passport, bob.role, mockPortrait)
+        runBlocking {
+            dataSource.register(alice.name, alice.pincode, alice.passport, alice.role, mockPortrait)
+            dataSource.register(bob.name, bob.pincode, bob.passport, bob.role, mockPortrait)
+        }
 
         assertThat(dataSource.login(alice.name, alice.pincode), eq(Result.Success(alice)))
         assertThat(dataSource.login(bob.name, bob.pincode), eq(Result.Success(bob)))
@@ -70,8 +74,10 @@ class UserDataSourceTest {
     fun userDataSourceStoresUsers() {
         val dataSource = UserDataSource(preferences, jsonService, docService)
 
-        dataSource.register(alice.name, alice.pincode, alice.passport, alice.role, mockPortrait)
-        dataSource.register(bob.name, bob.pincode, bob.passport, bob.role, mockPortrait)
+        runBlocking {
+            dataSource.register(alice.name, alice.pincode, alice.passport, alice.role, mockPortrait)
+            dataSource.register(bob.name, bob.pincode, bob.passport, bob.role, mockPortrait)
+        }
 
         val dataSourceLoaded = UserDataSource(preferences, jsonService, docService)
 

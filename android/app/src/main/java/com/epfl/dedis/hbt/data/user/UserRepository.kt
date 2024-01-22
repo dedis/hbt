@@ -37,7 +37,7 @@ class UserRepository @Inject constructor(private val dataSource: UserDataSource)
         loggedInUser = null
     }
 
-    fun register(
+    suspend fun register(
         username: String,
         pincode: String,
         passport: String,

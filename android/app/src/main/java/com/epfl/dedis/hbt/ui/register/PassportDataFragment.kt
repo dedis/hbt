@@ -39,6 +39,7 @@ class PassportDataFragment : Fragment() {
                     )
                 )
             }
+
         }.root
     }
 }

@@ -9,6 +9,11 @@ import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.data.user.Role
 import com.epfl.dedis.hbt.data.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.runInterruptible
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,12 +35,14 @@ class RegisterViewModel @Inject constructor(private val userRepository: UserRepo
         role: Role
     ) {
         // can be launched in a separate asynchronous job
-        val result = userRepository.register(username, pincode, passport, role, portrait)
-
-        if (result is Success) {
-            _registerResult.value = RegisterResult(error = null)
-        } else {
-            _registerResult.value = RegisterResult(error = R.string.login_failed)
+        runBlocking {
+            userRepository.register(username, pincode, passport, role, portrait).collect {
+                if (it is Success) {
+                    _registerResult.value = RegisterResult(success = it.data)
+                } else {
+                    _registerResult.value = RegisterResult(error = R.string.login_failed)
+                }
+            }
         }
     }
 
