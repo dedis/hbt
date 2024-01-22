@@ -1,7 +1,7 @@
 package com.epfl.dedis.hbt.di
 
 import com.epfl.dedis.hbt.service.document.DocumentEndpoint
-import com.epfl.dedis.hbt.service.document.DocumentService
+import com.epfl.dedis.hbt.service.http.ResultCallAdapterFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
@@ -27,6 +27,7 @@ object HttpModule {
         Retrofit.Builder()
             .baseUrl(baseUrl)
             .addConverterFactory(JacksonConverterFactory.create(mapper))
+            .addCallAdapterFactory(ResultCallAdapterFactory())
             .build()
 
     @Provides
