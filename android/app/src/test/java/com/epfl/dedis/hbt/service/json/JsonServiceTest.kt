@@ -1,12 +1,9 @@
-package com.epfl.dedis.hbt.utility.json
+package com.epfl.dedis.hbt.service.json
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.epfl.dedis.hbt.data.transaction.CompleteTransaction
 import com.epfl.dedis.hbt.di.JsonModule
-import com.epfl.dedis.hbt.service.json.JsonService
-import com.epfl.dedis.hbt.service.json.JsonType
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.networknt.schema.JsonSchemaException
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -20,7 +17,7 @@ import org.hamcrest.CoreMatchers.`is` as eq
 @RunWith(AndroidJUnit4::class)
 class JsonServiceTest {
 
-    private val mapper = ObjectMapper().registerKotlinModule()
+    private val mapper = JsonModule.provideObjectMapper()
 
     companion object {
         private val validTransaction = CompleteTransaction("Ben", "Marc", 12.5f, 234)

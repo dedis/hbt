@@ -23,7 +23,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	if err != nil {
 		log.Fatal(err)
 	}
-	picture, fileHeader, err := r.FormFile("image")
+	picture, fileHeader, err := r.FormFile("portrait")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)

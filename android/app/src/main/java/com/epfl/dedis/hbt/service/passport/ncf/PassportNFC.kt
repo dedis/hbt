@@ -10,6 +10,7 @@ import org.jmrtd.lds.*
 import org.jmrtd.lds.icao.COMFile
 import org.jmrtd.lds.icao.DG11File
 import org.jmrtd.lds.icao.DG1File
+import org.jmrtd.lds.icao.DG5File
 import java.io.IOException
 import java.security.GeneralSecurityException
 
@@ -31,6 +32,9 @@ constructor(service: PassportService, bacData: BACData) {
         private set
     var dg1File: DG1File? = null
         private set
+    var dg5File: DG5File? = null
+        private set
+
     var dg11File: DG11File? = null
         private set
 
@@ -107,6 +111,7 @@ constructor(service: PassportService, bacData: BACData) {
         try {
             sodFile = service.getSodFile()
             dg1File = service.getDG1File()
+            dg5File = service.getDG5File()
             dg11File = service.getDG11File()
         } catch (ioe: IOException) {
             ioe.printStackTrace()
@@ -146,6 +151,10 @@ constructor(service: PassportService, bacData: BACData) {
     @Throws(CardServiceException::class, IOException::class)
     private fun PassportService.getDG1File(): DG1File =
         getFile(PassportService.EF_DG1)
+
+    @Throws(CardServiceException::class, IOException::class)
+    private fun PassportService.getDG5File(): DG5File =
+        getFile(PassportService.EF_DG5)
 
     @Throws(CardServiceException::class, IOException::class)
     private fun PassportService.getDG11File(): DG11File =

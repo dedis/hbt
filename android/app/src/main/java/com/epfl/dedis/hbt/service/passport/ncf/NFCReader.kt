@@ -8,6 +8,7 @@ import android.util.Log
 import com.epfl.dedis.hbt.data.Result
 import com.epfl.dedis.hbt.data.Result.Error
 import com.epfl.dedis.hbt.data.Result.Success
+import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.service.passport.Passport
 import com.epfl.dedis.hbt.service.passport.mrz.BACData
 import com.epfl.dedis.hbt.service.passport.mrz.MRZInfo
@@ -45,10 +46,18 @@ object NFCReader {
 
             val passportNFC = PassportNFC(ps, bacData)
             Log.d("PASS_RESULT", passportNFC.dg1File?.mrzInfo.toString())
+
+            val portraitImage = passportNFC.dg5File!!.images.first()
+            val portrait = Portrait(
+                portraitImage.mimeType,
+                portraitImage.encoded
+            )
+
             Success(
                 Passport(
                     MRZInfo(passportNFC.dg1File!!.mrzInfo),
                     passportNFC.sodFile!!,
+                    portrait,
                     passportNFC.dg11File
                 )
             )

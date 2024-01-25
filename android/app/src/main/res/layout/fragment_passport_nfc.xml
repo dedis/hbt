@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
-  android:id="@+id/nfcFragment"
+  android:id="@+id/passportNfcFragment"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
-  tools:context=".ui.register.NFCPassportFragment">
+  tools:context=".ui.register.PassportNfcFragment">
 
   <ProgressBar
     android:id="@+id/progressBar"
@@ -28,4 +28,14 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@id/progressBar"
     app:layout_constraintVertical_bias="0.1" />
+
+  <Button
+    android:id="@+id/skip_nfc"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="@string/skip_nfc"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

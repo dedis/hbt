@@ -15,7 +15,7 @@ import androidx.lifecycle.Observer
 import com.epfl.dedis.hbt.R
 import com.epfl.dedis.hbt.databinding.FragmentLoginBinding
 import com.epfl.dedis.hbt.ui.MainActivity
-import com.epfl.dedis.hbt.ui.register.ScanPassportFragment
+import com.epfl.dedis.hbt.ui.register.PassportScanFragment
 import com.epfl.dedis.hbt.ui.wallet.WalletFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -117,7 +117,7 @@ class LoginFragment : Fragment() {
         }
 
         registerButton.setOnClickListener {
-            MainActivity.setCurrentFragment(parentFragmentManager, ScanPassportFragment())
+            MainActivity.setCurrentFragment(parentFragmentManager, PassportScanFragment())
         }
     }
 
