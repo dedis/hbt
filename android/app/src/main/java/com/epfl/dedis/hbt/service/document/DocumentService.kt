@@ -5,6 +5,7 @@ import com.epfl.dedis.hbt.data.document.Document
 import com.epfl.dedis.hbt.data.document.Portrait
 import com.epfl.dedis.hbt.data.user.User
 import okhttp3.MediaType
+import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,7 +18,9 @@ class DocumentService @Inject constructor(private val endpoint: DocumentEndpoint
             user.name,
             user.passport,
             user.role.ordinal,
-            RequestBody.create(MediaType.parse(portrait.type), portrait.data),
+            MultipartBody.Part.createFormData("portrait",
+                "portrait.png",
+                RequestBody.create(MediaType.parse(portrait.type), portrait.data)),
             registered
         )
 }

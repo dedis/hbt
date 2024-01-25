@@ -57,7 +57,7 @@ class UserDataSource @Inject constructor(
         role: Role,
         portrait: Portrait
     ): Result<User> {
-        if (isRegistered(username)) return Result.Error(Exception("Already registered"))
+        //if (isRegistered(username)) return Result.Error(Exception("Already registered"))
 
         // create user
         val user = User(username, pincode, passport, role)

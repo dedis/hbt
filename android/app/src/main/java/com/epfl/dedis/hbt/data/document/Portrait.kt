@@ -21,4 +21,8 @@ data class Portrait(
         result = 31 * result + data.contentHashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "Portrait(type='$type', data=${data.contentToString()})"
+    }
 }
