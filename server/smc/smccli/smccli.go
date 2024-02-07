@@ -5,13 +5,19 @@ import (
 	"io"
 	"os"
 
-	smcctl "go.dedis.ch/hbt/server/smc/smccli/controller"
-
 	"go.dedis.ch/dela/cli/node"
-	db "go.dedis.ch/dela/core/store/kv/controller"
+	kv "go.dedis.ch/dela/core/store/kv/controller"
 	dkg "go.dedis.ch/dela/dkg/pedersen/controller"
 	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
+	proxy "go.dedis.ch/dela/mino/proxy/http/controller"
+	smc "go.dedis.ch/hbt/server/smc/smccli/controller"
+	"go.dedis.ch/hbt/server/smc/smccli/sproxy"
 )
+
+type config struct {
+	Channel chan os.Signal
+	Writer  io.Writer
+}
 
 func main() {
 	err := run(os.Args)
@@ -24,19 +30,16 @@ func run(args []string) error {
 	return runWithCfg(args, config{Writer: os.Stdout})
 }
 
-type config struct {
-	Channel chan os.Signal
-	Writer  io.Writer
-}
-
 func runWithCfg(args []string, cfg config) error {
 	builder := node.NewBuilderWithCfg(
 		cfg.Channel,
 		cfg.Writer,
-		db.NewController(),
+		kv.NewController(),
+		proxy.NewController(),
+		sproxy.NewController(),
 		minogrpc.NewController(),
 		dkg.NewMinimal(),
-		smcctl.NewSmcController(),
+		smc.NewSmcController(),
 	)
 
 	app := builder.Build()
