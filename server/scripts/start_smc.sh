@@ -16,6 +16,7 @@ S=hbt                 # session name
 W=smc                 # window name
 N=4                   # number of nodes
 P=11000               # base port number
+PROXY=40000           # base proxy port number
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 while getopts n:p:s:t:w: flag
@@ -57,13 +58,13 @@ i=1;
 while [ ${i} -le ${N} ]
 do
     p=$((P + i))
+    proxy=$((PROXY + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${W}${i}.log smccli --config /tmp/${W}${i} start --listen tcp://127.0.0.1:${p}" C-m
+    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${W}${i}.log smccli --config /tmp/${W}${i} start --listen tcp://127.0.0.1:${p} --proxyaddr 127.0.0.1:${proxy}" C-m
     sleep 0.5
     i=$((i + 1));
 done
-
 
 echo -e "${GREEN}[CONNECT]${NC} ${N} nodes and exchange certificates"
 i=2;
@@ -74,7 +75,6 @@ do
     i=$((i + 1));
 done
 
-
 echo -e "${GREEN}[INITIALIZE DKG]${NC} on each node"
 i=1;
 while [ ${i} -le ${N} ]
@@ -82,7 +82,6 @@ do
     tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} dkg listen" C-m
     i=$((i + 1));
 done
-
 
 echo -e "${GREEN}[SETUP DKG]${NC} ${N} nodes"
 i=1;
@@ -93,7 +92,6 @@ do
     i=$((i + 1));
 done
 tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} --threshold ${N} | tee smckey.pub" C-m
-
 
 # Publish the roster
 echo -e "${GREEN}[SAVE]${NC} roster to file"

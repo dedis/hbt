@@ -2,6 +2,8 @@ module go.dedis.ch/hbt/server
 
 go 1.21
 
+// replace go.dedis.ch/dela => ../../dela
+
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/viper v1.18.1

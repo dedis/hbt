@@ -88,6 +88,8 @@ func revealAction(flags cli.Flags) error {
 	return nil
 }
 
+// -----------------------------------------------------------------------------
+// helper functions
 func decodePrivateKey(str string) (kyber.Scalar, error) {
 	pkbuff, err := hex.DecodeString(str)
 	if err != nil {
