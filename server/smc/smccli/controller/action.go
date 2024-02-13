@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"go.dedis.ch/dela"
-	"go.dedis.ch/dela/cli"
+	"go.dedis.ch/dela/cli/node"
+	"go.dedis.ch/dela/dkg"
 	"go.dedis.ch/kyber/v3/util/key"
 
 	"go.dedis.ch/kyber/v3"
@@ -22,7 +23,12 @@ const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 const keyFileName = "key.pair"
 
-func createKeyPairAction(_ cli.Flags) error {
+// createKeyPairAction is an action to create a key pair
+//
+// - implements node.ActionTemplate
+type createKeyPairAction struct{}
+
+func (c createKeyPairAction) Execute(_ node.Context) error {
 	kp := key.NewKeyPair(suites.MustFind("Ed25519"))
 
 	privk, err := kp.Private.MarshalBinary()
@@ -53,26 +59,45 @@ func createKeyPairAction(_ cli.Flags) error {
 	return nil
 }
 
-func revealAction(flags cli.Flags) error {
-	xhatString := flags.String("xhatenc")
+// revealAction is an action to reveal a message
+//
+// - implements node.ActionTemplate
+type revealAction struct{}
+
+func (r revealAction) Execute(ctx node.Context) error {
+	xhatString := ctx.Flags.String("xhatenc")
 	xhatenc, err := decodePublicKey(xhatString)
 	if err != nil {
-		return xerrors.Errorf("failed to reencrypt: %v", err)
+		return xerrors.Errorf("failed to reveal: %v", err)
 	}
 
-	dkgpubString := flags.String("dkgpub")
-	dkgpubk, err := decodePublicKey(dkgpubString)
-	if err != nil {
-		return xerrors.Errorf("failed to decode public key str: %v", err)
+	dkgpubString := ctx.Flags.String("dkgpub")
+	var dkgpubk kyber.Point
+	if dkgpubString != "" {
+		dkgpubk, err = decodePublicKey(dkgpubString)
+		if err != nil {
+			return xerrors.Errorf("failed to decode public key str: %v", err)
+		}
+	} else {
+		var actor dkg.Actor
+		err := ctx.Injector.Resolve(&actor)
+		if err != nil {
+			return xerrors.Errorf("failed to resolve DKG actor: %v", err)
+		}
+
+		dkgpubk, err = actor.GetPublicKey()
+		if err != nil {
+			return xerrors.Errorf("failed retrieving DKG public key: %v", err)
+		}
 	}
 
-	privkString := flags.String("privk")
+	privkString := ctx.Flags.String("privk")
 	privateKey, err := decodePrivateKey(privkString)
 	if err != nil {
 		return xerrors.Errorf("failed to decode private key str: %v", err)
 	}
 
-	encrypted := flags.String("encrypted")
+	encrypted := ctx.Flags.String("encrypted")
 	_, cs, err := decodeEncrypted(encrypted)
 	if err != nil {
 		return xerrors.Errorf("failed to decode encrypted str: %v", err)

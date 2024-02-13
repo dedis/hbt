@@ -20,7 +20,7 @@ func (s smcctl) SetCommands(builder node.Builder) {
 
 	sub := cmd.SetSubCommand("createkeys")
 	sub.SetDescription("create key pair for reencryption")
-	sub.SetAction(createKeyPairAction)
+	sub.SetAction(builder.MakeAction(createKeyPairAction{}))
 
 	sub = cmd.SetSubCommand("reveal")
 	sub.SetDescription("reveal a reencrypted message")
@@ -30,8 +30,9 @@ func (s smcctl) SetCommands(builder node.Builder) {
 			Usage: "the reencrypted key as <hex(xhatenc)>",
 		},
 		cli.StringFlag{
-			Name:  "dkgpub",
-			Usage: "the DKG public key as <hex(dkgpub)>",
+			Name:     "dkgpub",
+			Usage:    "the DKG public key as <hex(dkgpub)>",
+			Required: false,
 		},
 		cli.StringFlag{
 			Name:  "encrypted",
@@ -42,7 +43,7 @@ func (s smcctl) SetCommands(builder node.Builder) {
 			Usage: "drop me if you can",
 		},
 	)
-	sub.SetAction(revealAction)
+	sub.SetAction(builder.MakeAction(revealAction{}))
 }
 
 // OnStart implements node.Initializer. It creates and registers a pedersen DKG.
