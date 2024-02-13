@@ -82,6 +82,6 @@ func (m controller) OnStart(ctx cli.Flags, inj node.Injector) error {
 }
 
 // OnStop implements node.Initializer.
-func (controller) OnStop(inj node.Injector) error {
+func (controller) OnStop(_ node.Injector) error {
 	return nil
 }

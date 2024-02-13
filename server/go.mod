@@ -6,6 +6,7 @@ go 1.21
 
 require (
 	github.com/gorilla/mux v1.8.1
+	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.18.1
 	github.com/steinfletcher/apitest v1.5.15
 	github.com/stretchr/testify v1.8.4
@@ -42,7 +43,6 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
-	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect

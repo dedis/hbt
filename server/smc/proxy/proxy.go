@@ -12,10 +12,7 @@ import (
 	"net/http"
 
 	"go.dedis.ch/hbt/server/smc/proxy/types"
-	"go.dedis.ch/kyber/v3/suites"
 )
-
-var suite = suites.MustFind("ed25519")
 
 // NotFoundHandler defines a generic handler for 404
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,7 +56,7 @@ func NotAllowedHandler(w http.ResponseWriter, r *http.Request) {
 
 // InternalError sets an internal server error
 func InternalError(w http.ResponseWriter, r *http.Request, err error, args map[string]interface{}) {
-	setHttpError(w, r, err, http.StatusInternalServerError, "Internal server error", args)
+	setHTTPError(w, r, err, http.StatusInternalServerError, "Internal server error", args)
 }
 
 // BadRequestError sets an bad request error
@@ -69,7 +66,7 @@ func BadRequestError(
 	err error,
 	args map[string]interface{},
 ) {
-	setHttpError(w, r, err, http.StatusBadRequest, "bad request", args)
+	setHTTPError(w, r, err, http.StatusBadRequest, "bad request", args)
 }
 
 // ForbiddenError sets a forbidden error error
@@ -79,15 +76,15 @@ func ForbiddenError(
 	err error,
 	args map[string]interface{},
 ) {
-	setHttpError(w, r, err, http.StatusForbidden, "not authorized / forbidden", args)
+	setHTTPError(w, r, err, http.StatusForbidden, "not authorized / forbidden", args)
 }
 
 // NotFoundErr sets a not found error
 func NotFoundErr(w http.ResponseWriter, r *http.Request, err error, args map[string]interface{}) {
-	setHttpError(w, r, err, http.StatusNotFound, "not found", args)
+	setHTTPError(w, r, err, http.StatusNotFound, "not found", args)
 }
 
-func setHttpError(
+func setHTTPError(
 	w http.ResponseWriter,
 	r *http.Request,
 	err error,
@@ -120,7 +117,7 @@ func setHttpError(
 
 // AllowCORS defines a basic handler that adds wide Access Control Allow origin
 // headers.
-func AllowCORS(w http.ResponseWriter, r *http.Request) {
+func AllowCORS(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 }

@@ -111,7 +111,6 @@ type reencryptHandler struct {
 }
 
 func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// retrieve the DKG pub key
 	c := *(h.ctx)
 
 	var actor dkg.Actor
@@ -126,6 +125,7 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Err(err).Msg("failed to parse form")
 		http.Error(w, "failed to parse form", http.StatusInternalServerError)
+		return
 	}
 
 	// XHATENC=$(smccli --config /tmp/smc1 dkg reencrypt --encrypted ${CIPHER} --pubk ${PUBK})
@@ -136,6 +136,7 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to decode public key str: %v", err),
 			http.StatusInternalServerError)
+		return
 	}
 
 	// retriev the encrypted cypher
@@ -144,10 +145,16 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to decode encrypted str: %v", err),
 			http.StatusInternalServerError)
+		return
 	}
 
 	// re-encrypt the message
 	hatenc, err := actor.Reencrypt(k, pubk)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to re-encrypt: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
 
 	// write back the re-encrypted message
 	w.Header().Set("Content-Type", "application/json")
@@ -155,10 +162,11 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(hatenc)
 	if err != nil {
-
 		http.Error(w, fmt.Sprintf("failed to encode response: %v", err),
 			http.StatusInternalServerError)
+		return
 	}
+
 	dela.Logger.Debug().Msgf("Re-encrypted message: %v", hatenc)
 }
 
