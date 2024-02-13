@@ -5,8 +5,8 @@
 
 gradle.properties
 
-**/chaincli
-**/smccli
+chaincli
+smccli
 
 profile.cov
 report.json
