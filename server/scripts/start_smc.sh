@@ -24,14 +24,8 @@ do
     case "${flag}" in
       # n : number of nodes
         n) N=${OPTARG};;
-      # p : starting port number
-        p) P=${OPTARG};;
-      # s : session name
-        s) S=${OPTARG};;
       # t : trace level (info, debug, ...)
         t) L=${OPTARG};;
-      # w : window name
-        w) W=${OPTARG};;
       # * : handle unknown flags
         *) echo -e "${RED} unknown flag ${flag} ${NC}";;
     esac

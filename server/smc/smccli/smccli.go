@@ -11,6 +11,7 @@ import (
 	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
 	proxy "go.dedis.ch/dela/mino/proxy/http/controller"
 	smc "go.dedis.ch/hbt/server/smc/smccli/controller"
+	"go.dedis.ch/hbt/server/smc/smccli/web"
 )
 
 type config struct {
@@ -35,7 +36,7 @@ func runWithCfg(args []string, cfg config) error {
 		cfg.Writer,
 		kv.NewController(),
 		proxy.NewController(),
-		proxy.NewController(),
+		web.NewController(),
 		minogrpc.NewController(),
 		dkg.NewMinimal(),
 		smc.NewSmcController(),
