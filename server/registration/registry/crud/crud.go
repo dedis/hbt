@@ -168,12 +168,10 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	}
 
 	regData := &registry.RegistrationData{
-		Name:       name,
-		Passport:   passport,
-		Role:       uint(role),
-		Picture:    picData,
-		Hash:       []byte(hash),
-		Registered: registered,
+		Name:     name,
+		Passport: passport,
+		Role:     uint(role),
+		Picture:  picData,
 	}
 
 	err = db.Update(registrationID, regData)
