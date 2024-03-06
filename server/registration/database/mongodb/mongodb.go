@@ -1,7 +1,6 @@
 package mongodb
 
 import (
-	"bytes"
 	"context"
 	"errors"
 
@@ -42,7 +41,6 @@ func (d dbAccess) Create(data *registry.RegistrationData) (*registry.Registratio
 		Passport:   data.Passport,
 		Role:       data.Role,
 		Picture:    data.Picture,
-		Hash:       data.Hash,
 		Registered: false,
 	}
 
@@ -86,12 +84,6 @@ func (d dbAccess) Read(id registry.RegistrationID, hash []byte) (
 		return nil, err
 	}
 
-	if hash != nil {
-		if !bytes.Equal(hash, doc.Hash) {
-			return nil, errors.New("hashes do not match")
-		}
-	}
-
 	data := registry.RegistrationData{
 		Name:       doc.Name,
 		Passport:   doc.Passport,
@@ -115,10 +107,6 @@ func (d dbAccess) Update(
 		return err
 	}
 
-	if !bytes.Equal(reg.Hash, doc.Hash) {
-		return errors.New("hashes do not match")
-	}
-
 	result, err := d.client.Database("registration").Collection("documents").UpdateOne(context.Background(),
 		id, reg)
 	if err != nil {
@@ -140,10 +128,6 @@ func (d dbAccess) Delete(id registry.RegistrationID, hash []byte) error {
 		id).Decode(&doc)
 	if err != nil {
 		return err
-	}
-
-	if !bytes.Equal(hash, doc.Hash) {
-		return errors.New("hashes do not match")
 	}
 
 	result, err := d.client.Database("registration").Collection("documents").DeleteOne(context.Background(),

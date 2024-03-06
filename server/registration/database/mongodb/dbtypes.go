@@ -4,8 +4,7 @@ package mongodb
 type Document struct {
 	Name       string `bson:"name"`
 	Passport   string `bson:"passport"`
-	Role       uint   `bson:"role"`
+	Role       uint64 `bson:"role"`
 	Picture    []byte `bson:"picture"`
-	Hash       []byte `bson:"hash"`
 	Registered bool   `bson:"registered"`
 }
