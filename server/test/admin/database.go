@@ -2,9 +2,11 @@ package admin
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 
+	"github.com/rs/zerolog/log"
 	"go.dedis.ch/hbt/server/registration/registry"
 )
 

@@ -25,14 +25,15 @@ func main() {
 
 	// add the document to the registry
 	docid := user.RegistrationAdd(doc, symKey)
-	log.Info().Msgf("SUCCESS! added document id: %v", docid)
+	log.Info().Msgf("SUCCESS! added document ID=%v", docid)
 
 	// get the SMC pub key
 	smcKey := user.SmcGetKey()
-	log.Info().Msgf("SUCCESS! added document id: %v", docid)
+	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey)
 
 	// add secret = symKey to the blockchain
-	user.BlockchainEncryptAndAddSecret(smcKey, symKey, docid)
+	secret := user.BlockchainEncryptAndAddSecret(smcKey, symKey, docid)
+	log.Info().Msgf("SUCCESS! added secret=%v with ID=%v to blockchain", secret, docid)
 
 	// PRETEND TO BE AN ADMIN
 	// ---------------------------------------------------------
@@ -40,15 +41,32 @@ func main() {
 	pk, sk := key.NewAsymmetric()
 
 	// fetch the list of docs from the blockchain
+	// give it the admin pub key for audit purpose
 	docIDs := admin.BlockchainGetDocIDs(pk)
 
 	for _, id := range docIDs {
-		doc := admin.BlockchainGetDocument(id)
-		log.Info().Msgf("document: %v", doc)
+		secret := admin.BlockchainGetSecret(id, pk)
+		log.Info().Msgf("secret: %v", secret)
 
-		reencrypted := admin.SmcReencryptSecret(pk, id)
+		xhatenc, err := admin.SmcReencryptSecret(pk, secret.Data)
+		if err != nil {
+			log.Fatal().Msgf("error: %v", err)
+		}
 
-		encryptedDoc = admin.registrationGetDocument(id)
+		smcKeyAdmin := admin.SmcGetKey()
+		if smcKey != smcKeyAdmin {
+			log.Fatal().Msg("SMC key mismatch")
+		}
+
+		// secret.Data = K:Cs in a string format
+		symKey2, err := admin.SmcReveal(xhatenc, smcKey, sk, secret.Data)
+
+		if false == compare2ByteArrays(symKey, symKey2) {
+			log.Fatal().Msg("symmetric key mismatch")
+		}
+
+		// TO DO: get the encrypted document from the registry
+		// TO DO: decrypt the document
 	}
 }
 
@@ -70,4 +88,18 @@ func createDocument(name, passport string, role uint64, picture string) registry
 		Picture:    picData,
 		Registered: false,
 	}
+}
+
+func compare2ByteArrays(a []byte, b []byte) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
