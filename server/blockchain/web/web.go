@@ -15,7 +15,7 @@ import (
 var defaultRetry = 10
 var proxyFac func(string) proxy.Proxy = http.NewHTTP
 
-const defaultProxyAddr = "127.0.0.1:0"
+const defaultProxyAddr = "127.0.0.1:3003"
 
 // NewController returns a new controller initializer
 func NewController() node.Initializer {

@@ -13,7 +13,7 @@ import (
 	"go.dedis.ch/kyber/v3/suites"
 )
 
-const blockchainServer = "localhost:4000"
+const blockchainServer = "localhost:3003"
 
 // suite is the Kyber suite for Pedersen.
 var suite = suites.MustFind("Ed25519")

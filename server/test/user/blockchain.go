@@ -13,7 +13,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const blockchainServer = "localhost:4000"
+const blockchainServer = "localhost:3003"
 
 // suite is the Kyber suite for Pedersen.
 var suite = suites.MustFind("Ed25519")

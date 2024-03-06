@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-const smcServer = "localhost:4000"
+const smcServer = "localhost:3002"
 
 // SmcReencryptSecret re-encrypts the secret with the new public key
 // and returns a xhatenc value that can be used to reveal the secret

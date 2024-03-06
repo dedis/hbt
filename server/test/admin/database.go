@@ -10,6 +10,8 @@ import (
 	"go.dedis.ch/hbt/server/registration/registry"
 )
 
+const registrationServer = "localhost:3001"
+
 func RegistrationAdminGetDocument(docid registry.RegistrationID) registry.RegistrationData {
 	resp, err := http.Get("localhost:3000/admin/document?id=" + string(docid.ID))
 	if err != nil {

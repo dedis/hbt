@@ -20,7 +20,7 @@ func main() {
 	// ---------------------------------------------------------
 
 	// create a document and save it encrypted into the database
-	doc := createDocument("John Doe", "12AB456789", 0, "test/passport.jpg")
+	doc := createDocument("John Doe", "12AB456789", 0, "passport.jpg")
 	log.Info().Msg("SUCCESS! created new document")
 
 	// add the document to the registry
@@ -65,9 +65,18 @@ func main() {
 			log.Fatal().Msg("symmetric key mismatch")
 		}
 
-		// TO DO: get the encrypted document from the registry
-		// TO DO: decrypt the document
+		// TODO: get the encrypted document from the registry
+		// TODO: decrypt the document - optional
+		// TODO: update the document status to registered
+		// TODO: encrypt the document - optional
+		// TODO: save the document back to the registry
 	}
+
+	// PRETEND TO BE A USER
+	// ---------------------------------------------------------
+	// get the document from the registry to see the updated status
+	doc2 := user.RegistrationGet(docid, symKey)
+	log.Info().Msgf("SUCCESS! got document: %v", doc2)
 }
 
 // ---------------------------------------------------------

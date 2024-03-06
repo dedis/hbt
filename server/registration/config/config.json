@@ -5,5 +5,5 @@
     "admin_name": "admin",
     "admin_password": "admin",
     "user_port": 3000,
-    "admin_port": 4000
+    "admin_port": 3001
 }
