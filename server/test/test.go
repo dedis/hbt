@@ -20,18 +20,25 @@ func main() {
 	// ---------------------------------------------------------
 
 	// create a document and save it encrypted into the database
-	doc := createDocument("John Doe", "12AB456789", 0, "passport.jpg")
+	log.Info().Msg("CREATE document for test purpose")
+	doc := createDocument("John Doe", "12AB456789", 0, "./passport.jpg")
 	log.Info().Msg("SUCCESS! created new document")
 
 	// add the document to the registry
-	docid := user.RegistrationAdd(doc, symKey)
+	log.Info().Msg("ADD document to the registry")
+	docid, err := user.RegistrationAdd(doc, symKey)
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
 	log.Info().Msgf("SUCCESS! added document ID=%v", docid)
 
 	// get the SMC pub key
+	log.Info().Msg("FETCH SMC key")
 	smcKey := user.SmcGetKey()
 	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey)
 
 	// add secret = symKey to the blockchain
+	log.Info().Msg("ADD secret to the blockchain")
 	secret := user.BlockchainEncryptAndAddSecret(smcKey, symKey, docid)
 	log.Info().Msgf("SUCCESS! added secret=%v with ID=%v to blockchain", secret, docid)
 
@@ -45,10 +52,10 @@ func main() {
 	docIDs := admin.BlockchainGetDocIDs(pk)
 
 	for _, id := range docIDs {
-		secret := admin.BlockchainGetSecret(id, pk)
+		secret, proof := admin.BlockchainGetSecret(id, pk)
 		log.Info().Msgf("secret: %v", secret)
 
-		xhatenc, err := admin.SmcReencryptSecret(pk, secret.Data)
+		xhatenc, err := admin.SmcReencryptSecret(proof, pk, secret.Data)
 		if err != nil {
 			log.Fatal().Msgf("error: %v", err)
 		}
@@ -64,6 +71,9 @@ func main() {
 		if false == compare2ByteArrays(symKey, symKey2) {
 			log.Fatal().Msg("symmetric key mismatch")
 		}
+
+		// encrypt binary array with symmetric key
+		// and save it to the registry
 
 		// TODO: get the encrypted document from the registry
 		// TODO: decrypt the document - optional

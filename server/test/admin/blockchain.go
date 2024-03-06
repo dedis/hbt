@@ -62,7 +62,7 @@ func BlockchainGetDocIDs(adminPubkey kyber.Point) []registry.RegistrationID {
 }
 
 // BlockchainGetDocument polls the blockchain to get the encrypted document
-func BlockchainGetSecret(id registry.RegistrationID, pk kyber.Point) smc.Secret {
+func BlockchainGetSecret(id registry.RegistrationID, pk kyber.Point) (smc.Secret, []byte) {
 	encodedPk, err := pk.MarshalBinary()
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
@@ -82,5 +82,5 @@ func BlockchainGetSecret(id registry.RegistrationID, pk kyber.Point) smc.Secret 
 		log.Error().Msgf("error decoding response: %v", err)
 	}
 
-	return secret
+	return secret, nil
 }

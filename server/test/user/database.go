@@ -5,35 +5,86 @@ import (
 	"context"
 	"encoding/binary"
 	"encoding/json"
+	"io"
+	"mime/multipart"
 	"net/http"
-	"net/url"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 	"go.dedis.ch/hbt/server/registration/registry"
 	"go.dedis.ch/hbt/server/test/key"
 )
 
-const registrationServer = "localhost:3000"
+const registrationServer = "http://localhost:3000"
 
 // RegistrationAdd adds a new registration to the registry
-func RegistrationAdd(data registry.RegistrationData, symKey []byte) registry.RegistrationID {
-	// Encrypt the data
-	encrypted, err := encryptRegistrationData(data, symKey)
+func RegistrationAdd(data registry.RegistrationData, symKey []byte) (
+	registry.RegistrationID,
+	error,
+) {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+
+	fw, err := w.CreateFormField("pubkey")
 	if err != nil {
-		log.Fatal().Msgf("error: %v", err)
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw, bytes.NewReader(symKey)); err != nil {
+		return registry.RegistrationID{}, err
 	}
 
-	// Add the encrypted document to the registry
-	resp, err := http.PostForm(registrationServer+"/document",
-		url.Values{
-			"name":       {string(encrypted.Name)},
-			"passport":   {string(encrypted.Passport)},
-			"role":       {string(encrypted.Role)},
-			"picture":    {string(encrypted.Picture)},
-			"registered": {string(encrypted.Registered)},
-		})
+	fw, err = w.CreateFormField("name")
 	if err != nil {
-		log.Fatal().Msgf("error: %v", err)
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw, bytes.NewReader([]byte(data.Name))); err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	fw, err = w.CreateFormField("passport")
+	if err != nil {
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw, bytes.NewReader([]byte(data.Passport))); err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	fw, err = w.CreateFormField("role")
+	if err != nil {
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw,
+		bytes.NewReader([]byte(strconv.FormatUint(data.Role, 10)))); err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	fw, err = w.CreateFormField("registered")
+	if err != nil {
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw,
+		bytes.NewReader([]byte(strconv.FormatBool(data.Registered)))); err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	fw, err = w.CreateFormField("picture")
+	if err != nil {
+		return registry.RegistrationID{}, err
+	}
+	if _, err = io.Copy(fw, bytes.NewReader(data.Picture)); err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	defer w.Close()
+
+	req, err := http.NewRequest(http.MethodPost, registrationServer+"/document", &b)
+	if err != nil {
+		return registry.RegistrationID{}, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return registry.RegistrationID{}, err
 	}
 
 	defer resp.Body.Close()
@@ -42,10 +93,10 @@ func RegistrationAdd(data registry.RegistrationData, symKey []byte) registry.Reg
 	var docid registry.RegistrationID
 	err = json.NewDecoder(resp.Body).Decode(&docid)
 	if err != nil {
-		log.Error().Msgf("error decoding response: %v", err)
+		return registry.RegistrationID{}, err
 	}
 
-	return docid
+	return docid, err
 }
 
 // RegistrationGet polls the data to see if registered

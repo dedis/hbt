@@ -13,7 +13,7 @@ import (
 const registrationServer = "localhost:3001"
 
 func RegistrationAdminGetDocument(docid registry.RegistrationID) registry.RegistrationData {
-	resp, err := http.Get("localhost:3000/admin/document?id=" + string(docid.ID))
+	resp, err := http.Get(registrationServer + "/admin/document?id=" + string(docid.ID))
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}
@@ -31,7 +31,7 @@ func RegistrationAdminGetDocument(docid registry.RegistrationID) registry.Regist
 }
 
 func RegistrationAdminUpdateDocument(docid registry.RegistrationID) error {
-	resp, err := http.Get("localhost:3000/admin/document?id=" + string(docid.ID))
+	resp, err := http.Get(registrationServer + "/admin/document?id=" + string(docid.ID))
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}

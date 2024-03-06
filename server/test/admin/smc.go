@@ -18,7 +18,8 @@ const smcServer = "localhost:3002"
 
 // SmcReencryptSecret re-encrypts the secret with the new public key
 // and returns a xhatenc value that can be used to reveal the secret
-func SmcReencryptSecret(pk kyber.Point, secret string) (kyber.Point, error) {
+// first argument is supposed to be the proof
+func SmcReencryptSecret(_ []byte, pk kyber.Point, secret string) (kyber.Point, error) {
 	resp, err := http.Post(smcServer+"/reencrypt", "application/json",
 		bytes.NewBuffer([]byte(`{"pubk": "`+encodePublickey(pk)+`", "encrypted": "`+secret+`"}`)))
 	if err != nil {
