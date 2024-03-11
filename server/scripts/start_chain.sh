@@ -59,7 +59,7 @@ do
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
     tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${W}${i}.log chaincli --config /tmp/${W}${i} start --listen tcp://127.0.0.1:${p}" C-m
-    sleep 0.5
+    sleep 1
     i=$((i + 1));
 done
 
@@ -71,6 +71,7 @@ while [ ${i} -le ${N} ]
 do
     echo -e "joining node ${i} on master pane ${MASTERPANE}"
     tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(chaincli --config /tmp/${W}1 minogrpc token)" C-m
+    sleep 1
     i=$((i + 1));
 done
 

@@ -65,7 +65,9 @@ i=2;
 p=$((P + 1))
 while [ ${i} -le ${N} ]
 do
+    sleep 1
     tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} $(smccli --config /tmp/${W}1 minogrpc token)" C-m
+    sleep 1
     i=$((i + 1));
 done
 

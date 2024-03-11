@@ -35,7 +35,7 @@ tmux send-keys -t ${S}:smc.0 "./publish_roster.sh" C-m
 tmux select-pane -t ${S}:smc.0
 tmux send-keys -t ${S}:smc.0 "# TMUX MINI CHEAT SHEET" C-m
 tmux send-keys -t ${S}:smc.0 "# Use 'tmux lscm' to list tmux commands" C-m
-tmux send-keys -t ${S}:smc.0 "# Use 'Ctrl+B N (or P)' for next (previous) window" C-m
+tmux send-keys -t ${S}:smc.0 "# Use 'Ctrl+B N (or P)' for next (or previous) window" C-m
 tmux send-keys -t ${S}:smc.0 "# Use 'Ctrl+B <arrow>' to select pane" C-m
 tmux send-keys -t ${S}:smc.0 "# './teardown.sh' to clean this tmux session" C-m
 tmux attach -t ${S}
