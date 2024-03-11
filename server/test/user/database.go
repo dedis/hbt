@@ -22,8 +22,8 @@ func RegistrationAdd(data registry.RegistrationData, symKey []byte) (
 	registry.RegistrationID,
 	error,
 ) {
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
 
 	fw, err := w.CreateFormField("pubkey")
 	if err != nil {
@@ -67,7 +67,7 @@ func RegistrationAdd(data registry.RegistrationData, symKey []byte) (
 		return registry.RegistrationID{}, err
 	}
 
-	fw, err = w.CreateFormField("picture")
+	fw, err = w.CreateFormFile("portrait", "portrait.jpg")
 	if err != nil {
 		return registry.RegistrationID{}, err
 	}
@@ -75,12 +75,15 @@ func RegistrationAdd(data registry.RegistrationData, symKey []byte) (
 		return registry.RegistrationID{}, err
 	}
 
-	defer w.Close()
+	w.Close()
 
-	req, err := http.NewRequest(http.MethodPost, registrationServer+"/document", &b)
+	req, err := http.NewRequest(http.MethodPost, registrationServer+"/document", &body)
 	if err != nil {
 		return registry.RegistrationID{}, err
 	}
+
+	// Don't forget to set the content type, this will contain the boundary.
+	req.Header.Set("Content-Type", w.FormDataContentType())
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

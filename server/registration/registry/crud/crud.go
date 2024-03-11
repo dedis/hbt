@@ -34,8 +34,6 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		return
 	}
 
-	log.Println(fileHeader)
-
 	picData := make([]byte, fileHeader.Size)
 	_, err = picture.Read(picData)
 	if err != nil {

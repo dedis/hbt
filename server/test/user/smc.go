@@ -8,10 +8,10 @@ import (
 	"go.dedis.ch/kyber/v3"
 )
 
-const smcServer = "localhost:3002"
+const smcServer = "http://localhost:40001"
 
 func SmcGetKey() kyber.Point {
-	resp, err := http.Get(smcServer + "/key")
+	resp, err := http.Get(smcServer + "/smc/pubkey")
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}
