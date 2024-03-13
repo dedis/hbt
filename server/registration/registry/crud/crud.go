@@ -34,8 +34,6 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		return
 	}
 
-	log.Println(fileHeader)
-
 	picData := make([]byte, fileHeader.Size)
 	_, err = picture.Read(picData)
 	if err != nil {
@@ -48,14 +46,11 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		return
 	}
 
-	hash := r.FormValue("hash")
-
 	regData := &registry.RegistrationData{
 		Name:       name,
 		Passport:   passport,
-		Role:       uint(role),
+		Role:       role,
 		Picture:    picData,
-		Hash:       []byte(hash),
 		Registered: false,
 	}
 
@@ -151,7 +146,6 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		}
 		return
 	}
-	hash := r.FormValue("hash")
 
 	log.Println(fileHeader)
 
@@ -168,12 +162,10 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	}
 
 	regData := &registry.RegistrationData{
-		Name:       name,
-		Passport:   passport,
-		Role:       uint(role),
-		Picture:    picData,
-		Hash:       []byte(hash),
-		Registered: registered,
+		Name:     name,
+		Passport: passport,
+		Role:     role,
+		Picture:  picData,
 	}
 
 	err = db.Update(registrationID, regData)

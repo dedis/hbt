@@ -4,15 +4,22 @@ package registry
 type RegistrationData struct {
 	Name       string `json:"name"`
 	Passport   string `json:"passport"`
-	Role       uint   `json:"role"`
 	Picture    []byte `json:"picture"`
-	Hash       []byte `json:"hash"`
+	Role       uint64 `json:"role"`
 	Registered bool   `json:"registered"`
 }
 
-type DocID []byte
+// EncryptedData contains the above encrypted data for a registration
+// and a flag to indicate if the data has been successfully registered
+type EncryptedData struct {
+	Name       []byte `json:"name"`
+	Passport   []byte `json:"passport"`
+	Picture    []byte `json:"picture"`
+	Role       []byte `json:"role"`
+	Registered []byte `json:"registered"`
+}
 
 // RegistrationID contains the reference to the document in the database
 type RegistrationID struct {
-	ID DocID `json:"doc_id"`
+	ID []byte `json:"doc_id"`
 }

@@ -12,6 +12,7 @@ S=hbt                 # session name
 
 echo -e "${GREEN}[TMUX tear down]${NC}"
 
+./stop_registry.sh
 ./stop_smc.sh
 ./stop_chain.sh
 

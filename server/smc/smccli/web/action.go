@@ -1,4 +1,4 @@
-package sproxy
+package web
 
 import (
 	"encoding/hex"
@@ -13,7 +13,6 @@ import (
 	"go.dedis.ch/dela/cli/node"
 	"go.dedis.ch/dela/dkg"
 	"go.dedis.ch/dela/mino/proxy"
-	eproxy "go.dedis.ch/hbt/server/smc/proxy"
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"
 
@@ -26,22 +25,13 @@ var suite = suites.MustFind("Ed25519")
 const separator = ":"
 const malformedEncoded = "malformed encoded: %s"
 
-/*
-const (
-	smcPath            = "/smc"
-	smcPubKeyPath      = "/smc/pubkey"
-	smcReencryptPath   = "/smc/reencrypt"
-	resolveActorFailed = "failed to resolve actor, did you call listen?: %v"
-)
-*/
-
 // RegisterAction is an action to register the HTTP handlers
 //
 // - implements node.ActionTemplate
 type RegisterAction struct{}
 
 // Execute implements node.ActionTemplate. It registers the handlers using the
-// default proxy from the the injector.
+// default proxy from the injector.
 func (a *RegisterAction) Execute(ctx node.Context) error {
 	var p proxy.Proxy
 	err := ctx.Injector.Resolve(&p)
@@ -51,14 +41,14 @@ func (a *RegisterAction) Execute(ctx node.Context) error {
 
 	router := mux.NewRouter()
 
-	pk := &pubKeyHandler{&ctx}
+	pk := &pubKeyHandler{ctx}
 	router.HandleFunc("/smc/pubkey", pk.ServeHTTP).Methods("GET")
 
-	re := &reencryptHandler{&ctx}
+	re := &reencryptHandler{ctx}
 	router.HandleFunc("/smc/reencrypt", re.ServeHTTP).Methods("POST")
 
-	router.NotFoundHandler = http.HandlerFunc(eproxy.NotFoundHandler)
-	router.MethodNotAllowedHandler = http.HandlerFunc(eproxy.NotAllowedHandler)
+	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+	router.MethodNotAllowedHandler = http.HandlerFunc(notAllowedHandler)
 
 	p.RegisterHandler("/smc/", router.ServeHTTP)
 
@@ -68,22 +58,19 @@ func (a *RegisterAction) Execute(ctx node.Context) error {
 }
 
 type pubKeyHandler struct {
-	ctx *node.Context
+	ctx node.Context
 }
 
 func (h *pubKeyHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
-
-	c := *(h.ctx)
-
-	var actor dkg.Actor
-	err := c.Injector.Resolve(&actor)
+	var a dkg.Actor
+	err := h.ctx.Injector.Resolve(&a)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to resolve DKG actor: %v", err),
 			http.StatusInternalServerError)
 		return
 	}
 
-	pk, err := actor.GetPublicKey()
+	pk, err := a.GetPublicKey()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed retrieving public key: %v", err),
 			http.StatusInternalServerError)
@@ -107,14 +94,12 @@ func (h *pubKeyHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 }
 
 type reencryptHandler struct {
-	ctx *node.Context
+	ctx node.Context
 }
 
 func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	c := *(h.ctx)
-
-	var actor dkg.Actor
-	err := c.Injector.Resolve(&actor)
+	var a dkg.Actor
+	err := h.ctx.Injector.Resolve(&a)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to resolve DKG actor: %v", err),
 			http.StatusInternalServerError)
@@ -139,7 +124,7 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// retriev the encrypted cypher
+	// retrieve the encrypted cypher
 	encrypted := r.FormValue("encrypted")
 	k, _, err := decodeEncrypted(encrypted)
 	if err != nil {
@@ -149,7 +134,7 @@ func (h *reencryptHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// re-encrypt the message
-	hatenc, err := actor.Reencrypt(k, pubk)
+	hatenc, err := a.Reencrypt(k, pubk)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to re-encrypt: %v", err),
 			http.StatusInternalServerError)
@@ -225,4 +210,55 @@ func decodeEncrypted(str string) (kyber.Point, []kyber.Point, error) {
 	dela.Logger.Debug().Msgf("Decoded K: %v and Cs: %v", k, cs)
 
 	return k, cs, nil
+}
+
+// -----------------------------------------------------------------------------
+// Helper functions
+
+// HTTPError defines the standard error format
+type HTTPError struct {
+	Title   string
+	Code    uint
+	Message string
+	Args    map[string]interface{}
+}
+
+// notFoundHandler defines a generic handler for 404
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	err := HTTPError{
+		Title:   "Not found",
+		Code:    http.StatusNotFound,
+		Message: "The requested endpoint was not found",
+		Args: map[string]interface{}{
+			"url":    r.URL.String(),
+			"method": r.Method,
+		},
+	}
+
+	buf, _ := json.MarshalIndent(&err, "", "  ")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(http.StatusNotFound)
+	fmt.Fprintln(w, string(buf))
+}
+
+// notAllowedHandler degines a generic handler for 405
+func notAllowedHandler(w http.ResponseWriter, r *http.Request) {
+	err := HTTPError{
+		Title:   "Not allowed",
+		Code:    http.StatusMethodNotAllowed,
+		Message: "The requested endpoint was not allowed",
+		Args: map[string]interface{}{
+			"url":    r.URL.String(),
+			"method": r.Method,
+		},
+	}
+
+	buf, _ := json.MarshalIndent(&err, "", "  ")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(http.StatusMethodNotAllowed)
+	fmt.Fprintln(w, string(buf))
 }

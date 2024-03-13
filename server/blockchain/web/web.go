@@ -1,4 +1,4 @@
-package sproxy
+package web
 
 import (
 	"os"
@@ -15,7 +15,7 @@ import (
 var defaultRetry = 10
 var proxyFac func(string) proxy.Proxy = http.NewHTTP
 
-const defaultProxyAddr = "127.0.0.1:0"
+const defaultProxyAddr = "127.0.0.1:3003"
 
 // NewController returns a new controller initializer
 func NewController() node.Initializer {
@@ -41,7 +41,7 @@ func (m controller) SetCommands(builder node.Builder) {
 
 // OnStart implements node.Initializer. It creates and registers a pedersen DKG.
 func (m controller) OnStart(ctx cli.Flags, inj node.Injector) error {
-	dela.Logger.Info().Msg("Installing SMC proxy")
+	dela.Logger.Info().Msg("Installing Blockchain proxy")
 
 	proxyAddr := ctx.String("proxyaddr")
 

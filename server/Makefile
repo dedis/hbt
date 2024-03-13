@@ -1,4 +1,4 @@
-.PHONY: all tidy generate lint vet test coverage pushdoc
+.PHONY: all tidy build install lint vet test coverage
 
 # Default "make" target to check locally that everything is ok, BEFORE pushing remotely
 all: lint vet test build
@@ -26,6 +26,13 @@ build: tidy
 	# Building executable
 	@go build ./smc/smccli
 	@go build ./blockchain/chaincli
+	@go build ./registration
+
+install: tidy
+	# Building executable
+	@go install ./smc/smccli
+	@go install ./blockchain/chaincli
+	@go install ./registration
 
 coverage: tidy
 	# Test and generate a coverage output usable by sonarcloud
