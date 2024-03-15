@@ -35,7 +35,7 @@ func main() {
 	// get the SMC pub key
 	log.Info().Msg("FETCH SMC key")
 	smcKey := user.SmcGetKey()
-	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey)
+	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey.String())
 
 	// add secret = symKey to the blockchain
 	log.Info().Msg("ADD secret to the blockchain")

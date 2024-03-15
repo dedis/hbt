@@ -15,16 +15,23 @@ func SmcGetKey() kyber.Point {
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}
-
 	defer resp.Body.Close()
 
-	// Decode the response
-	var data kyber.Point
+	decoder := json.NewDecoder(resp.Body)
 
-	err = json.NewDecoder(resp.Body).Decode(&data)
+	// Decode the response
+	var data []byte
+	err = decoder.Decode(&data)
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
+
+	// Unmarshal the response
+	pk := suite.Point()
+	err = pk.UnmarshalBinary(data)
 	if err != nil {
 		log.Error().Msgf("error decoding response: %v", err)
 	}
 
-	return data
+	return pk
 }

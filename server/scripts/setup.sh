@@ -13,6 +13,9 @@ S=hbt                 # session name
 echo -e "${GREEN}[TMUX setup]${NC}"
 set -o errexit
 
+echo -e "${GREEN}[Make install...]${NC}"
+make -C .. install
+
 # Is tmux available ?
 command -v tmux >/dev/null 2>&1 || { echo >&2 "tmux is not on your PATH!"; exit 1; }
 
