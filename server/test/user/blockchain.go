@@ -1,9 +1,11 @@
 package user
 
 import (
+	"bytes"
 	"encoding/hex"
+	"io"
+	"mime/multipart"
 	"net/http"
-	"net/url"
 
 	"github.com/rs/zerolog/log"
 	"go.dedis.ch/dela"
@@ -29,18 +31,42 @@ func BlockchainEncryptAndAddSecret(
 		log.Fatal().Msgf("error: %v", err)
 	}
 
-	// Add the secret to the blockchain
-	resp, err := http.PostForm(blockchainServer+"/secret",
-		url.Values{
-			"secret": {encryptedSecret},
-			"id":     {string(id.ID)},
-		})
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
 
+	fw, err := w.CreateFormField("secret")
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
+	_, err = io.Copy(fw, bytes.NewReader([]byte(encryptedSecret)))
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}
 
+	fw, err = w.CreateFormField("id")
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
+	_, err = io.Copy(fw, bytes.NewReader(id.ID))
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
+
+	w.Close()
+
+	req, err := http.NewRequest(http.MethodPost, blockchainServer+"/secret", &body)
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
+
+	// Don't forget to set the content type, this will contain the boundary.
+	req.Header.Set("Content-Type", w.FormDataContentType())
+
+	resp, err := http.DefaultClient.Do(req)
 	defer resp.Body.Close()
+	if err != nil {
+		log.Fatal().Msgf("error: %v", err)
+	}
 
 	return encryptedSecret
 }

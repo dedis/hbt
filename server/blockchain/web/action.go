@@ -36,11 +36,10 @@ func (a *RegisterAction) Execute(ctx node.Context) error {
 
 	router := mux.NewRouter()
 
-	s := &secretHandler{&ctx}
+	s := &secretHandler{ctx}
 	router.HandleFunc("/secret", s.addSecret).Methods("POST")
 	router.HandleFunc("/secret/list", s.listSecrets).Methods("GET")
 	router.HandleFunc("/secret", s.getSecret).Methods("GET")
-	router.HandleFunc("/secret/reveal", s.revealSecret).Methods("POST")
 
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 	router.MethodNotAllowedHandler = http.HandlerFunc(notAllowedHandler)
@@ -57,21 +56,21 @@ type DocID []byte
 // a secretData is a struct to hold the secret data: the document ID and the
 // encrypted key to access the document
 type secretData struct {
-	docID        DocID  `json:"docid"`
-	encryptedKey string `json:"secret"`
+	secret string `json:"secret"`
+	docID  DocID  `json:"docid"`
 }
 
 type secretHandler struct {
-	ctx *node.Context
+	ctx node.Context
 }
 
 // addSecret adds a new secret in the blockchain
 func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
-
 	// Decode the request
 	var sec secretData
+
 	err := json.NewDecoder(r.Body).Decode(&sec)
+	dela.Logger.Info().Msgf("data received: %v", sec)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -82,12 +81,11 @@ func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
 	// and the encrypted key as the value
 	// TODO add it to the blockchain
 	dela.Logger.Info().Msgf("secret added to the blockchain: ID=%v secret=%v", sec.docID,
-		sec.encryptedKey)
+		sec.secret)
 }
 
 // listSecrets lists all secrets in the blockchain
 func (s *secretHandler) listSecrets(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
 
 	// list all secrets from the blockchain
 
@@ -95,8 +93,6 @@ func (s *secretHandler) listSecrets(w http.ResponseWriter, r *http.Request) {
 
 // getSecret gets a secret from the blockchain
 func (s *secretHandler) getSecret(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
-
 	// Decode the request
 	var id DocID
 	err := json.NewDecoder(r.Body).Decode(&id)

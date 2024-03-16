@@ -86,13 +86,11 @@ func GetDocument(w http.ResponseWriter, r *http.Request, db database.Database) {
 		}
 	}
 
-	hash := r.FormValue("hash")
-
 	registrationID := registry.RegistrationID{
 		ID: []byte(id),
 	}
 
-	data, err := db.Read(registrationID, []byte(hash))
+	data, err := db.Read(registrationID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))
@@ -200,13 +198,11 @@ func DeleteDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		}
 	}
 
-	hash := r.FormValue("hash")
-
 	registrationID := registry.RegistrationID{
 		ID: []byte(id),
 	}
 
-	err := db.Delete(registrationID, []byte(hash))
+	err := db.Delete(registrationID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
