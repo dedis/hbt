@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 	"go.dedis.ch/dela"
 	"go.dedis.ch/dela/cli/node"
 	"go.dedis.ch/dela/mino/proxy"
@@ -66,17 +67,20 @@ type secretHandler struct {
 
 // addSecret adds a new secret in the blockchain
 func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
+	secret := r.FormValue("secret")
+	id := r.FormValue("id")
+	dela.Logger.Info().Msgf("received doc ID=%v with secret=%v", id, secret)
+
 	// Decode the request
 	var sec secretData
 
-	err := json.NewDecoder(r.Body).Decode(&sec)
-	dela.Logger.Info().Msgf("data received: %v", sec)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
 	// add the secret to the blockchain
+
 	// the secret is added to the blockchain with the document ID as the key
 	// and the encrypted key as the value
 	// TODO add it to the blockchain

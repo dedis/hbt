@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 )
 
 const registrationServer = "localhost:3001"

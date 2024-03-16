@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.dedis.ch/hbt/server/smc"
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"

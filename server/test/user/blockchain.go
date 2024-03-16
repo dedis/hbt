@@ -9,7 +9,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.dedis.ch/dela"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.dedis.ch/kyber/v3"
 	"go.dedis.ch/kyber/v3/suites"
 	"golang.org/x/xerrors"
@@ -63,10 +63,11 @@ func BlockchainEncryptAndAddSecret(
 	req.Header.Set("Content-Type", w.FormDataContentType())
 
 	resp, err := http.DefaultClient.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}
+
+	defer resp.Body.Close()
 
 	return encryptedSecret
 }

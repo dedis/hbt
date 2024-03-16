@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"go.dedis.ch/hbt/server/registration/config"
-	"go.dedis.ch/hbt/server/registration/database"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/config"
+	"go.dedis.ch/hbt/server/registry/database"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"

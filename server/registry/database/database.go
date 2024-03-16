@@ -1,6 +1,6 @@
 package database
 
-import "go.dedis.ch/hbt/server/registration/registry"
+import "go.dedis.ch/hbt/server/registry/registry"
 
 // Database defines a generic CRUD interface to the database
 type Database interface {

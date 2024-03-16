@@ -37,7 +37,7 @@ tmux select-layout main-vertical
 
 # Start the registry server
 echo -e "${GREEN}[REGISTRY SERVER]${NC} starting"
-tmux send-keys -t "${SLAVEPANE}" "registration" C-m
+tmux send-keys -t "${SLAVEPANE}" "registrycli" C-m
 echo -e "${GREEN}[REGISTRY SERVER]${NC} started"
 
 tmux select-pane -t "${MASTERPANE}"
