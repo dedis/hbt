@@ -110,7 +110,7 @@ func GetDocument(w http.ResponseWriter, r *http.Request, db database.Database) {
 }
 
 // UpdateDocument translates the http request to update a document in the database
-func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database, registered bool) {
+func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database, _ bool) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)

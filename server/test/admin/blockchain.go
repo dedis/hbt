@@ -2,7 +2,6 @@ package admin
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -36,7 +35,7 @@ func BlockchainGetDocIDs(adminPubkey kyber.Point) []registry.RegistrationID {
 	// Reading the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
+		log.Error().Msgf("Error reading response body: %v", err)
 		return nil
 	}
 
@@ -45,17 +44,17 @@ func BlockchainGetDocIDs(adminPubkey kyber.Point) []registry.RegistrationID {
 	if resp.StatusCode == http.StatusOK {
 		// Parsing JSON data
 		if err := json.Unmarshal(body, &items); err != nil {
-			fmt.Println("Error parsing JSON:", err)
+			log.Error().Msgf("Error parsing JSON: %v", err)
 			return nil
 		}
 
 		// Printing the list of IDs
-		fmt.Println("List of IDs:")
-		for _, item := range items {
-			fmt.Println(item.ID)
+		log.Info().Msg("List of IDs:")
+		for i, item := range items {
+			log.Info().Msgf("ID[%v] = %v", i, item.ID)
 		}
 	} else {
-		fmt.Println("Failed to fetch items. Status code:", resp.StatusCode)
+		log.Error().Msgf("Failed to fetch items. Status code:%v", resp.StatusCode)
 	}
 
 	return items

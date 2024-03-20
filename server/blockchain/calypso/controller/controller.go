@@ -44,6 +44,8 @@ func (m miniController) OnStart(_ cli.Flags, inj node.Injector) error {
 
 	calypso.RegisterContract(exec, contract)
 
+	inj.Inject(contract)
+
 	return nil
 }
 

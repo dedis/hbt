@@ -67,8 +67,11 @@ func main() {
 
 		// secret.Data = K:Cs in a string format
 		symKey2, err := admin.SmcReveal(xhatenc, smcKey, sk, secret.Data)
+		if err != nil {
+			log.Fatal().Msgf("error: %v", err)
+		}
 
-		if false == compare2ByteArrays(symKey, symKey2) {
+		if !compare2ByteArrays(symKey, symKey2) {
 			log.Fatal().Msg("symmetric key mismatch")
 		}
 

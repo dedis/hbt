@@ -9,10 +9,11 @@ require (
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.18.1
 	github.com/stretchr/testify v1.8.4
-	go.dedis.ch/dela v0.0.0-20230814162536-4bcfa7981c82
-	go.dedis.ch/kyber/v3 v3.1.0
+	go.dedis.ch/dela v0.0.0-20231011144949-4677467c030c
+	go.dedis.ch/kyber/v3 v3.1.1-0.20231024084410-31ea167adbbb
+	go.dedis.ch/purb-db v0.0.1
 	go.mongodb.org/mongo-driver v1.13.1
-	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028
 )
 
 require (
@@ -59,19 +60,20 @@ require (
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20181117223130-1be2e3e5546d // indirect
 	go.dedis.ch/fixbuf v1.0.3 // indirect
+	go.dedis.ch/libpurb v0.0.0-20231108133532-c70e1b84b632 // indirect
 	go.dedis.ch/protobuf v1.0.11 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/crypto v0.16.0 // indirect
-	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/grpc v1.59.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -13,7 +13,8 @@ import (
 	"go.dedis.ch/hbt/server/registry/registry/user"
 )
 
-// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg" -F "registered=false" localhost:3000/document
+// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg"
+// -F "registered=false" localhost:3000/document
 
 // application defines the application instance
 type application struct {
