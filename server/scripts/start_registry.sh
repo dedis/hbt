@@ -14,7 +14,6 @@ NC='\033[0m'          # no Color
 L=info                # default trace level
 S=hbt                 # session name
 W=registry            # window name
-P=12000               # base port number
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 while getopts n:p:s:t:w: flag

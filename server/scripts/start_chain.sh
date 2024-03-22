@@ -70,6 +70,7 @@ done
 echo -e "${GREEN}[CONNECT]${NC} ${N} nodes and exchange certificates"
 i=2;
 p=$((P + 1))
+sleep 1
 chaincli --config /tmp/${W}1 minogrpc token
 TOKEN=$(chaincli --config /tmp/${W}1 minogrpc token)
 echo -e "${GREEN}token: ${TOKEN}${NC}"
