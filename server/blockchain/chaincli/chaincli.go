@@ -10,12 +10,13 @@ import (
 	"go.dedis.ch/dela/cli/node"
 	access "go.dedis.ch/dela/contracts/access/controller"
 	cosipbft "go.dedis.ch/dela/core/ordering/cosipbft/controller"
+	kv "go.dedis.ch/dela/core/store/kv/controller"
 	pool "go.dedis.ch/dela/core/txn/pool/controller"
 	signed "go.dedis.ch/dela/core/txn/signed/controller"
 	minogrpc "go.dedis.ch/dela/mino/minogrpc/controller"
 	proxy "go.dedis.ch/dela/mino/proxy/http/controller"
 	"go.dedis.ch/hbt/server/blockchain/web"
-	kv "go.dedis.ch/purb-db/store/kv/controller"
+	purbkv "go.dedis.ch/purb-db/store/kv/controller"
 )
 
 func main() {
@@ -38,10 +39,11 @@ func runWithCfg(args []string, cfg config) error {
 	builder := node.NewBuilderWithCfg(
 		cfg.Channel,
 		cfg.Writer,
-		kv.NewController(),
+		purbkv.NewController(),
 		proxy.NewController(),
 		web.NewController(),
 		minogrpc.NewController(),
+		kv.NewController(),
 		cosipbft.NewController(),
 		signed.NewManagerController(),
 		pool.NewController(),

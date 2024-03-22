@@ -15,7 +15,7 @@ import (
 	"go.dedis.ch/dela/crypto/bls"
 	"go.dedis.ch/dela/mino/proxy"
 	"go.dedis.ch/hbt/server/blockchain/calypso"
-	"go.dedis.ch/purb-db/store/kv"
+	purbkv "go.dedis.ch/purb-db/store/kv"
 
 	"golang.org/x/xerrors"
 )
@@ -78,7 +78,7 @@ func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var db kv.DB
+	var db purbkv.DB
 	err = s.ctx.Injector.Resolve(&db)
 	if err != nil {
 		dela.Logger.Error().Err(err).Msg("failed to resolve database")
@@ -91,7 +91,7 @@ func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
 	// the secret is added to the blockchain with the document ID as the key
 	// and the encrypted key as the value
 
-	err = db.Update(func(txn kv.WritableTx) error {
+	err = db.Update(func(txn purbkv.WritableTx) error {
 		b, err := txn.GetBucketOrCreate([]byte("bucket:secret"))
 		if err != nil {
 			return err
