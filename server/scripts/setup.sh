@@ -30,8 +30,8 @@ echo -e "Create a tmux window 'smc' in the session ${S}"
 tmux new-window -t ${S} -n smc
 
 ./start_chain.sh -t ${L}
-#./start_registry.sh -t ${L}
-#./start_smc.sh -t ${L}
+./start_registry.sh -t ${L}
+./start_smc.sh -t ${L}
 #tmux send-keys -t ${S}:smc.0 "./publish_roster.sh" C-m
 
 # attach to session
