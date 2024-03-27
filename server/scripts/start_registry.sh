@@ -14,7 +14,6 @@ NC='\033[0m'          # no Color
 L=info                # default trace level
 S=hbt                 # session name
 W=registry            # window name
-P=12000               # base port number
 
 echo -e "${GREEN}[PARSE parameters]${NC}"
 while getopts n:p:s:t:w: flag
@@ -37,7 +36,7 @@ tmux select-layout main-vertical
 
 # Start the registry server
 echo -e "${GREEN}[REGISTRY SERVER]${NC} starting"
-tmux send-keys -t "${SLAVEPANE}" "registration" C-m
+tmux send-keys -t "${SLAVEPANE}" "registrycli" C-m
 echo -e "${GREEN}[REGISTRY SERVER]${NC} started"
 
 tmux select-pane -t "${MASTERPANE}"

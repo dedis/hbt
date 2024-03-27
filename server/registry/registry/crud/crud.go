@@ -2,34 +2,35 @@ package crud
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
-	"go.dedis.ch/hbt/server/registration/database"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"github.com/rs/zerolog/log"
+
+	"go.dedis.ch/hbt/server/registry/database"
+	"go.dedis.ch/hbt/server/registry/registry"
 )
 
 // CreateDocument translates the http request to create a new document in the database
 func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database) {
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	name := r.FormValue("name")
 	passport := r.FormValue("passport")
 	role, err := strconv.ParseUint(r.FormValue("role"), 10, 32)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	picture, fileHeader, err := r.FormFile("portrait")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 		w.WriteHeader(http.StatusBadRequest)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -37,11 +38,11 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	picData := make([]byte, fileHeader.Size)
 	_, err = picture.Read(picData)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 		w.WriteHeader(http.StatusBadRequest)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -60,7 +61,7 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -70,9 +71,9 @@ func CreateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(registrationID)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 	}
-	log.Println(registrationID)
+	log.Info().Msgf("Registration ID=%v", registrationID)
 }
 
 // GetDocument translates the http request to get a document from the database
@@ -82,22 +83,20 @@ func GetDocument(w http.ResponseWriter, r *http.Request, db database.Database) {
 		w.WriteHeader(http.StatusBadRequest)
 		_, err := w.Write([]byte("missing id"))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 	}
-
-	hash := r.FormValue("hash")
 
 	registrationID := registry.RegistrationID{
 		ID: []byte(id),
 	}
 
-	data, err := db.Read(registrationID, []byte(hash))
+	data, err := db.Read(registrationID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -105,19 +104,19 @@ func GetDocument(w http.ResponseWriter, r *http.Request, db database.Database) {
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(data)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 	}
-	log.Println(data)
+	log.Info().Msgf("Get document id = %v, with data: %v", registrationID, data)
 }
 
 // UpdateDocument translates the http request to update a document in the database
-func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database, registered bool) {
+func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database, _ bool) {
 	id := r.URL.Query().Get("id")
 	if id == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		_, err := w.Write([]byte("missing id"))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 	}
 
@@ -127,36 +126,36 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	name := r.FormValue("name")
 	passport := r.FormValue("passport")
 	role, err := strconv.ParseUint(r.FormValue("role"), 10, 32)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 	picture, fileHeader, err := r.FormFile("image")
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 		w.WriteHeader(http.StatusBadRequest)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
 
-	log.Println(fileHeader)
+	log.Info().Msgf("file header = %v", fileHeader)
 
 	picData := make([]byte, fileHeader.Size)
 	_, err = picture.Read(picData)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 		w.WriteHeader(http.StatusBadRequest)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -174,7 +173,7 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
@@ -184,9 +183,9 @@ func UpdateDocument(w http.ResponseWriter, r *http.Request, db database.Database
 	encoder := json.NewEncoder(w)
 	err = encoder.Encode(registrationID)
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err)
 	}
-	log.Println(registrationID)
+	log.Info().Msgf("Updated registration id = %v", registrationID)
 }
 
 // DeleteDocument translates the http request to delete a document in the database
@@ -196,25 +195,24 @@ func DeleteDocument(w http.ResponseWriter, r *http.Request, db database.Database
 		w.WriteHeader(http.StatusBadRequest)
 		_, err := w.Write([]byte("missing id"))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 	}
-
-	hash := r.FormValue("hash")
 
 	registrationID := registry.RegistrationID{
 		ID: []byte(id),
 	}
 
-	err := db.Delete(registrationID, []byte(hash))
+	err := db.Delete(registrationID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err := w.Write([]byte(err.Error()))
 		if err != nil {
-			log.Println(err)
+			log.Error().Err(err)
 		}
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	log.Info().Msgf("Deleted registration id = %v", registrationID)
 }

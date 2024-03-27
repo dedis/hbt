@@ -3,8 +3,8 @@ package admin
 import (
 	"net/http"
 
-	"go.dedis.ch/hbt/server/registration/database"
-	"go.dedis.ch/hbt/server/registration/registry/crud"
+	"go.dedis.ch/hbt/server/registry/database"
+	"go.dedis.ch/hbt/server/registry/registry/crud"
 )
 
 var adminDB database.Database

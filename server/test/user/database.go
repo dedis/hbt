@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/rs/zerolog/log"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.dedis.ch/hbt/server/test/key"
 )
 
@@ -129,7 +129,8 @@ func RegistrationGet(docid registry.RegistrationID, symKey []byte) registry.Regi
 
 // RegistrationDelete deletes the registration data from the database
 func RegistrationDelete(docid registry.RegistrationID) error {
-	req, err := http.NewRequest("DELETE", registrationServer+"/document?id="+string(docid.ID), nil)
+	req, err := http.NewRequest(http.MethodDelete,
+		registrationServer+"/document?id="+string(docid.ID), nil)
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}

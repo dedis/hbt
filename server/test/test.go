@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/rs/zerolog/log"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.dedis.ch/hbt/server/test/admin"
 	"go.dedis.ch/hbt/server/test/key"
 	"go.dedis.ch/hbt/server/test/user"
@@ -35,7 +35,7 @@ func main() {
 	// get the SMC pub key
 	log.Info().Msg("FETCH SMC key")
 	smcKey := user.SmcGetKey()
-	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey)
+	log.Info().Msgf("SUCCESS! got SMC key: %v", smcKey.String())
 
 	// add secret = symKey to the blockchain
 	log.Info().Msg("ADD secret to the blockchain")
@@ -67,8 +67,11 @@ func main() {
 
 		// secret.Data = K:Cs in a string format
 		symKey2, err := admin.SmcReveal(xhatenc, smcKey, sk, secret.Data)
+		if err != nil {
+			log.Fatal().Msgf("error: %v", err)
+		}
 
-		if false == compare2ByteArrays(symKey, symKey2) {
+		if !compare2ByteArrays(symKey, symKey2) {
 			log.Fatal().Msg("symmetric key mismatch")
 		}
 

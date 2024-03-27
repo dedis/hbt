@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/rs/zerolog/log"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/registry"
 )
 
 const registrationServer = "localhost:3001"
@@ -51,7 +51,8 @@ func RegistrationAdminUpdateDocument(docid registry.RegistrationID) error {
 		log.Fatal().Msgf("error: %v", err)
 	}
 
-	req, err := http.NewRequest("PUT", "localhost:3000/admin/document?id="+string(docid.ID),
+	req, err := http.NewRequest(http.MethodPut,
+		"localhost:3000/admin/document?id="+string(docid.ID),
 		bytes.NewBuffer(out))
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
@@ -70,7 +71,8 @@ func RegistrationAdminUpdateDocument(docid registry.RegistrationID) error {
 }
 
 func RegistrationAdminDeleteDocument(docid registry.RegistrationID) error {
-	req, err := http.NewRequest("DELETE", "localhost:3000/admin/document?id="+string(docid.ID), nil)
+	req, err := http.NewRequest(http.MethodDelete,
+		"localhost:3000/admin/document?id="+string(docid.ID), nil)
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}

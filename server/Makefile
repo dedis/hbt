@@ -26,13 +26,13 @@ build: tidy
 	# Building executable
 	@go build ./smc/smccli
 	@go build ./blockchain/chaincli
-	@go build ./registration
+	@go build ./registry/registrycli
 
 install: tidy
 	# Building executable
 	@go install ./smc/smccli
 	@go install ./blockchain/chaincli
-	@go install ./registration
+	@go install ./registry/registrycli
 
 coverage: tidy
 	# Test and generate a coverage output usable by sonarcloud
