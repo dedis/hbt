@@ -2,8 +2,9 @@ module go.dedis.ch/hbt/server
 
 go 1.21
 
-// replace go.dedis.ch/dela => ../../dela
-replace go.dedis.ch/purb-db => ../../purb-db
+replace go.dedis.ch/dela => ../../dela
+
+//replace go.dedis.ch/purb-db => ../../purb-db
 
 require (
 	github.com/gorilla/mux v1.8.1

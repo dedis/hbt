@@ -61,7 +61,9 @@ do
     proxy=$((PROXY + i))
     echo -e "${GREEN}creating node #${i} on port ${p}${NC}"
     # session s, window 0, panes 1 to N
-    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${W}${i}.log chaincli --config /tmp/${W}${i} start --listen tcp://127.0.0.1:${p} --noTLS --proxyaddr 127.0.0.1:${proxy}" C-m
+    tmux send-keys -t ${S}:${W}.${i} "LLVL=${L} LOGF=./${W}${i}.log chaincli --config /tmp/${W}${i} \
+    start --listen tcp://127.0.0.1:${p} --proxyaddr localhost:${proxy} --public grpc://localhost:${p} \
+    --routing tree --noTLS" C-m
     sleep 1
     i=$((i + 1));
 done
@@ -71,48 +73,46 @@ echo -e "${GREEN}[CONNECT]${NC} ${N} nodes and exchange certificates"
 i=2;
 p=$((P + 1))
 sleep 1
-chaincli --config /tmp/${W}1 minogrpc token
-TOKEN=$(chaincli --config /tmp/${W}1 minogrpc token)
-echo -e "${GREEN}token: ${TOKEN}${NC}"
 while [ ${i} -le ${N} ]
 do
     echo -e "joining node ${i} on master pane ${MASTERPANE}"
-    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} minogrpc join --address //127.0.0.1:${p} ${TOKEN}" C-m
+    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} minogrpc join \
+    --address grpc://127.0.0.1:${p} $(chaincli --config /tmp/${W}1 minogrpc token)" C-m
     sleep 1
     i=$((i + 1));
 done
 
 
-#echo -e "${GREEN}[CHAIN]${NC} ${N} nodes"
-#i=1;
-#m=""
-#while [ ${i} -le ${N} ]
-#do
-#    m="${m} --member \$(chaincli --config /tmp/${W}${i} ordering export)"
-#    i=$((i + 1));
-#done
-#tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 ordering setup ${m}" C-m
-#
-#
-#echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
-#i=1;
-#while [ ${i} -le ${N} ]
-#do
-#    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} access add \
-#                                  --identity $(crypto bls signer read --path ${KEYFILE} --format BASE64_PUBKEY)" C-m
-#    i=$((i + 1));
-#done
-#
-#
-#echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
-## sent to master pane
-#tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 pool add \
-#    --key ${KEYFILE} \
-#    --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Access \
-#    --args access:grant_id --args 0200000000000000000000000000000000000000000000000000000000000000 \
-#    --args access:grant_contract --args go.dedis.ch/dela.Value \
-#    --args access:grant_command --args all \
-#    --args access:identity --args $(crypto bls signer read --path ${KEYFILE} --format BASE64_PUBKEY) \
-#    --args access:command --args GRANT" C-m
+echo -e "${GREEN}[CHAIN]${NC} ${N} nodes"
+i=1;
+m=""
+while [ ${i} -le ${N} ]
+do
+    m="${m} --member \$(chaincli --config /tmp/${W}${i} ordering export)"
+    i=$((i + 1));
+done
+tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 ordering setup ${m}" C-m
+
+
+echo -e "${GREEN}[ACCESS]${NC} setup access rights on each node"
+i=1;
+while [ ${i} -le ${N} ]
+do
+    tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}${i} access add \
+                                  --identity $(crypto bls signer read --path ${KEYFILE} --format BASE64_PUBKEY)" C-m
+    i=$((i + 1));
+done
+
+
+echo -e "${GREEN}[GRANT]${NC} grant access for node 1 on the chain"
+# sent to master pane
+tmux send-keys -t "${MASTERPANE}" "chaincli --config /tmp/${W}1 pool add \
+    --key ${KEYFILE} \
+    --args go.dedis.ch/dela.ContractArg --args go.dedis.ch/dela.Access \
+    --args access:grant_id --args 0200000000000000000000000000000000000000000000000000000000000000 \
+    --args access:grant_contract --args go.dedis.ch/dela.Value \
+    --args access:grant_command --args all \
+    --args access:identity --args $(crypto bls signer read --path ${KEYFILE} --format BASE64_PUBKEY) \
+    --args access:command --args GRANT" C-m
 
 tmux select-pane -t "${MASTERPANE}"
