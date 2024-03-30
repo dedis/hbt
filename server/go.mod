@@ -2,16 +2,12 @@ module go.dedis.ch/hbt/server
 
 go 1.21
 
-replace go.dedis.ch/dela => ../../dela
-
-//replace go.dedis.ch/purb-db => ../../purb-db
-
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
-	go.dedis.ch/dela v0.0.0-20231011144949-4677467c030c
+	go.dedis.ch/dela v0.0.0-20240330091609-33fd2a361d2d
 	go.dedis.ch/kyber/v3 v3.1.1-0.20231024084410-31ea167adbbb
 	go.dedis.ch/purb-db v0.0.1
 	go.mongodb.org/mongo-driver v1.13.2

@@ -13,9 +13,6 @@ import (
 const keySize = 32
 
 func main() {
-	// create a secret symmetric key
-	symKey := key.NewSymetric(keySize)
-
 	// PRETEND TO BE A USER
 	// ---------------------------------------------------------
 
@@ -23,6 +20,9 @@ func main() {
 	log.Info().Msg("CREATE document for test purpose")
 	doc := createDocument("John Doe", "12AB456789", 0, "./passport.jpg")
 	log.Info().Msg("SUCCESS! created new document")
+
+	// create a secret symmetric key
+	symKey := key.NewSymetric(keySize)
 
 	// add the document to the registry
 	log.Info().Msg("ADD document to the registry")
@@ -75,13 +75,10 @@ func main() {
 			log.Fatal().Msg("symmetric key mismatch")
 		}
 
-		// encrypt binary array with symmetric key
-		// and save it to the registry
-
 		// TODO: get the encrypted document from the registry
-		// TODO: decrypt the document - optional
+		// TODO: decrypt the document
 		// TODO: update the document status to registered
-		// TODO: encrypt the document - optional
+		// TODO: encrypt the document
 		// TODO: save the document back to the registry
 	}
 
