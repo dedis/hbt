@@ -7,13 +7,14 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"go.dedis.ch/hbt/server/registration/config"
-	"go.dedis.ch/hbt/server/registration/database/mongodb"
-	"go.dedis.ch/hbt/server/registration/registry/admin"
-	"go.dedis.ch/hbt/server/registration/registry/user"
+	"go.dedis.ch/hbt/server/registry/config"
+	"go.dedis.ch/hbt/server/registry/database/mongodb"
+	"go.dedis.ch/hbt/server/registry/registry/admin"
+	"go.dedis.ch/hbt/server/registry/registry/user"
 )
 
-// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg" -F "registered=false" localhost:3000/document
+// curl -F "name='John Doe'" -F "passport=12XY456789" -F "role=0" -F "image=@test/passport.jpg"
+// -F "registered=false" localhost:3000/document
 
 // application defines the application instance
 type application struct {

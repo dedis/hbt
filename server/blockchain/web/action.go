@@ -6,19 +6,19 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 	"go.dedis.ch/dela"
 	"go.dedis.ch/dela/cli/node"
+	"go.dedis.ch/dela/core/execution"
+	"go.dedis.ch/dela/core/txn"
+	"go.dedis.ch/dela/core/txn/signed"
+	"go.dedis.ch/dela/crypto/bls"
 	"go.dedis.ch/dela/mino/proxy"
-	"go.dedis.ch/kyber/v3/suites"
+	"go.dedis.ch/hbt/server/blockchain/calypso"
+	purbkv "go.dedis.ch/purb-db/store/kv"
 
 	"golang.org/x/xerrors"
 )
-
-// suite is the Kyber suite for Pedersen.
-var suite = suites.MustFind("Ed25519")
-
-const separator = ":"
-const malformedEncoded = "malformed encoded: %s"
 
 // RegisterAction is an action to register the HTTP handlers
 //
@@ -26,7 +26,7 @@ const malformedEncoded = "malformed encoded: %s"
 type RegisterAction struct{}
 
 // Execute implements node.ActionTemplate. It registers the handlers using the
-// default proxy from the the injector.
+// default proxy from the injector.
 func (a *RegisterAction) Execute(ctx node.Context) error {
 	var p proxy.Proxy
 	err := ctx.Injector.Resolve(&p)
@@ -36,11 +36,10 @@ func (a *RegisterAction) Execute(ctx node.Context) error {
 
 	router := mux.NewRouter()
 
-	s := &secretHandler{&ctx}
+	s := &secretHandler{ctx}
 	router.HandleFunc("/secret", s.addSecret).Methods("POST")
 	router.HandleFunc("/secret/list", s.listSecrets).Methods("GET")
 	router.HandleFunc("/secret", s.getSecret).Methods("GET")
-	router.HandleFunc("/secret/reveal", s.revealSecret).Methods("POST")
 
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 	router.MethodNotAllowedHandler = http.HandlerFunc(notAllowedHandler)
@@ -54,49 +53,74 @@ func (a *RegisterAction) Execute(ctx node.Context) error {
 
 type DocID []byte
 
-// a secretData is a struct to hold the secret data: the document ID and the
-// encrypted key to access the document
-type secretData struct {
-	docID        DocID  `json:"docid"`
-	encryptedKey string `json:"secret"`
-}
-
 type secretHandler struct {
-	ctx *node.Context
+	ctx node.Context
 }
 
 // addSecret adds a new secret in the blockchain
 func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
-
-	// Decode the request
-	var sec secretData
-	err := json.NewDecoder(r.Body).Decode(&sec)
+	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Fatal().Err(err)
+	}
+
+	secret := r.FormValue("secret")
+	id := r.FormValue("id")
+	dela.Logger.Info().Msgf("received doc ID=%v with secret=%v", id, secret)
+
+	// get the calypso contract
+	var c calypso.Contract
+	err = s.ctx.Injector.Resolve(&c)
+	if err != nil {
+		dela.Logger.Error().Err(err).Msg("failed to resolve calypso contract")
+		http.Error(w, fmt.Sprintf("failed to resolve calypso contract: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
+
+	var db purbkv.DB
+	err = s.ctx.Injector.Resolve(&db)
+	if err != nil {
+		dela.Logger.Error().Err(err).Msg("failed to resolve database")
+		http.Error(w, fmt.Sprintf("failed to resolve database: %v", err),
+			http.StatusInternalServerError)
 		return
 	}
 
 	// add the secret to the blockchain
 	// the secret is added to the blockchain with the document ID as the key
 	// and the encrypted key as the value
-	// TODO add it to the blockchain
-	dela.Logger.Info().Msgf("secret added to the blockchain: ID=%v secret=%v", sec.docID,
-		sec.encryptedKey)
+
+	err = db.Update(func(txn purbkv.WritableTx) error {
+		b, err := txn.GetBucketOrCreate([]byte("bucket:secret"))
+		if err != nil {
+			return err
+		}
+
+		err = c.Execute(b, makeStep(calypso.CmdArg, string(calypso.CmdCreateSecret),
+			calypso.SecretNameArg, id, calypso.SecretArg, secret))
+
+		return err
+	})
+
+	if err != nil {
+		dela.Logger.Error().Err(err).Msg("failed to add secret to the blockchain")
+		http.Error(w, fmt.Sprintf("failed to add secret to the blockchain: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
+
+	dela.Logger.Info().Msgf("secret added to the blockchain: ID=%v secret=%v", id, secret)
 }
 
 // listSecrets lists all secrets in the blockchain
-func (s *secretHandler) listSecrets(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
-
+func (s *secretHandler) listSecrets(_ http.ResponseWriter, _ *http.Request) {
 	// list all secrets from the blockchain
 
 }
 
 // getSecret gets a secret from the blockchain
 func (s *secretHandler) getSecret(w http.ResponseWriter, r *http.Request) {
-	ctx := *(s.ctx)
-
 	// Decode the request
 	var id DocID
 	err := json.NewDecoder(r.Body).Decode(&id)
@@ -159,4 +183,28 @@ func notAllowedHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(http.StatusMethodNotAllowed)
 	fmt.Fprintln(w, string(buf))
+}
+
+// -----------------------------------------------------------------------------
+// Utility functions
+var nounce uint64
+
+func makeStep(args ...string) execution.Step {
+	return execution.Step{Current: makeTx(args...)}
+}
+
+func makeTx(args ...string) txn.Transaction {
+	signer := bls.NewSigner()
+
+	options := []signed.TransactionOption{}
+	for i := 0; i < len(args)-1; i += 2 {
+		options = append(options, signed.WithArg(args[i], []byte(args[i+1])))
+	}
+
+	tx, err := signed.NewTransaction(nounce, signer.GetPublicKey(), options...)
+	if err != nil {
+		nounce++
+	}
+
+	return tx
 }

@@ -55,9 +55,9 @@ func encodePublickey(pk kyber.Point) string {
 	return hex.EncodeToString(pkbuff)
 }
 
-func encodeSecret(secret []byte) string {
-	return hex.EncodeToString(secret)
-}
+// func encodeSecret(secret []byte) string {
+// 	return hex.EncodeToString(secret)
+// }
 
 func decodeReencrypted(xhatencstring string) (kyber.Point, error) {
 	xhatencbuff, err := hex.DecodeString(xhatencstring)
@@ -65,7 +65,7 @@ func decodeReencrypted(xhatencstring string) (kyber.Point, error) {
 		return nil, err
 	}
 
-	var xhatenc kyber.Point
+	xhatenc := suite.Point()
 	err = xhatenc.UnmarshalBinary(xhatencbuff)
 	if err != nil {
 		return nil, err

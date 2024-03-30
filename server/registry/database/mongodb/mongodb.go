@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"go.dedis.ch/hbt/server/registration/config"
-	"go.dedis.ch/hbt/server/registration/database"
-	"go.dedis.ch/hbt/server/registration/registry"
+	"go.dedis.ch/hbt/server/registry/config"
+	"go.dedis.ch/hbt/server/registry/database"
+	"go.dedis.ch/hbt/server/registry/registry"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -71,7 +71,7 @@ func (d dbAccess) Create(data *registry.RegistrationData) (*registry.Registratio
 
 // Read reads a document from the DB
 // it is used to get the registered value of a document
-func (d dbAccess) Read(id registry.RegistrationID, hash []byte) (
+func (d dbAccess) Read(id registry.RegistrationID) (
 	*registry.RegistrationData,
 	error,
 ) {
@@ -121,7 +121,7 @@ func (d dbAccess) Update(
 }
 
 // Delete updates a document in the DB
-func (d dbAccess) Delete(id registry.RegistrationID, hash []byte) error {
+func (d dbAccess) Delete(id registry.RegistrationID) error {
 	var doc Document
 
 	err := d.client.Database("registration").Collection("documents").FindOne(context.Background(),
