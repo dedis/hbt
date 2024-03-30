@@ -150,76 +150,76 @@ func RegistrationDelete(docid registry.RegistrationID) error {
 // ---------------------------------------------------------------------------
 // The following functions are used to encrypt and decrypt the registration
 
-func encryptRegistrationData(data registry.RegistrationData, symKey []byte) (
-	registry.EncryptedData,
-	error,
-) {
-	// Convert the struct to a byte array
-	buf := new(bytes.Buffer)
-
-	// encrypt the data.Name
-	err := binary.Write(buf, binary.LittleEndian, data.Name)
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	encName, err := key.Encrypt(symKey, buf.Bytes())
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	// encrypt the data.Passport
-	err = binary.Write(buf, binary.LittleEndian, data.Name)
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	encPassport, err := key.Encrypt(symKey, buf.Bytes())
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	// encrypt the data.Role
-	err = binary.Write(buf, binary.LittleEndian, data.Role)
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	encRole, err := key.Encrypt(symKey, buf.Bytes())
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	// encrypt the data.Picture
-	err = binary.Write(buf, binary.LittleEndian, data.Picture)
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	encPicture, err := key.Encrypt(symKey, buf.Bytes())
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	// encrypt the data.Registered
-	err = binary.Write(buf, binary.LittleEndian, data.Registered)
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	encRegistered, err := key.Encrypt(symKey, buf.Bytes())
-	if err != nil {
-		return registry.EncryptedData{}, err
-	}
-
-	return registry.EncryptedData{
-		Name:       encName,
-		Passport:   encPassport,
-		Picture:    encPicture,
-		Role:       encRole,
-		Registered: encRegistered,
-	}, nil
-}
+// func encryptRegistrationData(data registry.RegistrationData, symKey []byte) (
+// 	registry.EncryptedData,
+// 	error,
+// ) {
+// 	// Convert the struct to a byte array
+// 	buf := new(bytes.Buffer)
+//
+// 	// encrypt the data.Name
+// 	err := binary.Write(buf, binary.LittleEndian, data.Name)
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	encName, err := key.Encrypt(symKey, buf.Bytes())
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	// encrypt the data.Passport
+// 	err = binary.Write(buf, binary.LittleEndian, data.Name)
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	encPassport, err := key.Encrypt(symKey, buf.Bytes())
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	// encrypt the data.Role
+// 	err = binary.Write(buf, binary.LittleEndian, data.Role)
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	encRole, err := key.Encrypt(symKey, buf.Bytes())
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	// encrypt the data.Picture
+// 	err = binary.Write(buf, binary.LittleEndian, data.Picture)
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	encPicture, err := key.Encrypt(symKey, buf.Bytes())
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	// encrypt the data.Registered
+// 	err = binary.Write(buf, binary.LittleEndian, data.Registered)
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	encRegistered, err := key.Encrypt(symKey, buf.Bytes())
+// 	if err != nil {
+// 		return registry.EncryptedData{}, err
+// 	}
+//
+// 	return registry.EncryptedData{
+// 		Name:       encName,
+// 		Passport:   encPassport,
+// 		Picture:    encPicture,
+// 		Role:       encRole,
+// 		Registered: encRegistered,
+// 	}, nil
+// }
 
 func decryptRegistrationData(encrypted registry.EncryptedData, symKey []byte) (
 	registry.RegistrationData,
