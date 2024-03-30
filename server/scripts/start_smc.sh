@@ -77,35 +77,35 @@ do
 done
 
 
-#echo -e "${GREEN}[INITIALIZE DKG]${NC} on each node"
-#i=1;
-#while [ ${i} -le ${N} ]
-#do
-#    tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} dkg listen" C-m
-#    i=$((i + 1));
-#done
-#
-#echo -e "${GREEN}[SETUP DKG]${NC} ${N} nodes"
-#i=1;
-#a=""
-#while [ ${i} -le ${N} ]
-#do
-#    a="${a} --authority \$(cat /tmp/${W}${i}/dkgauthority)"
-#    i=$((i + 1));
-#done
-#tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} --threshold ${N} | tee smckey.pub" C-m
-#
-## Publish the roster
-#echo -e "${GREEN}[SAVE]${NC} roster to file"
-#i=1;
-#p=$((P + i))
-#V="127.0.0.1:${p}"
-#while [ ${i} -lt ${N} ]
-#do
-#    i=$((i + 1));
-#    p=$((P + i));
-#    V="${V},127.0.0.1:${p}";
-#done
-#tmux send-keys -t "${MASTERPANE}" "echo ${V} > roster.txt" C-m
-#
+echo -e "${GREEN}[INITIALIZE DKG]${NC} on each node"
+i=1;
+while [ ${i} -le ${N} ]
+do
+    tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}${i} dkg listen" C-m
+    i=$((i + 1));
+done
+
+echo -e "${GREEN}[SETUP DKG]${NC} ${N} nodes"
+i=1;
+a=""
+while [ ${i} -le ${N} ]
+do
+    a="${a} --authority \$(cat /tmp/${W}${i}/dkgauthority)"
+    i=$((i + 1));
+done
+tmux send-keys -t "${MASTERPANE}" "smccli --config /tmp/${W}1 dkg setup ${a} --threshold ${N} | tee smckey.pub" C-m
+
+# Publish the roster
+echo -e "${GREEN}[SAVE]${NC} roster to file"
+i=1;
+p=$((P + i))
+V="127.0.0.1:${p}"
+while [ ${i} -lt ${N} ]
+do
+    i=$((i + 1));
+    p=$((P + i));
+    V="${V},127.0.0.1:${p}";
+done
+tmux send-keys -t "${MASTERPANE}" "echo ${V} > roster.txt" C-m
+
 tmux select-pane -t "${MASTERPANE}"

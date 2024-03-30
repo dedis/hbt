@@ -73,22 +73,21 @@ func (h *pubKeyHandler) ServeHTTP(w http.ResponseWriter, _ *http.Request) {
 	pk, err := a.GetPublicKey()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed retrieving public key: %v", err),
-			http.StatusInternalServerError)
+			http.StatusServiceUnavailable)
 		return
 	}
 
-	b, err := pk.MarshalBinary()
+	response, err := pk.MarshalBinary()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to marshal public key: %v", err),
-			http.StatusInternalServerError)
+			http.StatusInsufficientStorage)
 		return
 	}
 
-	encoder := json.NewEncoder(w)
-	err = encoder.Encode(b)
+	// Write the byte array to the response writer
+	_, err = w.Write(response)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to respond: %v", err),
-			http.StatusInternalServerError)
+		http.Error(w, "Unable to write response", http.StatusNotExtended)
 		return
 	}
 }
