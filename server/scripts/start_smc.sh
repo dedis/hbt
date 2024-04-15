@@ -104,8 +104,8 @@ while [ ${i} -lt ${N} ]
 do
     i=$((i + 1));
     p=$((P + i));
-    V="${V},127.0.0.1:${p}";
+    V="${V};127.0.0.1:${p}";
 done
-tmux send-keys -t "${MASTERPANE}" "echo ${V} > roster.txt" C-m
+tmux send-keys -t "${MASTERPANE}" "echo \"${V}\" > roster.txt" C-m
 
 tmux select-pane -t "${MASTERPANE}"

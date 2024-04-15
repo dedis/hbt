@@ -9,4 +9,4 @@ pkill chaincli
 rm -rf /tmp/blockchain*
 
 # remove blockchain pk
-rm -f private.key
+rm -f /tmp/priv.key
