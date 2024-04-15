@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -25,7 +26,7 @@ func BlockchainGetDocIDs(adminPubkey kyber.Point) []registry.RegistrationID {
 		log.Fatal().Msgf("error: %v", err)
 	}
 
-	resp, err := http.Get(blockchainServer + "/secret/admin/list?pubkey=" + string(encoded))
+	resp, err := http.Get(blockchainServer + "/secret/admin/list?pubkey=" + hex.EncodeToString(encoded))
 	if err != nil {
 		log.Fatal().Msgf("error: %v", err)
 	}

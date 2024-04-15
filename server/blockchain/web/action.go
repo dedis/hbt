@@ -110,8 +110,6 @@ func (s *secretHandler) advertiseSmc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dela.Logger.Info().Msg("SMC advertised to the blockchain")
-
-	return
 }
 
 // addSecret adds a new secret in the blockchain
@@ -175,14 +173,20 @@ func (s *secretHandler) addSecret(w http.ResponseWriter, r *http.Request) {
 // listSecrets lists all secrets in the blockchain
 func (s *secretHandler) listSecrets(w http.ResponseWriter, r *http.Request) {
 	// list all secrets from the blockchain
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		dela.Logger.Error().Err(err).Msg("failed to parse form")
+		http.Error(w, fmt.Sprintf("failed to parse form: %v", err),
+			http.StatusInternalServerError)
+		return
+	}
 
 	pubkey := r.Form.Get("pubkey")
 	dela.Logger.Info().Msgf("received request from %v to list the secrets", pubkey)
 
 	// get the calypso contract
 	var c calypso.Contract
-	err := s.ctx.Injector.Resolve(&c)
+	err = s.ctx.Injector.Resolve(&c)
 	if err != nil {
 		dela.Logger.Error().Err(err).Msg("failed to resolve calypso contract")
 		http.Error(w, fmt.Sprintf("failed to resolve calypso contract: %v", err),
